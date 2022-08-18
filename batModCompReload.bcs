@@ -1,0 +1,15 @@
+SCRIPT_NAME="batMobReload";
+SCRIPT_DESC = "Reloads bat Mob Companion after some silly person closed it.";
+SCRIPT_OFF = true;
+import com.mythicscape.batclient.interfaces.BatClientPlugin;
+
+void reload(){
+	for(BatClientPlugin plugin : pluginManager.getPlugins()){
+		if(plugin.getName().equals("batMobComp")){
+			plugin.loadPlugin();
+		}	
+	}
+}
+void ImSorryIClosedItIPromiseNeverToDoItAgainPleasePleasePleaseWithCherryOnTop(){
+	reload();
+}

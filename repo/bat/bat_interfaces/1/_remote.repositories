@@ -1,0 +1,4 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Thu Aug 18 23:06:27 EEST 2022
+bat_interfaces-1.pom>=
+bat_interfaces-1.jar>=
