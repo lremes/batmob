@@ -1,4 +1,4 @@
-package fi.altanar.batmob;
+package fi.altanar.batmob.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,6 +9,7 @@ import com.mythicscape.batclient.interfaces.BatClientPluginUtil;
 import com.mythicscape.batclient.interfaces.BatWindow;
 import com.mythicscape.batclient.interfaces.ParsedResult;
 
+import fi.altanar.batmob.gui.LogPanel;
 import fi.altanar.batmob.io.GuiDataPersister;
 import fi.altanar.batmob.vo.GuiData;
 
@@ -17,7 +18,7 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
     private String BASEDIR = null;
 
     private MobEngine engine;
-
+    private LogPanel logPanel;
 
     public void loadPlugin() {
         BASEDIR = this.getBaseDirectory();
@@ -25,15 +26,18 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
 
         BatWindow clientWin;
         if (guiData != null) {
-            clientWin = this.getClientGUI().createBatWindow( "Mob", guiData.getX(), guiData.getY(), guiData.getWidth(), guiData.getHeight() );
+            clientWin = this.getClientGUI().createBatWindow( "Mobs", guiData.getX(), guiData.getY(), guiData.getWidth(), guiData.getHeight() );
         } else {
-            clientWin = this.getClientGUI().createBatWindow( "Mob", 300, 300, 820, 550 );
+            clientWin = this.getClientGUI().createBatWindow( "Mobs", 300, 300, 820, 550 );
         }
 
         engine = new MobEngine(this);
         engine.setBatWindow( clientWin );
 
         clientWin.setVisible( true );
+        clientWin.removeTabAt( 0 );
+        logPanel = new LogPanel();
+        clientWin.newTab( "log", logPanel );
         this.getPluginManager().addProtocolListener( this );
         engine.setBaseDir( BASEDIR );
         clientWin.addComponentListener( engine );
@@ -52,11 +56,15 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
             this.engine.save();
         }
         */
+
+
+        System.out.println(input);
         return null;
     }
 
     @Override
     public void actionPerformed( ActionEvent event ) {
+        //System.out.println();
         /**
          *
          received 99 protocol: cMapper;;sunderland;;$apr1$dF!!_X#W$v3dsdL2khaffFpj1BvVrD0;;road;;0;;The long road to Sunderland;;You see a long road stretching northward into the distance. As far as
@@ -69,7 +77,9 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
 
         //cMapper;areaname;roomUID;exitUsed;indoor boolean;shortDesc;longDesc;exits
         String input = event.getActionCommand();
-        String[] values = input.split( ";;", - 1 );
+        //String[] values = input.split( ";;", - 1 );
+        //logPanel.appendText(input);
+        System.out.println(input);
     }
 
     @Override

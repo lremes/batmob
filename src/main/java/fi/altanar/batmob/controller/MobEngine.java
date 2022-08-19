@@ -6,7 +6,6 @@ import java.awt.Point;
 import com.mythicscape.batclient.interfaces.BatWindow;
 
 import fi.altanar.batmob.io.GuiDataPersister;
-import fi.altanar.batmob.controller.MobPlugin;
 
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;

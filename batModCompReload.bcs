@@ -5,7 +5,7 @@ import com.mythicscape.batclient.interfaces.BatClientPlugin;
 
 void reload(){
 	for(BatClientPlugin plugin : pluginManager.getPlugins()){
-		if(plugin.getName().equals("batMobComp")){
+		if(plugin.getName().equals("batMob")){
 			plugin.loadPlugin();
 		}	
 	}
