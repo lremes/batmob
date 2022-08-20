@@ -12,36 +12,26 @@ public class MobDataPersister {
     private final static String FILENAME = "mobData.conf";
     private final static String DIRNAME = "conf";
 
-    public static void save( String baseDir, MobSaveObject saveData ) {
+    public static void save( String baseDir, MobSaveObject saveData ) throws IOException {
         File dirFile = new File( baseDir, DIRNAME );
-        try {
-            if (! dirFile.exists()) {
-                if (! dirFile.mkdir()) {
-                    throw new IOException( baseDir + " doesn't exist" );
-                }
+        if (! dirFile.exists()) {
+            if (! dirFile.mkdir()) {
+                throw new IOException( baseDir + " doesn't exist" );
             }
-
-            FileOutputStream fileOutputStream = new FileOutputStream( getFile( baseDir ) );
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream( fileOutputStream );
-            objectOutputStream.writeObject( saveData );
-            fileOutputStream.close();
-        } catch (IOException e) {
-            System.out.println( e );
         }
+
+        FileOutputStream fileOutputStream = new FileOutputStream( getFile( baseDir ) );
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream( fileOutputStream );
+        objectOutputStream.writeObject( saveData );
+        fileOutputStream.close();
     }
 
-    public static MobSaveObject load( String basedir ) {
+    public static MobSaveObject load( String basedir ) throws IOException, ClassNotFoundException {
         if (getFile( basedir ).exists() == true) {
-            try {
-                FileInputStream fileInputStream = new FileInputStream( getFile( basedir ) );
-                ObjectInputStream objectInputStream = new ObjectInputStream( fileInputStream );
-                MobSaveObject saveData = (MobSaveObject) objectInputStream.readObject();
-                return saveData;
-            } catch (IOException e) {
-                System.out.println( e );
-            } catch (ClassNotFoundException e) {
-                System.out.println( e );
-            }
+            FileInputStream fileInputStream = new FileInputStream( getFile( basedir ) );
+            ObjectInputStream objectInputStream = new ObjectInputStream( fileInputStream );
+            MobSaveObject saveData = (MobSaveObject) objectInputStream.readObject();
+            return saveData;
         }
         return null;
     }

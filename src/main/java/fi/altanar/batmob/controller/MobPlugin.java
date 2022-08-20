@@ -15,8 +15,9 @@ import com.mythicscape.batclient.interfaces.ParsedResult;
 import fi.altanar.batmob.gui.LogPanel;
 import fi.altanar.batmob.io.GuiDataPersister;
 import fi.altanar.batmob.vo.GuiData;
+import fi.altanar.batmob.io.Logger;
 
-public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger, ActionListener, BatClientPluginUtil {
+public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger, ActionListener, BatClientPluginUtil, Logger {
 
     private String BASEDIR = null;
 
@@ -43,7 +44,6 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
             clientWin = this.getClientGUI().createBatWindow( "Mobs", 300, 300, 820, 550 );
         }
 
-
         logPanel = new LogPanel();
         clientWin.newTab( "Mobs", logPanel );
 
@@ -56,6 +56,7 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
         this.getPluginManager().addProtocolListener( this );
         clientWin.addComponentListener( engine );
 
+        engine.load();
     }
 
     @Override
@@ -111,19 +112,14 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
 
     }
 
-    public void log(Object obj) {
+    public void log(String msg) {
         try {
             File logFile = getFile( "logs", "batmob.txt" );
             FileWriter myWriter = new FileWriter(logFile, true);
-            myWriter.write(obj.toString() + '\n');
+            myWriter.write(msg + '\n');
             myWriter.close();
         } catch (IOException e) {
-            //printConsoleError(e.getMessage());
             System.out.println(e.getMessage());
-        }
-
-        if (logPanel != null) {
-            logPanel.appendText(obj.toString() + '\n');
         }
     }
 

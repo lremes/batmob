@@ -49,6 +49,10 @@ public class Mob implements Serializable {
     }
 
     public String toString() {
-        return this.name + "|" + this.exp;
+        return this.name + 
+            "|" + this.exp +
+            "|" + this.minExp +
+            "|" + this.maxExp + 
+            "|" + this.area;
     }
 }

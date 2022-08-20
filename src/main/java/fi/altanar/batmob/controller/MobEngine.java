@@ -16,6 +16,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.IOException;
 
 public class MobEngine implements ItemListener, ComponentListener {
 
@@ -48,7 +49,7 @@ public class MobEngine implements ItemListener, ComponentListener {
         if (obj instanceof Mob) {
             Mob mob = (Mob)obj;
             if (!mobStore.store(mob)) {
-                plugin.log("NEW: " + mob.getName());
+                plugin.log("NEW: " + mob.toString());
             }
         }
     }
@@ -106,18 +107,28 @@ public class MobEngine implements ItemListener, ComponentListener {
     }
 
     public void load() {
-        plugin.log("Loading mobs...");
-        MobSaveObject saved = MobDataPersister.load(this.baseDir);
-        if (saved != null) {
-            this.mobStore.restoreFromSaveObject(saved);
-            plugin.log("Loaded " + mobStore.getCount() + " mobs.");
+        try {
+            plugin.log("Loading mobs...");
+            MobSaveObject saved = MobDataPersister.load(this.baseDir);
+            if (saved != null) {
+                this.mobStore.restoreFromSaveObject(saved);
+                plugin.log("Loaded " + mobStore.getCount() + " mobs.");
+            }
+        } catch (IOException ioe) {
+            plugin.log(ioe.getMessage());
+        } catch (ClassNotFoundException cnfe) {
+            plugin.log(cnfe.getMessage());
         }
     }
 
     public void saveMobs() {
         if (this.mobStore != null) {
-            MobDataPersister.save(this.baseDir, this.mobStore.getSaveObject());
-            plugin.log("Mobs saved.");
+            try {
+                plugin.log("Saving " + this.mobStore.getCount() + " mobs.");
+                MobDataPersister.save(this.baseDir, this.mobStore.getSaveObject());
+            } catch (IOException e) {
+                plugin.log(e.getMessage());
+            }
         }
     }
 

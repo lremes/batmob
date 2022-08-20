@@ -3,6 +3,8 @@ package fi.altanar.batmob.vo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.IOException;
+
 import org.junit.jupiter.api.Test;
 
 import fi.altanar.batmob.io.MobDataPersister;
@@ -19,9 +21,15 @@ public class MobSaveTest {
         store.store(mob);
         store.store(mob2);
 
-        MobDataPersister.save(tmpDir, store.getSaveObject());
-        MobSaveObject saved = MobDataPersister.load(tmpDir);
-        store.restoreFromSaveObject(saved);
+        try {
+          MobDataPersister.save(tmpDir, store.getSaveObject());
+          MobSaveObject saved = MobDataPersister.load(tmpDir);
+          store.restoreFromSaveObject(saved);
+        } catch (IOException ioe) {
+          assertNotNull(ioe);
+        } catch (ClassNotFoundException e) {
+          assertNotNull(e);
+        }
 
         assertEquals(2, store.getCount());
         assertNotNull(store.get(mob.getName()));
