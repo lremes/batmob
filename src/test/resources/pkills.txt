@@ -1,2 +1,4 @@
 | 23:12      78: a tiny sparrow                                               |
 | 23:15   22027: An Old Gnarled Willow stands here firmly.                    |
+| 08:15    6174: A small willow-tree grows here.                              |
+| 08:42    5859: A small willow-tree grows here.                              |

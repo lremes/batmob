@@ -14,12 +14,11 @@ public class RegexTrigger {
     List<Pattern> patterns;
 
     //| 22:34    8830: an infant frost giant, rolling in the snow   |
-    final String PATTERN_PKILL = "^\\|\\s\\d{1,2}:\\d{2}\\s+(\\d+):\\s([a-zA-Z\\s.]+)\\|$";
+    final String PATTERN_PKILL = "^\\|\\s\\d{1,2}:\\d{2}\\s+(\\d+):\\s([a-zA-Z-\\s,.]+)\\|$";
 
     public RegexTrigger() {
         patterns = new ArrayList<Pattern>();
         patterns.add(Pattern.compile(PATTERN_PKILL));
-
     }
 
     public Object process(String input) {

@@ -36,7 +36,7 @@ public class LogPanel extends JPanel implements ComponentListener {
     }
 
     public void appendText(String text) {
-        this.logTextArea.setText(text);
+        this.logTextArea.append(text);
     }
 
     @Override

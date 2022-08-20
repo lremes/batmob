@@ -2,6 +2,9 @@ package fi.altanar.batmob.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import com.mythicscape.batclient.interfaces.BatClientPlugin;
 import com.mythicscape.batclient.interfaces.BatClientPluginTrigger;
@@ -20,6 +23,15 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
     private MobEngine engine;
     private LogPanel logPanel;
 
+    private final String CHANNEL_PREFIX = "BAT_MAPPER";
+    private final int PREFIX = 0;
+    private final int AREA_NAME = 1;
+
+    private final int MESSAGE_LENGTH = 9;
+    private final int EXIT_AREA_LENGTH = 2;
+
+    private final String EXIT_AREA_MESSAGE = "REALM_MAP";
+
     public void loadPlugin() {
         BASEDIR = this.getBaseDirectory();
         GuiData guiData = GuiDataPersister.load( BASEDIR );
@@ -31,16 +43,19 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
             clientWin = this.getClientGUI().createBatWindow( "Mobs", 300, 300, 820, 550 );
         }
 
+
+        logPanel = new LogPanel();
+        clientWin.newTab( "Mobs", logPanel );
+
         engine = new MobEngine(this);
         engine.setBatWindow( clientWin );
+        engine.setBaseDir(BASEDIR);
 
         clientWin.setVisible( true );
         clientWin.removeTabAt( 0 );
-        logPanel = new LogPanel();
-        clientWin.newTab( "log", logPanel );
         this.getPluginManager().addProtocolListener( this );
-        engine.setBaseDir( BASEDIR );
         clientWin.addComponentListener( engine );
+
     }
 
     @Override
@@ -51,39 +66,29 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
     //	ArrayList<BatClientPlugin> plugins=this.getPluginManager().getPlugins();
     @Override
     public ParsedResult trigger( ParsedResult input ) {
-/**
-        if (input.getStrippedText().startsWith( "SAVED." )) {
-            this.engine.save();
-        }
-        */
-
-
-        System.out.println(input);
+        engine.trigger(input);
         return null;
     }
 
     @Override
     public void actionPerformed( ActionEvent event ) {
-        //System.out.println();
-        /**
-         *
-         received 99 protocol: cMapper;;sunderland;;$apr1$dF!!_X#W$v3dsdL2khaffFpj1BvVrD0;;road;;0;;The long road to Sunderland;;You see a long road stretching northward into the distance. As far as
-         you can tell, the way ahead looks clear.
-         ;;north,south;;
-
-         event data amount: 9
-
-         */
-
         //cMapper;areaname;roomUID;exitUsed;indoor boolean;shortDesc;longDesc;exits
+        
         String input = event.getActionCommand();
-        //String[] values = input.split( ";;", - 1 );
-        //logPanel.appendText(input);
-        System.out.println(input);
+        String[] values = input.split( ";;", - 1 );
+
+        if (values[PREFIX].equals( CHANNEL_PREFIX ) && values.length == MESSAGE_LENGTH) {
+            String areaName = values[AREA_NAME];
+            engine.setCurrentAreaName(areaName);
+        } else if (values[PREFIX].equals( CHANNEL_PREFIX ) && values.length == EXIT_AREA_LENGTH) {
+            this.engine.setCurrentAreaName(EXIT_AREA_MESSAGE);
+            this.engine.saveMobs();
+        }
     }
 
     @Override
     public void clientExit() {
+        this.engine.saveMobs();
     }
 
     @Override
@@ -104,5 +109,27 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
     public void doCommand( String string ) {
         this.getClientGUI().doCommand( string );
 
+    }
+
+    public void log(Object obj) {
+        try {
+            File logFile = getFile( "logs", "batmob.txt" );
+            FileWriter myWriter = new FileWriter(logFile, true);
+            myWriter.write(obj.toString() + '\n');
+            myWriter.close();
+        } catch (IOException e) {
+            //printConsoleError(e.getMessage());
+            System.out.println(e.getMessage());
+        }
+
+        if (logPanel != null) {
+            logPanel.appendText(obj.toString() + '\n');
+        }
+    }
+
+    private File getFile( String subDir, String filename ) {
+        File dirFile = new File( BASEDIR, subDir );
+        File file = new File( dirFile, filename );
+        return file;
     }
 }
