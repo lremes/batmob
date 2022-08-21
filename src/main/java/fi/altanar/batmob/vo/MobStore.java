@@ -1,6 +1,9 @@
 package fi.altanar.batmob.vo;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class MobStore {
 
@@ -51,6 +54,14 @@ public class MobStore {
 
     public void restoreFromSaveObject(MobSaveObject saved) {
         this.mobs = saved.getData();
+    }
+
+    public void remove(Mob m) {
+        this.mobs.remove(m.getName());
+    }
+
+    public Iterator<Entry<String,Mob>> iterator() {
+        return this.mobs.entrySet().iterator();
     }
 
 }

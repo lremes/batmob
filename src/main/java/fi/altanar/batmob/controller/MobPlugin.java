@@ -13,6 +13,7 @@ import com.mythicscape.batclient.interfaces.BatWindow;
 import com.mythicscape.batclient.interfaces.ParsedResult;
 
 import fi.altanar.batmob.gui.LogPanel;
+import fi.altanar.batmob.gui.MobDetailsPanel;
 import fi.altanar.batmob.io.GuiDataPersister;
 import fi.altanar.batmob.vo.GuiData;
 import fi.altanar.batmob.io.Logger;
@@ -23,6 +24,7 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
 
     private MobEngine engine;
     private LogPanel logPanel;
+    private MobDetailsPanel mobDetailPanel;
 
     private final String CHANNEL_PREFIX = "BAT_MAPPER";
     private final int PREFIX = 0;
@@ -43,19 +45,23 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
         } else {
             clientWin = this.getClientGUI().createBatWindow( "Mobs", 300, 300, 820, 550 );
         }
-
-        logPanel = new LogPanel();
-        clientWin.newTab( "Mobs", logPanel );
-
+        
         engine = new MobEngine(this);
         engine.setBatWindow( clientWin );
         engine.setBaseDir(BASEDIR);
+        
+        mobDetailPanel = new MobDetailsPanel(engine);
+        clientWin.newTab( "Details", mobDetailPanel );
+        
+        logPanel = new LogPanel();
+        clientWin.newTab( "log", logPanel);
 
         clientWin.setVisible( true );
         clientWin.removeTabAt( 0 );
         this.getPluginManager().addProtocolListener( this );
         clientWin.addComponentListener( engine );
 
+        engine.addMobListener(this.mobDetailPanel);
         engine.load();
     }
 
@@ -85,6 +91,7 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
             this.engine.setCurrentAreaName(EXIT_AREA_MESSAGE);
             this.engine.saveMobs();
         }
+        this.engine.roomChanged(event);
     }
 
     @Override
