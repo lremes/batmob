@@ -323,7 +323,7 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
             String[] sNames = this.shortNameArea.getText().split("\\.");
             this.mob.setShortNames(sNames);
 
-            engine.getMobStore().store(this.mob);
+            engine.getMobStore().updateEditableFields(this.mob);
         } else if (e.getSource().equals( deleteButton )) {
             engine.getMobStore().remove(this.mob);
         }
@@ -336,7 +336,8 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
             for (Iterator<Mob> iter = roomMobs.iterator(); iter.hasNext();) {
                 names.append(iter.next().getName() + "\n");
             }
-            this.roomArea.setText(names.toString());   
+            this.roomArea.setText(names.toString());
+            this.setMob(roomMobs.get(0));
         } else {
             this.roomArea.setText("No mobs");
         }

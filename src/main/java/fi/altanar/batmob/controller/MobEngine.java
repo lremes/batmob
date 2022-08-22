@@ -20,7 +20,6 @@ import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.awt.event.ActionEvent;
 
@@ -38,6 +37,12 @@ public class MobEngine implements ItemListener, ComponentListener {
     // [1;32mVlad the Inhaler, the slavic golem[0m
     private static final String GREEN_BOLD = "\u001b[1;32m";
     private static final String RED_BOLD = "\u001b[1;31m";
+
+    public static final String[] IGNORED = new String[]{
+        "Your movement",
+        "You break",
+        "( "
+    };
 
     private ArrayList<MobListener> listeners = new ArrayList<MobListener>();
     
@@ -63,26 +68,42 @@ public class MobEngine implements ItemListener, ComponentListener {
         Object obj = this.triggers.process(stripped);
         if (obj instanceof Mob) {
             Mob mob = (Mob)obj;
-            if (!this.mobStore.store(mob)) {
+            if (!this.mobStore.contains(stripped)) {
                 plugin.log("NEW: " + mob.toString());
+                this.mobStore.store(mob);
+            } else {
+                // update exp only
+                this.mobStore.updateAutofilledFields(mob);
+                plugin.log("UPDATE: " + mob.toString());
             }
         } else {
             String orig = input.getOriginalText();
             if (orig.startsWith(GREEN_BOLD)) {
+                plugin.log(input.getOriginalText());
                 this.handleMob(stripped);
             } else if (orig.startsWith(RED_BOLD)) {
-                if (!(stripped.startsWith("You") || stripped.startsWith("( "))) {
-                    this.handleMob(stripped);
-                }
+                plugin.log(input.getOriginalText());
+                this.handleMob(stripped);
             }
         }
     }
 
     private void handleMob(String stripped) {
+        for (String s: IGNORED) {
+            if (stripped.startsWith(s)) {
+                return;
+            }
+        }
+
         Mob m = this.mobStore.get(stripped);
         if (m == null) {
             m = new Mob(0, stripped);
             this.mobStore.store(m);
+        } else {
+            if (m.getArea() == null) {
+                m.setArea(this.currentAreaName);
+                this.mobStore.updateAutofilledFields(m);
+            }
         }
         this.roomMobs.add(m);
         for (Iterator<MobListener> iter = this.listeners.iterator(); iter.hasNext();) {
@@ -130,7 +151,7 @@ public class MobEngine implements ItemListener, ComponentListener {
 
     }
 
-    public void sendToMud(String command){
+    public void sendToMud(String command){        
         this.plugin.doCommand( command );
     }
 
@@ -157,7 +178,7 @@ public class MobEngine implements ItemListener, ComponentListener {
                 plugin.log("Loaded " + mobStore.getCount() + " mobs.");
                 Iterator<Entry<String,Mob>> it = this.mobStore.iterator();
                 while (it.hasNext()) {
-                    plugin.log(it.next().getValue().getName());
+                    plugin.log(it.next().getValue().toString());
                 }
             }
         } catch (IOException ioe) {

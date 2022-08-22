@@ -36,6 +36,40 @@ public class MobStore {
         return ret;
     }
 
+    public Mob updateAutofilledFields(Mob mob) {
+        Mob m = this.mobs.get(mob.getName());
+        if (m != null) {
+            if (mob.getExp() > 0) {
+                m.setExp(mob.getExp());
+            }
+            if (mob.getArea() != null && m.getArea() == null) {
+                m.setArea(mob.getArea());
+            }
+            this.mobs.put(m.getName(), m);
+
+            return m;
+        }
+        return null;
+    }
+
+    public Mob updateEditableFields(Mob mob) {
+        Mob m = this.mobs.get(mob.getName());
+        if (m != null) {
+            m.setAlignment(mob.getAlignment());
+            m.setRace(mob.getRace());
+            m.setShortNames(mob.getShortNames());
+            m.setSkills(mob.getSkills());
+            m.setSpells(mob.getSpells());
+            m.setNotes(mob.getNotes());
+            m.setRep(mob.getRep());
+            m.setRixx(mob.isRixx());
+            this.mobs.put(m.getName(), m);
+
+            return m;
+        }
+        return null;
+    }
+
     public Mob get(String name) {
         return this.mobs.get(name);
     }
@@ -54,6 +88,18 @@ public class MobStore {
 
     public void restoreFromSaveObject(MobSaveObject saved) {
         this.mobs = saved.getData();
+
+        // Trim all mob names
+        HashMap<String,Mob> fixed = new HashMap<String,Mob>();
+        for (Map.Entry<String, Mob> entry : this.mobs.entrySet()) {
+            String tName = entry.getKey().trim();
+            if (!tName.startsWith("|")) {
+                Mob e = entry.getValue();
+                fixed.put(tName, e);
+            }
+        }
+
+        this.mobs = fixed;
     }
 
     public void remove(Mob m) {
