@@ -17,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.BoxLayout;
 import javax.swing.border.LineBorder;
 import javax.swing.event.MouseInputListener;
@@ -51,14 +52,14 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
     private JTextArea notesArea = new JTextArea();
     private JScrollPane scrollableNotes;
 
-    private JTextArea nameArea = new JTextArea();
+    private JTextField nameArea = new JTextField();
     private JTextArea descArea = new JTextArea();
-    private JTextArea areaNameArea = new JTextArea();
-    private JTextArea expArea = new JTextArea();
-    private JTextArea shortNameArea = new JTextArea();
-    private JTextArea raceArea = new JTextArea();
-    private JTextArea alignmentArea = new JTextArea();
-    private JTextArea repArea = new JTextArea();
+    private JTextField areaNameArea = new JTextField();
+    private JTextField expArea = new JTextField();
+    private JTextField shortNameArea = new JTextField();
+    private JTextField raceArea = new JTextField();
+    private JTextField alignmentArea = new JTextField();
+    private JTextField repArea = new JTextField();
 
     private Font font = new Font( "Consolas", Font.PLAIN, 14 );
     private Font labelFont = new Font( "Consolas", Font.PLAIN, 12 );
@@ -130,7 +131,6 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
         nameArea.setEditable( false );
         nameArea.setColumns( 25 );
         nameArea.setBorder( new LineBorder( BORDER_COLOR ) );
-        nameArea.setLineWrap( true );
         nameArea.setBackground( BG_COLOR );
         nameArea.setForeground( TEXT_COLOR );
         nameArea.setFont( font );
@@ -151,7 +151,6 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
         expArea.setEditable( false );
         expArea.setColumns( 25 );
         expArea.setBorder( new LineBorder( BORDER_COLOR ) );
-        expArea.setLineWrap( true );
         expArea.setBackground( BG_COLOR );
         expArea.setForeground( TEXT_COLOR );
         expArea.setFont( font );
@@ -192,7 +191,6 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
         areaNameArea.setEditable( false );
         areaNameArea.setColumns( 25 );
         areaNameArea.setBorder( new LineBorder( BORDER_COLOR ) );
-        areaNameArea.setLineWrap( true );
         areaNameArea.setBackground( BG_COLOR );
         areaNameArea.setForeground( TEXT_COLOR );
         areaNameArea.setFont( font );
@@ -212,7 +210,6 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
         shortNameArea.setEditable( true );
         shortNameArea.setColumns( 25 );
         shortNameArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
-        shortNameArea.setLineWrap( true );
         shortNameArea.setBackground( BG_COLOR );
         shortNameArea.setForeground( TEXT_COLOR );
         shortNameArea.setFont( font );
@@ -232,7 +229,6 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
         raceArea.setEditable( true );
         raceArea.setColumns( 25 );
         raceArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
-        raceArea.setLineWrap( true );
         raceArea.setBackground( BG_COLOR );
         raceArea.setForeground( TEXT_COLOR );
         raceArea.setFont( font );
@@ -252,7 +248,6 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
         alignmentArea.setEditable( true );
         alignmentArea.setColumns( 25 );
         alignmentArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
-        alignmentArea.setLineWrap( true );
         alignmentArea.setBackground( BG_COLOR );
         alignmentArea.setForeground( TEXT_COLOR );
         alignmentArea.setFont( font );
@@ -272,7 +267,6 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
         repArea.setEditable( true );
         repArea.setColumns( 25 );
         repArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
-        repArea.setLineWrap( true );
         repArea.setBackground( BG_COLOR );
         repArea.setForeground( TEXT_COLOR );
         repArea.setFont( font );

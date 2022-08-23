@@ -14,6 +14,7 @@ import com.mythicscape.batclient.interfaces.ParsedResult;
 
 import fi.altanar.batmob.gui.LogPanel;
 import fi.altanar.batmob.gui.MobDetailsPanel;
+import fi.altanar.batmob.gui.SearchPanel;
 import fi.altanar.batmob.io.GuiDataPersister;
 import fi.altanar.batmob.vo.GuiData;
 import fi.altanar.batmob.io.Logger;
@@ -23,7 +24,8 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
     private String BASEDIR = null;
 
     private MobEngine engine;
-    private LogPanel logPanel;
+    //private LogPanel logPanel;
+    private SearchPanel searchPanel;
     private MobDetailsPanel mobDetailPanel;
 
     private final String CHANNEL_PREFIX = "BAT_MAPPER";
@@ -45,16 +47,19 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
         } else {
             clientWin = this.getClientGUI().createBatWindow( "Mobs", 300, 300, 820, 550 );
         }
-        
+
         engine = new MobEngine(this);
         engine.setBatWindow( clientWin );
         engine.setBaseDir(BASEDIR);
-        
+
         mobDetailPanel = new MobDetailsPanel(engine);
         clientWin.newTab( "Details", mobDetailPanel );
-        
-        logPanel = new LogPanel();
-        clientWin.newTab( "log", logPanel);
+
+        searchPanel = new SearchPanel(engine);
+        clientWin.newTab( "Search", searchPanel);
+
+        //logPanel = new LogPanel();
+        //clientWin.newTab( "log", logPanel);
 
         clientWin.setVisible( true );
         clientWin.removeTabAt( 0 );
@@ -80,7 +85,7 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
     @Override
     public void actionPerformed( ActionEvent event ) {
         //cMapper;areaname;roomUID;exitUsed;indoor boolean;shortDesc;longDesc;exits
-        
+
         String input = event.getActionCommand();
         String[] values = input.split( ";;", - 1 );
 

@@ -25,12 +25,14 @@ import java.awt.event.ActionEvent;
 
 public class MobEngine implements ItemListener, ComponentListener {
 
-    String baseDir;
-    BatWindow batWindow;
-    MobPlugin plugin;
-    MobStore mobStore = new MobStore();
+    private String baseDir;
+    private BatWindow batWindow;
+    private MobPlugin plugin;
+    private MobStore mobStore = new MobStore();
     private RegexTrigger triggers = new RegexTrigger();
     private String currentAreaName = "";
+
+    private SearchEngine searchEngine;
 
     private ArrayList<Mob> roomMobs = new ArrayList<Mob>();
 
@@ -39,15 +41,19 @@ public class MobEngine implements ItemListener, ComponentListener {
     private static final String RED_BOLD = "\u001b[1;31m";
 
     public static final String[] IGNORED = new String[]{
-        "Your movement",
-        "You break",
-        "( "
+        "Your ",
+        "You ",
+        "( ",
+        "' ",
+        "["
     };
 
     private ArrayList<MobListener> listeners = new ArrayList<MobListener>();
-    
+
     public MobEngine(MobPlugin plugin) {
         this.plugin = plugin;
+
+        this.searchEngine = new SearchEngine(this.mobStore);
     }
 
     @Override
@@ -125,7 +131,7 @@ public class MobEngine implements ItemListener, ComponentListener {
     public void componentHidden( ComponentEvent e ) {
 
     }
-    
+
     public void addMobListener(MobListener l) {
         this.listeners.add(l);
     }
@@ -151,7 +157,7 @@ public class MobEngine implements ItemListener, ComponentListener {
 
     }
 
-    public void sendToMud(String command){        
+    public void sendToMud(String command){
         this.plugin.doCommand( command );
     }
 
@@ -201,6 +207,10 @@ public class MobEngine implements ItemListener, ComponentListener {
 
     public MobStore getMobStore() {
         return this.mobStore;
+    }
+
+    public SearchEngine getSearchEngine() {
+        return this.searchEngine;
     }
 
     // TODO: trigger this when we move.

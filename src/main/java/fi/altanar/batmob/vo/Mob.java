@@ -3,7 +3,7 @@ package fi.altanar.batmob.vo;
 import java.io.Serializable;
 
 public class Mob implements Serializable {
-    
+
     private static final long serialVersionUID = 0L;
 
     private String name;
@@ -118,7 +118,7 @@ public class Mob implements Serializable {
     public void setArea(String area) {
         this.area = area;
     }
-    
+
     public String getRep() {
         return rep;
     }
@@ -135,11 +135,19 @@ public class Mob implements Serializable {
         this.rixx = rixx;
     }
 
+    public int getMinExp() {
+        return this.minExp;
+    }
+
+    public int getMaxExp() {
+        return this.maxExp;
+    }
+
     public String toString() {
-        return this.name + 
+        return this.name +
             "|" + this.exp +
             "|" + this.minExp +
-            "|" + this.maxExp + 
+            "|" + this.maxExp +
             "|" + this.area;
     }
 }
