@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.MouseInputListener;
 import java.awt.Color;
 import java.awt.Component;
@@ -103,8 +104,7 @@ public class SearchPanel extends JPanel implements MouseInputListener, Component
         resultList.setForeground( TEXT_COLOR );
         resultList.setBackground( BG_COLOR );
         resultList.setPreferredSize( new Dimension( PANEL_WIDTH, 750 ) );
-        //notesArea.setMinimumSize( new Dimension( 370, 500 ) );
-        //notesArea.setMaximumSize( new Dimension( 370, 100 ) );
+        resultList.addListSelectionListener(this.engine);
         scrollableResults = new JScrollPane( resultList );
         scrollableResults.setAlignmentX( Component.LEFT_ALIGNMENT );
         scrollableResults.setBorder( new LineBorder( BORDER_COLOR ) );

@@ -21,9 +21,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map.Entry;
+
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
 import java.awt.event.ActionEvent;
 
-public class MobEngine implements ItemListener, ComponentListener {
+public class MobEngine implements ItemListener, ComponentListener, ListSelectionListener {
 
     private String baseDir;
     private BatWindow batWindow;
@@ -218,5 +222,10 @@ public class MobEngine implements ItemListener, ComponentListener {
     public void roomChanged(ActionEvent event) {
         plugin.log("Room changed");
         this.roomMobs.clear();
+    }
+
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+        // search result clicked
     }
 }
