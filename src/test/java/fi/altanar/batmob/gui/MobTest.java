@@ -26,7 +26,7 @@ import fi.altanar.batmob.vo.MobStore;
 import static org.mockito.Mockito.*;
 
 public class MobTest {
- 
+
     @Test
     void testPkills() {
         RegexTrigger tm = new RegexTrigger();
@@ -101,9 +101,9 @@ public class MobTest {
             e.printStackTrace();
         } catch (URISyntaxException e) {
             e.printStackTrace();
-        } 
+        }
     }
-    
+
     @Test
     void testAreaUpdate() {
       Mob mob = new Mob(123, "test");
@@ -190,11 +190,14 @@ public class MobTest {
         while (myReader.hasNextLine()) {
           String line = myReader.nextLine();
           ParsedResult input = new ParsedResult(line);
+          String stripped = line.replaceAll("\u001b\\[\\d;\\d\\dm", "");
+          input.setOriginalText(line);
+          input.setStrippedText(stripped);
           engine.trigger(input);
         }
         myReader.close();
 
-        assertEquals(14, engine.getMobStore().getCount());
+        assertEquals(13, engine.getMobStore().getCount());
       } catch (FileNotFoundException e) {
         System.out.println("An error occurred.");
         e.printStackTrace();

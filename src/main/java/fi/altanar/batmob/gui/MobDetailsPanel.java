@@ -17,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.BoxLayout;
 import javax.swing.border.LineBorder;
 import javax.swing.event.MouseInputListener;
@@ -29,19 +30,21 @@ import fi.altanar.batmob.vo.Mob;
 public class MobDetailsPanel extends JPanel implements MouseInputListener, ComponentListener, ActionListener, MobListener {
 
     private static final long serialVersionUID = 8922764153155463898L;
-    
+
     public final Dimension MIN_LAYOUT_SIZE = new Dimension( 800, 550 );
-    public final Dimension MIN_PANEL_SIZE = new Dimension( 400, 550 );
+    public final Dimension MIN_PANEL_SIZE = new Dimension( 390, 540 );
     private final int TEXT_INPUT_WIDTH = 380;
     private final int DESC_HEIGHT = 270;
     protected int BORDERLINE = 7;
     private final int BUTTON_HEIGHT = 25;
     private final int BUTTON_WIDTH = 100;
     private final int TEXT_INPUT_HEIGHT = 30;
+    public final Dimension INPUT_SIZE = new Dimension( 380, 30 );
 
-    private final Color BORDER_COLOR = Color.WHITE;   
+    private final Color BORDER_COLOR = Color.LIGHT_GRAY;
     private final Color TEXT_COLOR = Color.LIGHT_GRAY;
     private final Color BG_COLOR = Color.BLACK;
+    private final Color BORDER_EDITABLE_COLOR = Color.GREEN;
 
     private JTextArea roomArea = new JTextArea();
     private JScrollPane scrollableRoom;
@@ -49,25 +52,25 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
     private JTextArea notesArea = new JTextArea();
     private JScrollPane scrollableNotes;
 
-    private JTextArea nameArea = new JTextArea();
+    private JTextField nameArea = new JTextField();
     private JTextArea descArea = new JTextArea();
-    private JTextArea areaNameArea = new JTextArea();
-    private JTextArea expArea = new JTextArea();
-    private JTextArea shortNameArea = new JTextArea();
-    private JTextArea raceArea = new JTextArea();
-    private JTextArea alignmentArea = new JTextArea();
-    private JTextArea repArea = new JTextArea();
+    private JTextField areaNameArea = new JTextField();
+    private JTextField expArea = new JTextField();
+    private JTextField shortNameArea = new JTextField();
+    private JTextField raceArea = new JTextField();
+    private JTextField alignmentArea = new JTextField();
+    private JTextField repArea = new JTextField();
 
     private Font font = new Font( "Consolas", Font.PLAIN, 14 );
     private Font labelFont = new Font( "Consolas", Font.PLAIN, 12 );
-   
+
     private Mob mob;
 
     private JButton saveButton;
     private JButton deleteButton;
 
     MobEngine engine;
-    
+
     public MobDetailsPanel(MobEngine engine) {
         super();
 
@@ -81,10 +84,16 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
 
         JPanel roomPanel = new JPanel();
         roomPanel.setLayout(new BoxLayout(roomPanel, BoxLayout.Y_AXIS));
-        roomPanel.setPreferredSize( MIN_PANEL_SIZE );
-        roomPanel.setMinimumSize( MIN_PANEL_SIZE );
         roomPanel.setBackground( BG_COLOR );
         roomPanel.setForeground( TEXT_COLOR );
+
+        JLabel mobsLabel = new JLabel("Detected mobs");
+        mobsLabel.setBackground( BG_COLOR );
+        mobsLabel.setForeground( TEXT_COLOR );
+        mobsLabel.setFont(labelFont);
+        mobsLabel.setAlignmentY( Component.TOP_ALIGNMENT );
+        mobsLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
+        roomPanel.add( mobsLabel );
 
         roomArea.setWrapStyleWord( true );
         roomArea.setEditable( false );
@@ -93,16 +102,19 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
         roomArea.setBackground( BG_COLOR );
         roomArea.setForeground( TEXT_COLOR );
         roomArea.setAlignmentY( Component.TOP_ALIGNMENT );
+        roomArea.setAlignmentX( Component.LEFT_ALIGNMENT );
         roomArea.setColumns( 50 );
         scrollableRoom = new JScrollPane( roomArea );
-        scrollableRoom.setPreferredSize( new Dimension( 400, 534 ) );
-        scrollableRoom.setBounds( BORDERLINE, BORDERLINE, 800, 534 );
+        scrollableRoom.setPreferredSize( MIN_PANEL_SIZE );
+        scrollableRoom.setMinimumSize( MIN_PANEL_SIZE );
         roomArea.setToolTipText( "Mobs in the current room. Click to show details." );
 
         roomPanel.add(scrollableRoom);
 
         JPanel detailsPanel = new JPanel();
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
+        detailsPanel.setPreferredSize( MIN_PANEL_SIZE );
+        detailsPanel.setMinimumSize( MIN_PANEL_SIZE );
         detailsPanel.setBackground( BG_COLOR );
         detailsPanel.setForeground( TEXT_COLOR );
         detailsPanel.setPreferredSize( MIN_PANEL_SIZE );
@@ -119,36 +131,41 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
         nameArea.setEditable( false );
         nameArea.setColumns( 25 );
         nameArea.setBorder( new LineBorder( BORDER_COLOR ) );
-        nameArea.setLineWrap( true );
         nameArea.setBackground( BG_COLOR );
         nameArea.setForeground( TEXT_COLOR );
         nameArea.setFont( font );
+        nameArea.setPreferredSize( INPUT_SIZE );
         nameArea.setToolTipText( "This is the long name of the mob" );
+        nameArea.setAlignmentX( Component.LEFT_ALIGNMENT );
+
         detailsPanel.add( nameArea );
 
         JLabel expLabel = new JLabel("Exp (latest / min / max)");
         expLabel.setBackground( BG_COLOR );
         expLabel.setForeground( TEXT_COLOR );
         expLabel.setFont(labelFont);
+        expLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
         detailsPanel.add( expLabel );
 
         expArea.setBounds( 0, 0, TEXT_INPUT_WIDTH, TEXT_INPUT_HEIGHT );
         expArea.setEditable( false );
         expArea.setColumns( 25 );
         expArea.setBorder( new LineBorder( BORDER_COLOR ) );
-        expArea.setLineWrap( true );
         expArea.setBackground( BG_COLOR );
         expArea.setForeground( TEXT_COLOR );
         expArea.setFont( font );
         expArea.setToolTipText( "This is the latest/min/max recorded exp for the mob" );
+        expArea.setAlignmentX( Component.LEFT_ALIGNMENT );
+        expArea.setPreferredSize( INPUT_SIZE );
         detailsPanel.add( expArea );
 
         JLabel descLabel = new JLabel("Description");
         descLabel.setBackground( BG_COLOR );
         descLabel.setForeground( TEXT_COLOR );
         descLabel.setFont(labelFont);
+        descLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
         detailsPanel.add( descLabel );
-        
+
         descArea.setBounds( 0, BORDERLINE, TEXT_INPUT_WIDTH, DESC_HEIGHT );
         descArea.setEditable( false );
         descArea.setColumns( 25 );
@@ -159,115 +176,131 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
         descArea.setForeground( TEXT_COLOR );
         descArea.setFont( font );
         descArea.setToolTipText( "This is mob description" );
+        descArea.setAlignmentX( Component.LEFT_ALIGNMENT );
+        descArea.setPreferredSize( INPUT_SIZE );
         detailsPanel.add( descArea );
 
         JLabel areaLabel = new JLabel("Area");
         areaLabel.setBackground( BG_COLOR );
         areaLabel.setForeground( TEXT_COLOR );
         areaLabel.setFont(labelFont);
+        areaLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
         detailsPanel.add( areaLabel );
 
         areaNameArea.setBounds( 0, 0, TEXT_INPUT_WIDTH, TEXT_INPUT_HEIGHT );
         areaNameArea.setEditable( false );
         areaNameArea.setColumns( 25 );
         areaNameArea.setBorder( new LineBorder( BORDER_COLOR ) );
-        areaNameArea.setLineWrap( true );
         areaNameArea.setBackground( BG_COLOR );
         areaNameArea.setForeground( TEXT_COLOR );
         areaNameArea.setFont( font );
         areaNameArea.setToolTipText( "This is the area where the mob can be found" );
+        areaNameArea.setAlignmentX( Component.LEFT_ALIGNMENT );
+        areaNameArea.setPreferredSize( INPUT_SIZE );
         detailsPanel.add( areaNameArea );
 
         JLabel snameLabel = new JLabel("Short names");
         snameLabel.setBackground( BG_COLOR );
         snameLabel.setForeground( TEXT_COLOR );
         snameLabel.setFont(labelFont);
+        snameLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
         detailsPanel.add( snameLabel );
 
         shortNameArea.setBounds( 0, 0, TEXT_INPUT_WIDTH, TEXT_INPUT_HEIGHT );
         shortNameArea.setEditable( true );
         shortNameArea.setColumns( 25 );
-        shortNameArea.setBorder( new LineBorder( BORDER_COLOR ) );
-        shortNameArea.setLineWrap( true );
+        shortNameArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
         shortNameArea.setBackground( BG_COLOR );
         shortNameArea.setForeground( TEXT_COLOR );
         shortNameArea.setFont( font );
         shortNameArea.setToolTipText( "This is a comma-separated list of short names for the mob." );
+        shortNameArea.setAlignmentX( Component.LEFT_ALIGNMENT );
+        shortNameArea.setPreferredSize( INPUT_SIZE );
         detailsPanel.add( shortNameArea );
 
         JLabel raceLabel = new JLabel("Race");
         raceLabel.setBackground( BG_COLOR );
         raceLabel.setForeground( TEXT_COLOR );
         raceLabel.setFont(labelFont);
+        raceLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
         detailsPanel.add( raceLabel );
 
         raceArea.setBounds( 0, 0, TEXT_INPUT_WIDTH, TEXT_INPUT_HEIGHT );
         raceArea.setEditable( true );
         raceArea.setColumns( 25 );
-        raceArea.setBorder( new LineBorder( BORDER_COLOR ) );
-        raceArea.setLineWrap( true );
+        raceArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
         raceArea.setBackground( BG_COLOR );
         raceArea.setForeground( TEXT_COLOR );
         raceArea.setFont( font );
         raceArea.setToolTipText( "This is the race of the mob." );
+        raceArea.setAlignmentX( Component.LEFT_ALIGNMENT );
+        raceArea.setPreferredSize( INPUT_SIZE );
         detailsPanel.add( raceArea );
 
         JLabel alignmentLabel = new JLabel("Alignment");
         alignmentLabel.setBackground( BG_COLOR );
         alignmentLabel.setForeground( TEXT_COLOR );
         alignmentLabel.setFont(labelFont);
+        alignmentLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
         detailsPanel.add( alignmentLabel );
 
         alignmentArea.setBounds( 0, 0, TEXT_INPUT_WIDTH, TEXT_INPUT_HEIGHT );
         alignmentArea.setEditable( true );
         alignmentArea.setColumns( 25 );
-        alignmentArea.setBorder( new LineBorder( BORDER_COLOR ) );
-        alignmentArea.setLineWrap( true );
+        alignmentArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
         alignmentArea.setBackground( BG_COLOR );
         alignmentArea.setForeground( TEXT_COLOR );
         alignmentArea.setFont( font );
         alignmentArea.setToolTipText( "This is the alignment of the mob." );
+        alignmentArea.setAlignmentX( Component.LEFT_ALIGNMENT );
+        alignmentArea.setPreferredSize( INPUT_SIZE );
         detailsPanel.add( alignmentArea );
 
         JLabel repLabel = new JLabel("Rep");
         repLabel.setBackground( BG_COLOR );
         repLabel.setForeground( TEXT_COLOR );
         repLabel.setFont(labelFont);
+        repLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
         detailsPanel.add( repLabel );
 
         repArea.setBounds( 0, 0, TEXT_INPUT_WIDTH, TEXT_INPUT_HEIGHT );
         repArea.setEditable( true );
         repArea.setColumns( 25 );
-        repArea.setBorder( new LineBorder( BORDER_COLOR ) );
-        repArea.setLineWrap( true );
+        repArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
         repArea.setBackground( BG_COLOR );
         repArea.setForeground( TEXT_COLOR );
         repArea.setFont( font );
         repArea.setToolTipText( "This is the rep gained for the mob." );
+        repArea.setAlignmentX( Component.LEFT_ALIGNMENT );
+        repArea.setPreferredSize( INPUT_SIZE );
         detailsPanel.add( repArea );
 
         JLabel notesLabel = new JLabel("Notes");
         notesLabel.setBackground( BG_COLOR );
         notesLabel.setForeground( TEXT_COLOR );
         notesLabel.setFont(labelFont);
+        notesLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
         detailsPanel.add( notesLabel );
 
         notesArea.setWrapStyleWord( true );
         notesArea.setEditable( true );
-        scrollableNotes = new JScrollPane( notesArea );
-        scrollableNotes.setPreferredSize( new Dimension( 400, 534 ) );
-        scrollableNotes.setBounds( BORDERLINE, BORDERLINE, 800, 534 );
         notesArea.setColumns( 50 );
-        notesArea.setAlignmentY( Component.TOP_ALIGNMENT );
         notesArea.setForeground( TEXT_COLOR );
         notesArea.setBackground( BG_COLOR );
         notesArea.setLineWrap( true );
+        notesArea.setPreferredSize( new Dimension( 370, 100 ) );
+        //notesArea.setMinimumSize( new Dimension( 370, 500 ) );
+        //notesArea.setMaximumSize( new Dimension( 370, 100 ) );
+        scrollableNotes = new JScrollPane( notesArea );
+        scrollableNotes.setAlignmentX( Component.LEFT_ALIGNMENT );
+        scrollableNotes.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
         detailsPanel.add( scrollableNotes );
 
         saveButton = new JButton( "Save" );
         saveButton.setFont( font );
         saveButton.setBounds( 0, BUTTON_HEIGHT + BORDERLINE, BUTTON_WIDTH, BUTTON_HEIGHT );
         saveButton.setToolTipText( "Save the mob data." );
+        saveButton.setAlignmentX( Component.LEFT_ALIGNMENT );
         detailsPanel.add( saveButton );
         saveButton.addActionListener( this );
 
@@ -364,37 +397,37 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
     @Override
     public void mouseEntered(MouseEvent e) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
         // TODO Auto-generated method stub
-        
+
     }
 
 }
