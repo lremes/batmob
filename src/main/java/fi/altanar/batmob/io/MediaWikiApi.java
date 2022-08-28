@@ -1,9 +1,6 @@
 package fi.altanar.batmob.io;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -28,17 +25,12 @@ public class MediaWikiApi {
     }
     
     public Mob fetchMobInfo(String q) {
-
-        this.log("Querying for [" + q + "]");
         Mob mob = null;
-
         try {
             StringBuilder sb = new StringBuilder(endpoint);
             sb.append("/w/api.php?action=query&titles=");
             sb.append(URLEncoder.encode(q, "UTF-8"));
             sb.append("&prop=revisions&rvprop=content&format=txt&redirects");
-
-            this.log(sb.toString());
 
             int state = 0;
             URL url = new URL(sb.toString());
@@ -51,7 +43,6 @@ public class MediaWikiApi {
             ArrayList<String> skills = new ArrayList<String>();
 
             while ((inputLine = in.readLine()) != null) {
-                this.log(inputLine);
                 switch(state) {
                     case 0:
                         Matcher m = title.matcher(inputLine);
@@ -108,7 +99,7 @@ public class MediaWikiApi {
                                 }
                             }
                         } else if ((missing.matcher(inputLine)).matches()) {
-                            this.log("No match found for [" + q + "]");
+                            System.out.println("No match found for [" + q + "]");
                         }
                         break;
                     case 2:
@@ -127,30 +118,8 @@ public class MediaWikiApi {
             }
 
         } catch (Throwable e) {
-            this.log(e.toString());
             System.out.println(e.getMessage());
-            //e.printStackTrace();
-        }
-        if (mob != null) {
-            this.log(mob.dump());
         }
         return mob;
-    }
-
-    public void log(String msg) {
-        try {
-            File logFile = getFile( "logs", "wiki.txt" );
-            FileWriter myWriter = new FileWriter(logFile, true);
-            myWriter.write(msg + '\n');
-            myWriter.close();
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    private File getFile( String subDir, String filename ) {
-        File dirFile = new File( this.baseDir, subDir );
-        File file = new File( dirFile, filename );
-        return file;
     }
 }

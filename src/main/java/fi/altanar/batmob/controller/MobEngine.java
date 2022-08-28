@@ -272,7 +272,10 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     public void log(String msg) {
         if (this.baseDir != null) {
             try {
-                File logFile = getFile( "logs", "batmob.txt" );
+                Date date = Calendar.getInstance().getTime();
+                DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+
+                File logFile = getFile( "logs", dateFormat.format(date) + "batmob.txt" );
                 FileWriter myWriter = new FileWriter(logFile, true);
                 myWriter.write(msg + '\n');
                 myWriter.close();
