@@ -1,5 +1,5 @@
 package fi.altanar.batmob.io;
 
-public interface Logger {
+public interface ILogger {
     public void log(String msg);
 }

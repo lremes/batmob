@@ -1,26 +1,20 @@
 package fi.altanar.batmob.vo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import fi.altanar.batmob.io.IMobStoreListener;
+
 public class MobStore {
 
     private HashMap<String, Mob> mobs = new HashMap<String,Mob>();
 
-    private String currentAreaName;
-
+    private ArrayList<IMobStoreListener> listeners = new ArrayList<IMobStoreListener>();
     public MobStore() {
         super();
-    }
-
-    public String getCurrentAreaName() {
-        return currentAreaName;
-    }
-
-    public void setCurrentAreaName(String currentAreaName) {
-        this.currentAreaName = currentAreaName;
     }
 
     /**
@@ -30,24 +24,39 @@ public class MobStore {
      * @return false is this is a new entry, true if update
      */
     public boolean store(Mob mob) {
-        boolean ret = this.mobs.containsKey(mob.getName());
-        mob.setArea(this.currentAreaName);
-        this.mobs.put(mob.getName(), mob);
-        return ret;
+        if (!mob.getName().isEmpty()) {
+            boolean ret = this.mobs.containsKey(mob.getName());
+            this.mobs.put(mob.getName(), mob);
+            return ret;
+        }
+        return false;
+    }
+
+    public void addListener(IMobStoreListener l) {
+        this.listeners.add(l);
     }
 
     public Mob updateAutofilledFields(Mob mob) {
-        Mob m = this.mobs.get(mob.getName());
-        if (m != null) {
-            if (mob.getExp() > 0) {
-                m.setExp(mob.getExp());
-            }
-            if (mob.getArea() != null && m.getArea() == null) {
-                m.setArea(mob.getArea());
-            }
-            this.mobs.put(m.getName(), m);
+        String name = mob.getName();
+        Mob existingEntry = this.mobs.get(name);
+        if (existingEntry != null) {
+            existingEntry.updateExp(mob.getExp());
+            existingEntry.setArea(mob.getArea());
+            existingEntry.setAggro(mob.isAggro());
+            this.mobs.put(name, existingEntry);
 
-            return m;
+            return existingEntry;
+        }
+        return null;
+    }
+
+    public Mob updateExp(Mob mob) {
+        String name = mob.getName();
+        Mob existingEntry = this.mobs.get(name);
+        if (existingEntry != null) {
+            existingEntry.updateExp(mob.getExp());
+            this.mobs.put(name, existingEntry);
+            return existingEntry;
         }
         return null;
     }
@@ -63,8 +72,9 @@ public class MobStore {
             m.setNotes(mob.getNotes());
             m.setRep(mob.getRep());
             m.setRixx(mob.isRixx());
+            m.setAggro(mob.isAggro());
+            m.setUndead(mob.isUndead());
             this.mobs.put(m.getName(), m);
-
             return m;
         }
         return null;
@@ -76,6 +86,10 @@ public class MobStore {
 
     public boolean contains(String name) {
         return this.mobs.containsKey(name);
+    }
+
+    public boolean contains(Mob m) {
+        return this.mobs.containsKey(m.getName());
     }
 
     public int getCount() {
@@ -104,6 +118,9 @@ public class MobStore {
 
     public void remove(Mob m) {
         this.mobs.remove(m.getName());
+        for (IMobStoreListener l : this.listeners) {
+            l.mobRemoved(m);
+        }
     }
 
     public Iterator<Entry<String,Mob>> iterator() {
