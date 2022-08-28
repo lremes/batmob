@@ -2,9 +2,10 @@ package fi.altanar.batmob.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.InternalFrameListener;
 
 import com.mythicscape.batclient.interfaces.BatClientPlugin;
 import com.mythicscape.batclient.interfaces.BatClientPluginTrigger;
@@ -12,19 +13,25 @@ import com.mythicscape.batclient.interfaces.BatClientPluginUtil;
 import com.mythicscape.batclient.interfaces.BatWindow;
 import com.mythicscape.batclient.interfaces.ParsedResult;
 
-import fi.altanar.batmob.gui.LogPanel;
 import fi.altanar.batmob.gui.MobDetailsPanel;
 import fi.altanar.batmob.gui.SearchPanel;
 import fi.altanar.batmob.io.GuiDataPersister;
 import fi.altanar.batmob.vo.GuiData;
-import fi.altanar.batmob.io.Logger;
+import fi.altanar.batmob.vo.Mob;
+import fi.altanar.batmob.vo.MobStore;
+import fi.altanar.batmob.io.MediaWikiApi;
+import fi.altanar.batmob.io.IMobListener;
 
-public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger, ActionListener, BatClientPluginUtil, Logger {
+public class MobPlugin extends BatClientPlugin implements 
+    BatClientPluginTrigger, 
+    ActionListener, 
+    BatClientPluginUtil, 
+    IMobListener, 
+    InternalFrameListener {
 
     private String BASEDIR = null;
 
     private MobEngine engine;
-    //private LogPanel logPanel;
     private SearchPanel searchPanel;
     private MobDetailsPanel mobDetailPanel;
 
@@ -37,29 +44,34 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
 
     private final String EXIT_AREA_MESSAGE = "REALM_MAP";
 
+    private BatWindow clientWin;
+
     public void loadPlugin() {
         BASEDIR = this.getBaseDirectory();
         GuiData guiData = GuiDataPersister.load( BASEDIR );
 
-        BatWindow clientWin;
         if (guiData != null) {
             clientWin = this.getClientGUI().createBatWindow( "Mobs", guiData.getX(), guiData.getY(), guiData.getWidth(), guiData.getHeight() );
         } else {
             clientWin = this.getClientGUI().createBatWindow( "Mobs", 300, 300, 820, 550 );
         }
 
-        engine = new MobEngine(this);
+        MobStore store = new MobStore();
+        MediaWikiApi api = new MediaWikiApi("https://taikajuoma.ovh/", BASEDIR);
+
+        engine = new MobEngine(this, store, api);
         engine.setBatWindow( clientWin );
         engine.setBaseDir(BASEDIR);
 
+        clientWin.addInternalFrameListener(this);
+
         mobDetailPanel = new MobDetailsPanel(engine);
+        engine.addStatusListener(mobDetailPanel);
         clientWin.newTab( "Details", mobDetailPanel );
 
         searchPanel = new SearchPanel(engine);
+        searchPanel.addMobListener(this);
         clientWin.newTab( "Search", searchPanel);
-
-        //logPanel = new LogPanel();
-        //clientWin.newTab( "log", logPanel);
 
         clientWin.setVisible( true );
         clientWin.removeTabAt( 0 );
@@ -91,12 +103,14 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
 
         if (values[PREFIX].equals( CHANNEL_PREFIX ) && values.length == MESSAGE_LENGTH) {
             String areaName = values[AREA_NAME];
-            engine.setCurrentAreaName(areaName);
+            this.engine.setCurrentAreaName(areaName);
+            this.engine.log("Area: " + areaName);
         } else if (values[PREFIX].equals( CHANNEL_PREFIX ) && values.length == EXIT_AREA_LENGTH) {
-            this.engine.setCurrentAreaName(EXIT_AREA_MESSAGE);
-            this.engine.saveMobs();
+            if (values[AREA_NAME].equals( EXIT_AREA_MESSAGE )) {
+                this.engine.setCurrentAreaName(EXIT_AREA_MESSAGE);
+                this.engine.saveMobs();
+            }
         }
-        this.engine.roomChanged(event);
     }
 
     @Override
@@ -124,20 +138,61 @@ public class MobPlugin extends BatClientPlugin implements BatClientPluginTrigger
 
     }
 
-    public void log(String msg) {
-        try {
-            File logFile = getFile( "logs", "batmob.txt" );
-            FileWriter myWriter = new FileWriter(logFile, true);
-            myWriter.write(msg + '\n');
-            myWriter.close();
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
+
+
+    @Override
+    public void mobSelected(Mob m) {
+        this.mobDetailPanel.mobSelected(m);
+    }
+
+    @Override
+    public void mobsDetected(ArrayList<Mob> mob) {
+        // ignored
+    }
+
+    @Override
+    public void internalFrameActivated(InternalFrameEvent arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void internalFrameClosed(InternalFrameEvent arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void internalFrameClosing(InternalFrameEvent arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void internalFrameDeactivated(InternalFrameEvent arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void internalFrameDeiconified(InternalFrameEvent arg0) {
+        // TODO Auto-generated method stub
+        if (arg0.getSource().equals(this)) {
+            this.clientWin.setVisible(true);
         }
     }
 
-    private File getFile( String subDir, String filename ) {
-        File dirFile = new File( BASEDIR, subDir );
-        File file = new File( dirFile, filename );
-        return file;
+    @Override
+    public void internalFrameIconified(InternalFrameEvent arg0) {
+        // TODO Auto-generated method stub
+        if (arg0.getSource().equals(this)) {
+            this.clientWin.setVisible(false);
+        }
+    }
+
+    @Override
+    public void internalFrameOpened(InternalFrameEvent arg0) {
+        // TODO Auto-generated method stub
+        
     }
 }

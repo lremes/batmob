@@ -4,9 +4,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.regex.Matcher;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 
 import com.mythicscape.batclient.interfaces.ParsedResult;
 
@@ -19,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import fi.altanar.batmob.controller.MobEngine;
 import fi.altanar.batmob.controller.MobPlugin;
 import fi.altanar.batmob.controller.RegexTrigger;
-import fi.altanar.batmob.io.MobListener;
+import fi.altanar.batmob.io.IMobListener;
 import fi.altanar.batmob.vo.Mob;
 import fi.altanar.batmob.vo.MobStore;
 
@@ -132,17 +135,21 @@ public class MobTest {
       mob.setRep("rep");
       mob.setRixx(true);
       String[] sArray = new String[]{ "s1", "s2" };
-      mob.setSpells(sArray);
-      mob.setSkills(sArray);
-      mob.setShortNames(sArray);
+
+      ArrayList<String> s = new ArrayList<String>();
+      s.add("s1");
+      s.add("s2");
+      mob.setSpells(s);
+      mob.setSkills(s);
+      mob.setShortNames(s);
 
       Mob expected = store.updateAutofilledFields(mob);
 
       assertEquals(expected.getAlignment(), "alignment");
       assertEquals(expected.getRace(), "race");
-      assertEquals(expected.getSkills(), sArray);
-      assertEquals(expected.getSpells(), sArray);
-      assertEquals(expected.getShortNames(), sArray);
+      assertEquals(expected.getSkills(), s);
+      assertEquals(expected.getSpells(), s);
+      assertEquals(expected.getShortNames(), s);
       assertEquals(expected.getNotes(), "notes");
       assertEquals(expected.getRep(), "rep");
       assertTrue(expected.isRixx());
@@ -174,6 +181,31 @@ public class MobTest {
           e.printStackTrace();
       }
     }
+    
+
+    @Test
+    @Disabled
+    void testIgnoreMap() {
+      try {
+        URL testFileURL = ClassLoader.getSystemResource("ignored_maps.txt");
+
+        File myFile = new File(testFileURL.toURI());
+        Scanner myReader = new Scanner(myFile);
+        while (myReader.hasNextLine()) {
+          String line = myReader.nextLine().trim();
+          System.out.println(line);
+          Matcher m = MobEngine.IGNORE_MAPS.matcher(line);
+          assertTrue(m.matches() == true);
+        }
+        myReader.close();
+      } catch (FileNotFoundException e) {
+        System.out.println("An error occurred.");
+        e.printStackTrace();
+      } catch (URISyntaxException e) {
+          e.printStackTrace();
+      }
+    }
+    
 
     @Test
     void testTriggers() {
@@ -181,8 +213,9 @@ public class MobTest {
         URL testFileURL = ClassLoader.getSystemResource("mobs.txt");
 
         MobPlugin plugin = mock(MobPlugin.class);
-        MobListener l = mock(MobListener.class);
-        MobEngine engine = new MobEngine(plugin);
+        IMobListener l = mock(IMobListener.class);
+        MobStore store = new MobStore();
+        MobEngine engine = new MobEngine(plugin, store, null);
         engine.addMobListener(l);
 
         File myFile = new File(testFileURL.toURI());
@@ -198,6 +231,41 @@ public class MobTest {
         myReader.close();
 
         assertEquals(13, engine.getMobStore().getCount());
+      } catch (FileNotFoundException e) {
+        System.out.println("An error occurred.");
+        e.printStackTrace();
+      } catch (URISyntaxException e) {
+          e.printStackTrace();
+      }
+    }
+
+    @Test
+    void testContains() {
+      try {
+        URL testFileURL = ClassLoader.getSystemResource("mobs.txt");
+
+        MobPlugin plugin = mock(MobPlugin.class);
+        IMobListener l = mock(IMobListener.class);
+        MobStore store = new MobStore();
+        MobEngine engine = new MobEngine(plugin, store, null);
+        engine.addMobListener(l);
+
+        File myFile = new File(testFileURL.toURI());
+        Scanner myReader = new Scanner(myFile);
+        while (myReader.hasNextLine()) {
+          String line = myReader.nextLine();
+          ParsedResult input = new ParsedResult(line);
+          String stripped = line.replaceAll("\u001b\\[\\d;\\d\\dm", "");
+          input.setOriginalText(line);
+          input.setStrippedText(stripped);
+          if (!stripped.isEmpty()) {
+            Mob m = engine.trigger(input);
+            assertTrue(store.contains(m.getName()));
+            assertTrue(store.contains(m));
+          }
+        }
+        myReader.close();
+
       } catch (FileNotFoundException e) {
         System.out.println("An error occurred.");
         e.printStackTrace();

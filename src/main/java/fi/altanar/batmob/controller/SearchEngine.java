@@ -8,6 +8,7 @@ import fi.altanar.batmob.vo.Mob;
 import fi.altanar.batmob.vo.MobStore;
 
 public class SearchEngine {
+    
     private MobStore store;
 
     public enum SearchCriteria {
@@ -30,8 +31,7 @@ public class SearchEngine {
         Iterator<Entry<String,Mob>> iter = store.iterator();
         switch (c) {
             case NAME:
-                while(iter.hasNext())
-                {
+                while(iter.hasNext()) {
                     Entry<String,Mob> e = iter.next();
 
                     if (e.getKey().contains(name)) {
@@ -40,18 +40,17 @@ public class SearchEngine {
                 }
                 break;
             case AREA:
-            while(iter.hasNext())
-                {
+                while(iter.hasNext()) {
                     Entry<String,Mob> e = iter.next();
 
-                    if (e.getValue().getArea().contains(name)) {
+                    String value = e.getValue().getArea();
+                    if (value != null && value.contains(name)) {
                         results.add(e.getValue());
                     }
                 }
                 break;
             case MIN_EXP:
-                while(iter.hasNext())
-                {
+                while(iter.hasNext()) {
                     Entry<String,Mob> e = iter.next();
 
                     if (e.getValue().getMinExp() > threshold[0]) {
@@ -60,8 +59,7 @@ public class SearchEngine {
                 }
                 break;
             case MAX_EXP:
-                while(iter.hasNext())
-                {
+                while(iter.hasNext()) {
                     Entry<String,Mob> e = iter.next();
 
                     if (e.getValue().getMaxExp() < threshold[0]) {
@@ -70,47 +68,48 @@ public class SearchEngine {
                 }
                 break;
             case ALIGNMENT:
-                while(iter.hasNext())
-                {
+                while(iter.hasNext()) {
                     Entry<String,Mob> e = iter.next();
 
-                    if (e.getValue().getAlignment().contains(name)) {
+                    String value = e.getValue().getAlignment();
+                    if (value != null && value.contains(name)) {
                         results.add(e.getValue());
                     }
                 }
                 break;
             case RACE:
-                while(iter.hasNext())
-                {
+                while(iter.hasNext()) {
                     Entry<String,Mob> e = iter.next();
 
-                    if (e.getValue().getRace().contains(name)) {
+                    String value = e.getValue().getRace();
+                    if (value != null && value.contains(name)) {
                         results.add(e.getValue());
                     }
                 }
                 break;
             case REP:
-                while(iter.hasNext())
-                {
+                while(iter.hasNext()) {
                     Entry<String,Mob> e = iter.next();
 
-                    if (e.getValue().getRep().contains(name)) {
+                    String value = e.getValue().getRep();
+                    if (value != null && value.contains(name)) {
                         results.add(e.getValue());
                     }
                 }
                 break;
             case RIXX:
-                while(iter.hasNext())
-                {
+                while(iter.hasNext()) {
                     Entry<String,Mob> e = iter.next();
 
-                    if (e.getValue().isRixx()) {
+                    boolean value = e.getValue().isRixx();
+                    if (value) {
                         results.add(e.getValue());
                     }
                 }
                 break;
-
         }
         return results;
     }
 }
+
+
