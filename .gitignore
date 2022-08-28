@@ -24,3 +24,5 @@ hs_err_pid*
 target/**
 Test*.xml
 surefire-reports
+*.txt
+logs/

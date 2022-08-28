@@ -7,8 +7,12 @@ import com.mythicscape.batclient.interfaces.BatWindow;
 import com.mythicscape.batclient.interfaces.ParsedResult;
 
 import fi.altanar.batmob.io.GuiDataPersister;
+import fi.altanar.batmob.io.ILogger;
+import fi.altanar.batmob.io.MediaWikiApi;
 import fi.altanar.batmob.io.MobDataPersister;
-import fi.altanar.batmob.io.MobListener;
+import fi.altanar.batmob.io.IMobListener;
+import fi.altanar.batmob.io.IMobStoreListener;
+import fi.altanar.batmob.io.IStatusListener;
 import fi.altanar.batmob.vo.Mob;
 import fi.altanar.batmob.vo.MobSaveObject;
 import fi.altanar.batmob.vo.MobStore;
@@ -17,28 +21,31 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
-import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
-import java.awt.event.ActionEvent;
-
-public class MobEngine implements ItemListener, ComponentListener, ListSelectionListener {
+public class MobEngine implements ItemListener, ComponentListener, ILogger, IMobStoreListener {
 
     private String baseDir;
     private BatWindow batWindow;
     private MobPlugin plugin;
-    private MobStore mobStore = new MobStore();
+    private MobStore mobStore;
     private RegexTrigger triggers = new RegexTrigger();
     private String currentAreaName = "";
 
     private SearchEngine searchEngine;
 
     private ArrayList<Mob> roomMobs = new ArrayList<Mob>();
+
+    private ArrayList<IStatusListener> statusListeners = new ArrayList<IStatusListener>();
 
     // [1;32mVlad the Inhaler, the slavic golem[0m
     private static final String GREEN_BOLD = "\u001b[1;32m";
@@ -48,16 +55,26 @@ public class MobEngine implements ItemListener, ComponentListener, ListSelection
         "Your ",
         "You ",
         "( ",
-        "' ",
-        "["
+        "(Barb",
+        "< ",
+        "(Arch",
+        "(Rift",
+        "'",
+        "[",
+        "A hot"
     };
 
-    private ArrayList<MobListener> listeners = new ArrayList<MobListener>();
+    public static final Pattern IGNORE_MAPS = Pattern.compile("^[\\p{Punct}frpld]{9}\\s", Pattern.CASE_INSENSITIVE);
+    
+    private ArrayList<IMobListener> listeners = new ArrayList<IMobListener>();
 
-    public MobEngine(MobPlugin plugin) {
+    private MediaWikiApi queryEngine;
+
+    public MobEngine(MobPlugin plugin, MobStore store, MediaWikiApi queryEngine) {
         this.plugin = plugin;
-
+        this.mobStore = store;
         this.searchEngine = new SearchEngine(this.mobStore);
+        this.queryEngine = queryEngine;
     }
 
     @Override
@@ -73,54 +90,82 @@ public class MobEngine implements ItemListener, ComponentListener, ListSelection
         return this.baseDir;
     }
 
-    public void trigger(ParsedResult input) {
+    public void setQueryEngine(MediaWikiApi queryEngine) {
+        this.queryEngine = queryEngine;
+    }
+
+    public MediaWikiApi getQueryEngine() {
+        return this.queryEngine;
+    }
+
+    public Mob trigger(ParsedResult input) {
         String stripped = input.getStrippedText().trim();
         Object obj = this.triggers.process(stripped);
         if (obj instanceof Mob) {
+            // from pkils
             Mob mob = (Mob)obj;
-            if (!this.mobStore.contains(stripped)) {
-                plugin.log("NEW: " + mob.toString());
+            if (!this.mobStore.contains(mob)) {
+                this.log("NEW: " + mob.getName());
                 this.mobStore.store(mob);
             } else {
-                // update exp only
-                this.mobStore.updateAutofilledFields(mob);
-                plugin.log("UPDATE: " + mob.toString());
+                mob = this.mobStore.updateExp(mob);
             }
+            return mob;
         } else {
+            // from "look"
             String orig = input.getOriginalText();
             if (orig.startsWith(GREEN_BOLD)) {
-                plugin.log(input.getOriginalText());
-                this.handleMob(stripped);
+                if (!IGNORE_MAPS.matcher(stripped).matches()) {
+                    this.log(input.getOriginalText());
+                    return this.handleMob(stripped, false);
+                }
             } else if (orig.startsWith(RED_BOLD)) {
-                plugin.log(input.getOriginalText());
-                this.handleMob(stripped);
+                this.log(input.getOriginalText());
+                return this.handleMob(stripped, true);
             }
         }
+        return null;
     }
 
-    private void handleMob(String stripped) {
+    private Mob handleMob(String strippedName, boolean isAgro) {
+        if (strippedName.isEmpty()) {
+            return null;
+        }
+
         for (String s: IGNORED) {
-            if (stripped.startsWith(s)) {
-                return;
+            if (strippedName.startsWith(s)) {
+                return null;
             }
         }
 
-        Mob m = this.mobStore.get(stripped);
+        Mob m = this.mobStore.get(strippedName);
         if (m == null) {
-            m = new Mob(0, stripped);
+            m = new Mob(0, strippedName);
+            m.setArea(this.currentAreaName);
+            m.setAggro(isAgro);
+            this.log("NEW: " + m.getName());
             this.mobStore.store(m);
         } else {
-            if (m.getArea() == null) {
+            if (m.getArea() == null || m.getArea().isEmpty()) {
                 m.setArea(this.currentAreaName);
-                this.mobStore.updateAutofilledFields(m);
+                m.setAggro(isAgro);
+                m = this.mobStore.updateAutofilledFields(m);
+                this.log("Update: " + m.getName());
             }
         }
-        this.roomMobs.add(m);
-        for (Iterator<MobListener> iter = this.listeners.iterator(); iter.hasNext();) {
-            plugin.log("Detected " + this.roomMobs.size() + "mobs in the room.");
-            MobListener ml = iter.next();
+
+        while (this.roomMobs.size() > 20) {
+            this.roomMobs.remove(0); // remove oldest entry
+        }
+        if (!this.roomMobs.contains(m)) {
+            this.roomMobs.add(m);
+        }
+
+        for (Iterator<IMobListener> iter = this.listeners.iterator(); iter.hasNext();) {
+            IMobListener ml = iter.next();
             ml.mobsDetected(this.roomMobs);
         }
+        return m;
     }
 
     public void setBatWindow( BatWindow clientWin ) {
@@ -136,7 +181,7 @@ public class MobEngine implements ItemListener, ComponentListener, ListSelection
 
     }
 
-    public void addMobListener(MobListener l) {
+    public void addMobListener(IMobListener l) {
         this.listeners.add(l);
     }
 
@@ -147,14 +192,12 @@ public class MobEngine implements ItemListener, ComponentListener, ListSelection
         }
     }
 
-
     @Override
     public void componentResized( ComponentEvent e ) {
         if (this.batWindow != null) {
             GuiDataPersister.save( this.baseDir, this.batWindow.getLocation(), this.batWindow.getSize() );
         }
     }
-
 
     @Override
     public void componentShown( ComponentEvent e ) {
@@ -173,38 +216,37 @@ public class MobEngine implements ItemListener, ComponentListener, ListSelection
         return currentAreaName;
     }
 
-    public void setCurrentAreaName(String currentAreaName) {
+    public void setCurrentAreaName(String currentAreaName) {        
         this.currentAreaName = currentAreaName;
-
-        this.mobStore.setCurrentAreaName(currentAreaName);
+        this.notifyStatusListeners(this.currentAreaName);
     }
 
     public void load() {
         try {
-            plugin.log("Loading mobs...");
+            this.log("Loading mobs...");
             MobSaveObject saved = MobDataPersister.load(this.baseDir);
             if (saved != null) {
                 this.mobStore.restoreFromSaveObject(saved);
-                plugin.log("Loaded " + mobStore.getCount() + " mobs.");
-                Iterator<Entry<String,Mob>> it = this.mobStore.iterator();
-                while (it.hasNext()) {
-                    plugin.log(it.next().getValue().toString());
-                }
+                this.log("Loaded " + mobStore.getCount() + " mobs.");
+                Date date = Calendar.getInstance().getTime();
+                DateFormat dateFormat = new SimpleDateFormat("HH:mm");
+
+                this.notifyStatusListeners("Saved at " + dateFormat.format(date));
             }
         } catch (IOException ioe) {
-            plugin.log(ioe.getMessage());
+            this.log(ioe.getMessage());
         } catch (ClassNotFoundException cnfe) {
-            plugin.log(cnfe.getMessage());
+            this.log(cnfe.getMessage());
         }
     }
 
     public void saveMobs() {
         if (this.mobStore != null) {
             try {
-                plugin.log("Saving " + this.mobStore.getCount() + " mobs.");
+                this.log("Saving " + this.mobStore.getCount() + " mobs.");
                 MobDataPersister.save(this.baseDir, this.mobStore.getSaveObject());
             } catch (IOException e) {
-                plugin.log(e.getMessage());
+                this.log(e.getMessage());
             }
         }
     }
@@ -217,15 +259,41 @@ public class MobEngine implements ItemListener, ComponentListener, ListSelection
         return this.searchEngine;
     }
 
-    // TODO: trigger this when we move.
-    // otherwise looking will also update the list
-    public void roomChanged(ActionEvent event) {
-        plugin.log("Room changed");
-        this.roomMobs.clear();
+    public void addStatusListener(IStatusListener l) {
+        this.statusListeners.add(l);
+    }
+
+    public void notifyStatusListeners(String str) {
+        for (IStatusListener s : this.statusListeners) {
+            s.statusChanged(str);
+        }
+    }
+
+    public void log(String msg) {
+        if (this.baseDir != null) {
+            try {
+                File logFile = getFile( "logs", "batmob.txt" );
+                FileWriter myWriter = new FileWriter(logFile, true);
+                myWriter.write(msg + '\n');
+                myWriter.close();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private File getFile( String subDir, String filename ) {
+        File dirFile = new File( this.baseDir, subDir );
+        File file = new File( dirFile, filename );
+        return file;
     }
 
     @Override
-    public void valueChanged(ListSelectionEvent e) {
-        // search result clicked
+    public void mobRemoved(Mob m) {
+        this.roomMobs.remove(m);
+        for (Iterator<IMobListener> iter = this.listeners.iterator(); iter.hasNext();) {
+            IMobListener ml = iter.next();
+            ml.mobsDetected(this.roomMobs);
+        }        
     }
 }

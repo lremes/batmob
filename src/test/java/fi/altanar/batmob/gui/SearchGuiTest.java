@@ -1,10 +1,14 @@
 package fi.altanar.batmob.gui;
 
 import java.awt.FlowLayout;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 
 import fi.altanar.batmob.controller.MobEngine;
+import fi.altanar.batmob.controller.MobPlugin;
+import fi.altanar.batmob.vo.Mob;
+import fi.altanar.batmob.vo.MobStore;
 
 import static org.mockito.Mockito.*;
 
@@ -16,21 +20,18 @@ public class SearchGuiTest {
         frame.setLayout( new FlowLayout() );
         frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 
-        MobEngine engine = mock(MobEngine.class);
+        MobStore store = new MobStore();
+        MobPlugin plugin = mock(MobPlugin.class);
+        MobEngine engine = new MobEngine(plugin, store, null);
+        
         SearchPanel panel = new SearchPanel(engine);
 
-        String[] texts = new String[]{
-            "batmud",
-            "is",
-            "the",
-            "best"
-        };
+        store.store(new Mob(0, "a rabbit"));
+        store.store(new Mob(0, "a fox"));
+        store.store(new Mob(0, "jumpy rabbit"));
 
-        panel.setResults(texts);
-
-        frame.getContentPane().add( panel );
         frame.setSize( 1200, 800 );
+        frame.getContentPane().add( panel );
         frame.setVisible( true );
-
     }
 }
