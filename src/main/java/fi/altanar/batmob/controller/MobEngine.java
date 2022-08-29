@@ -61,11 +61,12 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
         "(Rift",
         "'",
         "[",
-        "A hot"
+        "A hot",
+        "an essence"
     };
 
     public static final Pattern IGNORE_MAPS = Pattern.compile("^[\\p{Punct}frpld]{9}\\s", Pattern.CASE_INSENSITIVE);
-    
+
     private ArrayList<IMobListener> listeners = new ArrayList<IMobListener>();
 
     private MediaWikiApi queryEngine;
@@ -216,7 +217,7 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
         return currentAreaName;
     }
 
-    public void setCurrentAreaName(String currentAreaName) {        
+    public void setCurrentAreaName(String currentAreaName) {
         this.currentAreaName = currentAreaName;
         this.notifyStatusListeners(this.currentAreaName);
     }
@@ -297,6 +298,6 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
         for (Iterator<IMobListener> iter = this.listeners.iterator(); iter.hasNext();) {
             IMobListener ml = iter.next();
             ml.mobsDetected(this.roomMobs);
-        }        
+        }
     }
 }
