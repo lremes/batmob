@@ -1,3 +1,13 @@
-You break your skill attempt.
-Your movement prevents you from doing the skill.
-( elder ) Player
+[1;31You break your skill attempt.[0m
+[1;31Your movement prevents you from doing the skill.[0m
+[1;32m([0;32m 82[1;32m)[0m Glamdring    [0m[[0m 86[0m][0m Sssszzz      [1;32m([0;32m 86[1;32m)[0m Alistar      [0m[[0m 88[0m][0m Sylvester    
+[1;32m([0;32m 92[1;32m)[0m Tept         [1;32m([0;32m 95[1;32m)[0m Gorehound    [0m[[0m 95[0m][0m Arasaka      [0m[[0m 95[0m][0m Liku         
+[1;32m([0;32m100[1;32m)[0m Moonglaze    [1;32m([0;32m101[1;32m)[0m Erasmus      [1;36m{[0;36m102[1;36m}[0m Moviae       [1;32m([0;32m102[1;32m)[0m Naflein      
+[1;32m([0;32m103[1;32m)[0m Munkki       [1;32m([0;32m103[1;32m)[0m Stylus       [1;36m{[0;36m104[1;36m}[0m Kohothegreat [1;32m([0;32m104[1;32m)[0m Alorn        
+[1;32m([0;32m105[1;32m)[0m Farliss      [1;32m([0;32m105[1;32m)[0m Gargoyle     [1;36m{[0;36m105[1;36m}[0m Pils         [1;36m{[0;36m105[1;36m}[0m Axl          
+[1;32m([0;32m105[1;32m)[0m Croesus      [1;32m([0;32m105[1;32m)[0m Inferno      [1;32m([0;32m105[1;32m)[0m Arnoldi      [1;32m([0;32m106[1;32m)[0m Deathseeker  
+[1;32m([0;32m106[1;32m)[0m Drifter      [1;32m([0;32m107[1;32m)[0m Larppa       [1;32m([0;32m107[1;32m)[0m Gunk         [1;36m{[0;36m111[1;36m}[0m Broetchen    
+[1;32mf[1;32mf[1;32mf[0;32m$[1;37m*[0;32m$[1;32mf[1;32mf[1;32mf[0m  stones. There are trees near the road. Above you is a warm, moving,
+[1;32mf[1;32mf[1;32mf[1;32mf[1;30m|[1;32mf[1;32mf[1;32mf[1;32mf[0m  Obvious exits are: [1m<31n|n>31[0m and [1m<31s|s>31[0m.
+[1;32mf[1;32mf[1;32mf[0;32m$[1;30m|[0;32m$[1;32mf[1;32mf[1;32mf[0m  stands limply here.
+[1;32mf[1;32mf[1;32mf[0;32m$[1;30m|[0;32m$[1;32mf[1;32mf[1;32mf[0m  Obvious exits are: [1m<31n|n>31[0m, [1m<31e|e>31[0m, [1m<31s|s>31[0m and [1m<31w|w>31[0m.

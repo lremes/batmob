@@ -1,4 +1,4 @@
-package fi.altanar.batmob.gui;
+package fi.altanar.batmob.vo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -6,13 +6,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.regex.Matcher;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Disabled;
 
 import com.mythicscape.batclient.interfaces.ParsedResult;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -23,8 +22,6 @@ import fi.altanar.batmob.controller.MobEngine;
 import fi.altanar.batmob.controller.MobPlugin;
 import fi.altanar.batmob.controller.RegexTrigger;
 import fi.altanar.batmob.io.IMobListener;
-import fi.altanar.batmob.vo.Mob;
-import fi.altanar.batmob.vo.MobStore;
 
 import static org.mockito.Mockito.*;
 
@@ -64,7 +61,6 @@ public class MobTest {
             System.out.println("An error occurred.");
             e.printStackTrace();
           } catch (URISyntaxException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -83,7 +79,7 @@ public class MobTest {
               String data = myReader.nextLine();
               Mob mob = (Mob) tm.process(data);
               store.store(mob);
-              System.out.println(mob);
+              //System.out.println(mob);
             }
             myReader.close();
 
@@ -96,7 +92,7 @@ public class MobTest {
               Mob mob = (Mob)tm.process(data);
 
               mob = store.updateAutofilledFields(mob);
-              System.out.println(mob);
+              //System.out.println(mob);
             }
             myReader.close();
         } catch (FileNotFoundException e) {
@@ -134,7 +130,6 @@ public class MobTest {
       mob.setNotes("notes");
       mob.setRep("rep");
       mob.setRixx(true);
-      String[] sArray = new String[]{ "s1", "s2" };
 
       ArrayList<String> s = new ArrayList<String>();
       s.add("s1");
@@ -154,58 +149,6 @@ public class MobTest {
       assertEquals(expected.getRep(), "rep");
       assertTrue(expected.isRixx());
     }
-
-    @Test
-    void testIgnore() {
-      try {
-        URL testFileURL = ClassLoader.getSystemResource("ignored.txt");
-
-        File myFile = new File(testFileURL.toURI());
-        Scanner myReader = new Scanner(myFile);
-        while (myReader.hasNextLine()) {
-          String line = myReader.nextLine();
-          boolean matches = false;
-          for (String s: MobEngine.IGNORED) {
-            matches = line.startsWith(s);
-            if (matches) {
-              break;
-            }
-          }
-          assertTrue(matches);
-        }
-        myReader.close();
-      } catch (FileNotFoundException e) {
-        System.out.println("An error occurred.");
-        e.printStackTrace();
-      } catch (URISyntaxException e) {
-          e.printStackTrace();
-      }
-    }
-    
-
-    @Test
-    @Disabled
-    void testIgnoreMap() {
-      try {
-        URL testFileURL = ClassLoader.getSystemResource("ignored_maps.txt");
-
-        File myFile = new File(testFileURL.toURI());
-        Scanner myReader = new Scanner(myFile);
-        while (myReader.hasNextLine()) {
-          String line = myReader.nextLine().trim();
-          System.out.println(line);
-          Matcher m = MobEngine.IGNORE_MAPS.matcher(line);
-          assertTrue(m.matches() == true);
-        }
-        myReader.close();
-      } catch (FileNotFoundException e) {
-        System.out.println("An error occurred.");
-        e.printStackTrace();
-      } catch (URISyntaxException e) {
-          e.printStackTrace();
-      }
-    }
-    
 
     @Test
     void testTriggers() {
@@ -231,6 +174,35 @@ public class MobTest {
         myReader.close();
 
         assertEquals(13, engine.getMobStore().getCount());
+      } catch (FileNotFoundException e) {
+        System.out.println("An error occurred.");
+        e.printStackTrace();
+      } catch (URISyntaxException e) {
+          e.printStackTrace();
+      }
+    }
+
+    @Test
+    void testIgnore() {
+      try {
+        URL testFileURL = ClassLoader.getSystemResource("ignored.txt");
+
+        MobPlugin plugin = mock(MobPlugin.class);
+        MobStore store = new MobStore();
+        MobEngine engine = new MobEngine(plugin, store, null);
+
+        File myFile = new File(testFileURL.toURI());
+        Scanner myReader = new Scanner(myFile);
+        while (myReader.hasNextLine()) {
+          String line = myReader.nextLine();
+          ParsedResult input = new ParsedResult(line);
+          String stripped = line.replaceAll("\u001b\\[\\d;\\d\\dm|\u001b\\[0m", "");
+
+          input.setOriginalText(line);
+          input.setStrippedText(stripped);
+          assertNull(engine.trigger(input));
+        }
+        myReader.close();
       } catch (FileNotFoundException e) {
         System.out.println("An error occurred.");
         e.printStackTrace();

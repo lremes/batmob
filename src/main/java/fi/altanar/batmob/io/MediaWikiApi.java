@@ -14,14 +14,11 @@ public class MediaWikiApi {
 
     private String endpoint;
 
-    private String baseDir = null;
-
     Pattern title = Pattern.compile("\\s*\\[title\\] => (.*)$");
     Pattern missing = Pattern.compile("\\s*\\[missing\\] => .*$");
 
-    public MediaWikiApi(String endpoint, String baseDir) {
+    public MediaWikiApi(String endpoint) {
         this.endpoint = endpoint;
-        this.baseDir = baseDir;
     }
     
     public Mob fetchMobInfo(String q) {

@@ -23,9 +23,7 @@ public class DetailsGuiTest {
         frame.setLayout( new FlowLayout() );
         frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
         
-        Path currentRelativePath = Paths.get("");
-        String s = currentRelativePath.toAbsolutePath().toString();
-        MediaWikiApi api = new MediaWikiApi("https://taikajuoma.ovh/", s);
+        MediaWikiApi api = new MediaWikiApi("https://taikajuoma.ovh/");
 
         ArrayList<Mob> mobs = new ArrayList<Mob>();
         mobs.add(new Mob(1, "Test1"));

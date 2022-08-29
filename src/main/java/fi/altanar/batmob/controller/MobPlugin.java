@@ -57,7 +57,7 @@ public class MobPlugin extends BatClientPlugin implements
         }
 
         MobStore store = new MobStore();
-        MediaWikiApi api = new MediaWikiApi("https://taikajuoma.ovh/", BASEDIR);
+        MediaWikiApi api = new MediaWikiApi("https://taikajuoma.ovh/");
 
         engine = new MobEngine(this, store, api);
         engine.setBatWindow( clientWin );

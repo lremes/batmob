@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.regex.Pattern;
+import java.util.regex.*;
 
 public class MobEngine implements ItemListener, ComponentListener, ILogger, IMobStoreListener {
 
@@ -54,18 +54,15 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     public static final String[] IGNORED = new String[]{
         "Your ",
         "You ",
-        "( ",
-        "(Barb",
-        "< ",
-        "(Arch",
-        "(Rift",
         "'",
-        "[",
         "A hot",
         "an essence"
     };
 
-    public static final Pattern IGNORE_MAPS = Pattern.compile("^[\\p{Punct}frpld]{9}\\s", Pattern.CASE_INSENSITIVE);
+    public static final Pattern IGNORE_MAPS = Pattern.compile("^[*$|\\/fFpd^]{9}\\s+");
+    //public static final Pattern IGNORE_MAPS = Pattern.compile("^\\w{9}\\s");
+    public static final Pattern IGNORE_TITLES = Pattern.compile("^[\\Q<([{\\E]+[\\w\\s]{10}[\\Q>]})\\E]+|^[\\Q<([{\\E]+[\\d\\s]{3}[\\Q>]})\\E]+|^[(\\[][\\d\\s]{3}[])]");
+    //public static final Pattern IGNORE_TITLES = Pattern.compile("^[\\(\\[][\\d\\s]{3}[\\]\\)]");
 
     private ArrayList<IMobListener> listeners = new ArrayList<IMobListener>();
 
@@ -116,7 +113,7 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
             // from "look"
             String orig = input.getOriginalText();
             if (orig.startsWith(GREEN_BOLD)) {
-                if (!IGNORE_MAPS.matcher(stripped).matches()) {
+                if (IGNORE_MAPS.matcher(stripped).find() == false && IGNORE_TITLES.matcher(stripped).find() == false) {
                     this.log(input.getOriginalText());
                     return this.handleMob(stripped, false);
                 }

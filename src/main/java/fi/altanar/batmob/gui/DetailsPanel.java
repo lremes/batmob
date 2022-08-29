@@ -268,7 +268,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         skillsArea.setBackground( BG_COLOR_EDITABLE );
         skillsArea.setForeground( TEXT_COLOR );
         skillsArea.setFont( font );
-        skillsArea.setToolTipText( "Comma-separted list of spells" );
+        skillsArea.setToolTipText( "Comma-separted list of skill" );
         skillsArea.setAlignmentX( Component.LEFT_ALIGNMENT );
         skillsArea.setPreferredSize( INPUT_SIZE );
         skillsArea.setMinimumSize( INPUT_SIZE );
@@ -443,7 +443,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
                         list.add(trimmed);
                     }
                 }
-                this.mob.setSkills(list);
+                this.mob.setSpells(list);
             }
 
             this.mob.setUndead(this.isUndead.isSelected());
@@ -460,6 +460,8 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
                 if (m != null) {
                     this.mob.updateFrom(m);
                     showMob(this.mob);
+                } else {
+                    this.engine.notifyStatusListeners("Nothing found");
                 }
             }
         }
@@ -468,6 +470,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     @Override
     public void mobSelected(Mob mob) {
         this.mob = mob;
+        clearAll();
         showMob(this.mob);
     }
 
@@ -491,7 +494,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
             list = m.getSpells();
             if (list != null) {
                 String[] spells = list.toArray(new String[0]);
-                this.skillsArea.setText(String.join(",", spells));
+                this.spellsArea.setText(String.join(",", spells));
             }
     
             this.raceArea.setText(this.mob.getRace());
@@ -512,13 +515,13 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         this.alignmentArea.setText("");
 
         this.skillsArea.setText("");
-        this.skillsArea.setText("");
+        this.spellsArea.setText("");
 
         this.raceArea.setText("");
         this.repArea.setText("");
         this.notesArea.setText("");
         this.isUndead.setSelected(false);
-        this.isAggro.setSelected(false);;
+        this.isAggro.setSelected(false);
     }
 
     @Override

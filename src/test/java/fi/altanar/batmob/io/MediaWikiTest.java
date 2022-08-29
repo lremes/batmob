@@ -6,22 +6,12 @@ import fi.altanar.batmob.vo.Mob;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class MediaWikiTest {
     
-
     @Test
     void testFetchMobInfo() {
-        Path currentRelativePath = Paths.get("");
-        String s = currentRelativePath.toAbsolutePath().toString();
-
-        MediaWikiApi api = new MediaWikiApi("https://taikajuoma.ovh/", s);
+        MediaWikiApi api = new MediaWikiApi("https://taikajuoma.ovh/");
 
         String name = "Darrol Half-plow the master miner";
         Mob result = api.fetchMobInfo(name);
