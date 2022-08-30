@@ -56,7 +56,8 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
         "You ",
         "'",
         "A hot",
-        "an essence"
+        "an essence",
+        "a flask"
     };
 
     public static final Pattern IGNORE_MAPS = Pattern.compile("^[*$|\\/fFpd^]{9}\\s+");
