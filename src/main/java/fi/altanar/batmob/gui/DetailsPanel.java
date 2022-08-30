@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -19,6 +21,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.BoxLayout;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import fi.altanar.batmob.controller.MobEngine;
@@ -31,7 +34,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     private final int PANEL_WIDTH = 390;
     private final int PANEL_HEIGHT = 540;
 
-    private final int LABEL_HEIGHT = 18;
+    private final int LABEL_HEIGHT = 20;
 
     public final Dimension PANEL_SIZE = new Dimension( PANEL_WIDTH, PANEL_HEIGHT );
     public final Dimension LABEL_SIZE = new Dimension( PANEL_WIDTH, LABEL_HEIGHT );
@@ -59,6 +62,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     private JScrollPane scrollableNotes;
     private JTextField nameArea = new JTextField();
     private JTextArea descArea = new JTextArea();
+    private JScrollPane scrollableDesc;
     private JTextField areaNameArea = new JTextField();
     private JTextField expArea = new JTextField();
     private JTextField shortNameArea = new JTextField();
@@ -93,64 +97,74 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         this.setMinimumSize( PANEL_SIZE );
         this.setMaximumSize( PANEL_SIZE );
 
-        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        this.setLayout(new GridBagLayout());
         this.setBackground( BG_COLOR );
         this.setForeground( TEXT_COLOR );
         this.setAlignmentX( Component.LEFT_ALIGNMENT );
 
-        JLabel nameLabel = new JLabel("Long name");
-        nameLabel.setBackground( BG_COLOR );
-        nameLabel.setForeground( TEXT_COLOR );
-        nameLabel.setFont(labelFont);
-        nameLabel.setPreferredSize( LABEL_SIZE );
-        nameLabel.setMinimumSize( LABEL_SIZE );
-        nameLabel.setMaximumSize( LABEL_SIZE );
-        nameLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
-        this.add( nameLabel );
+        nameArea = createPanel(this, 0, 0, 2, 1, "Long name", BORDER_COLOR, "This is the long name of the mob", false);
 
-        nameArea.setBounds( 0, 0, TEXT_INPUT_WIDTH, TEXT_INPUT_HEIGHT );
-        nameArea.setEditable( false );
-        nameArea.setColumns( 25 );
-        nameArea.setBorder( new LineBorder( BORDER_COLOR ) );
-        nameArea.setBackground( BG_COLOR_NONEDITABLE );
-        nameArea.setForeground( TEXT_COLOR );
-        nameArea.setFont( font );
-        nameArea.setPreferredSize( INPUT_SIZE );
-        nameArea.setMinimumSize( INPUT_SIZE );
-        nameArea.setMaximumSize( INPUT_SIZE );
-        nameArea.setToolTipText( "This is the long name of the mob" );
-        nameArea.setAlignmentX( Component.LEFT_ALIGNMENT );
-        this.add( nameArea );
+        expArea = createPanel(this, 1, 0, 2, 1, "Exp (latest/min/max)", BORDER_COLOR, "This is the exp gained for the mob", false);
 
-        JLabel expLabel = new JLabel("Exp (latest / min / max)");
-        expLabel.setBackground( BG_COLOR );
-        expLabel.setForeground( TEXT_COLOR );
-        expLabel.setFont(labelFont);
-        expLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
-        this.add( expLabel );
+        areaNameArea = createPanel(this, 3, 0, 1, 1, "Area", BORDER_COLOR, "This is the area where the mob is", false);
 
-        expArea.setBounds( 0, 0, TEXT_INPUT_WIDTH, TEXT_INPUT_HEIGHT );
-        expArea.setEditable( false );
-        expArea.setColumns( 25 );
-        expArea.setBorder( new LineBorder( BORDER_COLOR ) );
-        expArea.setBackground( BG_COLOR_NONEDITABLE );
-        expArea.setForeground( TEXT_COLOR );
-        expArea.setFont( font );
-        expArea.setToolTipText( "This is the latest/min/max recorded exp for the mob" );
-        expArea.setAlignmentX( Component.LEFT_ALIGNMENT );
-        expArea.setPreferredSize( INPUT_SIZE );
-        expArea.setMinimumSize( INPUT_SIZE );
-        expArea.setMaximumSize( INPUT_SIZE );
+        shortNameArea = createPanel(this, 3, 1, 1, 1, "Names", BORDER_COLOR, "Altenative names for mob", true);
 
-        this.add( expArea );
+        raceArea = createPanel(this, 4, 0, 1, 1, "Race", BORDER_COLOR, "Race of the mob", true);
 
-        JLabel descLabel = new JLabel("Description");
-        descLabel.setBackground( BG_COLOR );
-        descLabel.setForeground( TEXT_COLOR );
-        descLabel.setFont(labelFont);
-        descLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
-        this.add( descLabel );
+        genderArea = createPanel(this, 4, 1, 1, 1, "Gender", BORDER_COLOR, "Gender of the mob", true);
 
+        spellsArea = createPanel(this, 5, 0, 2, 1, "Spells", BORDER_COLOR, "Comma-separted list of spells", true);
+
+        skillsArea = createPanel(this, 6, 0, 2, 1, "Skills", BORDER_COLOR, "Comma-separted list of skill", true);
+
+        alignmentArea = createPanel(this, 7, 0, 1, 1, "Alignment", BORDER_COLOR, "Alignment of the mob", true);
+
+        repArea = createPanel(this, 7, 1, 1, 1, "Rep", BORDER_COLOR, "Rep gained for killing the mob", true);
+
+        isUndead.setBackground( BG_COLOR );
+        isUndead.setForeground( TEXT_COLOR );
+        isUndead.setAlignmentX( Component.LEFT_ALIGNMENT );
+        isUndead.setPreferredSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
+        isUndead.setMinimumSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
+        isUndead.setMaximumSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
+        isUndead.setAlignmentX( Component.LEFT_ALIGNMENT );
+        isUndead.setFont( font );
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 0.5;
+        c.gridy = 8;
+        c.gridx = 0;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        this.add(isUndead, c);
+
+        isAggro.setBackground( BG_COLOR );
+        isAggro.setForeground( TEXT_COLOR );
+        isAggro.setAlignmentX( Component.LEFT_ALIGNMENT );
+        isAggro.setPreferredSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
+        isAggro.setMinimumSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
+        isAggro.setMaximumSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
+        isAggro.setAlignmentX( Component.LEFT_ALIGNMENT );
+        isAggro.setFont( font );
+
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 0.5;
+        c.gridy = 8;
+        c.gridx = 1;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        this.add(isAggro, c);
+
+        JPanel descPanel = new JPanel();
+        descPanel.setBackground( BG_COLOR );
+        descPanel.setForeground( TEXT_COLOR );
+        descPanel.setAlignmentX( Component.LEFT_ALIGNMENT );
+        descPanel.setLayout(new BoxLayout(descPanel, BoxLayout.Y_AXIS));
+
+        JLabel descLabel = createLabel("Description");
+        
         descArea.setBounds( 0, BORDERLINE, TEXT_INPUT_WIDTH, DESC_HEIGHT );
         descArea.setEditable( false );
         descArea.setColumns( 25 );
@@ -162,204 +176,28 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         descArea.setFont( font );
         descArea.setToolTipText( "This is mob description" );
         descArea.setAlignmentX( Component.LEFT_ALIGNMENT );
-        descArea.setPreferredSize( INPUT_SIZE );
-        descArea.setMinimumSize( INPUT_SIZE );
-        descArea.setMaximumSize( INPUT_SIZE );
+        scrollableDesc = new JScrollPane( descArea );
+        scrollableDesc.setPreferredSize( new Dimension( PANEL_WIDTH, TEXT_INPUT_HEIGHT * 2) );
+        scrollableDesc.setMinimumSize( new Dimension( PANEL_WIDTH, TEXT_INPUT_HEIGHT * 2 ) );
+        scrollableDesc.setMaximumSize( new Dimension( PANEL_WIDTH, TEXT_INPUT_HEIGHT * 2 ) );
+        descPanel.add(descLabel);
+        descPanel.add(scrollableDesc);
 
-        this.add( descArea );
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 0.5;
+        c.gridy = 9;
+        c.gridx = 0;
+        c.gridwidth = 2;
+        c.gridheight = 1;
+        this.add( descPanel, c );
 
-        JLabel areaLabel = new JLabel("Area");
-        areaLabel.setBackground( BG_COLOR );
-        areaLabel.setForeground( TEXT_COLOR );
-        areaLabel.setFont(labelFont);
-        areaLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
-        this.add( areaLabel );
-
-        areaNameArea.setBounds( 0, 0, TEXT_INPUT_WIDTH, TEXT_INPUT_HEIGHT );
-        areaNameArea.setEditable( false );
-        areaNameArea.setColumns( 25 );
-        areaNameArea.setBorder( new LineBorder( BORDER_COLOR ) );
-        areaNameArea.setBackground( BG_COLOR_NONEDITABLE );
-        areaNameArea.setForeground( TEXT_COLOR );
-        areaNameArea.setFont( font );
-        areaNameArea.setToolTipText( "This is the area where the mob can be found" );
-        areaNameArea.setAlignmentX( Component.LEFT_ALIGNMENT );
-        areaNameArea.setPreferredSize( INPUT_SIZE );
-        areaNameArea.setMinimumSize( INPUT_SIZE );
-        areaNameArea.setMaximumSize( INPUT_SIZE );
-
-        this.add( areaNameArea );
-
-        JLabel snameLabel = new JLabel("Short names");
-        snameLabel.setBackground( BG_COLOR );
-        snameLabel.setForeground( TEXT_COLOR );
-        snameLabel.setFont(labelFont);
-        snameLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
-        this.add( snameLabel );
-
-        shortNameArea.setBounds( 0, 0, TEXT_INPUT_WIDTH, TEXT_INPUT_HEIGHT );
-        shortNameArea.setEditable( true );
-        shortNameArea.setColumns( 25 );
-        shortNameArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
-        shortNameArea.setBackground( BG_COLOR_EDITABLE );
-        shortNameArea.setForeground( TEXT_COLOR );
-        shortNameArea.setFont( font );
-        shortNameArea.setToolTipText( "This is a comma-separated list of short names for the mob." );
-        shortNameArea.setAlignmentX( Component.LEFT_ALIGNMENT );
-        shortNameArea.setPreferredSize( INPUT_SIZE );
-        shortNameArea.setMinimumSize( INPUT_SIZE );
-        shortNameArea.setMaximumSize( INPUT_SIZE );
-
-        this.add( shortNameArea );
-
-        JLabel raceLabel = new JLabel("Race");
-        raceLabel.setBackground( BG_COLOR );
-        raceLabel.setForeground( TEXT_COLOR );
-        raceLabel.setFont(labelFont);
-        raceLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
-        this.add( raceLabel );
-
-        raceArea.setBounds( 0, 0, TEXT_INPUT_WIDTH, TEXT_INPUT_HEIGHT );
-        raceArea.setEditable( true );
-        raceArea.setColumns( 25 );
-        raceArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
-        raceArea.setBackground( BG_COLOR_EDITABLE );
-        raceArea.setForeground( TEXT_COLOR );
-        raceArea.setFont( font );
-        raceArea.setToolTipText( "This is the race of the mob." );
-        raceArea.setAlignmentX( Component.LEFT_ALIGNMENT );
-        raceArea.setPreferredSize( INPUT_SIZE );
-        raceArea.setMinimumSize( INPUT_SIZE );
-        raceArea.setMaximumSize( INPUT_SIZE );
-        this.add( raceArea );
-
-        JLabel spellsLabel = new JLabel("Spells");
-        spellsLabel.setBackground( BG_COLOR );
-        spellsLabel.setForeground( TEXT_COLOR );
-        spellsLabel.setFont(labelFont);
-        spellsLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
-        this.add( spellsLabel );
-
-        spellsArea.setBounds( 0, 0, TEXT_INPUT_WIDTH, TEXT_INPUT_HEIGHT );
-        spellsArea.setEditable( true );
-        spellsArea.setColumns( 25 );
-        spellsArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
-        spellsArea.setBackground( BG_COLOR_EDITABLE );
-        spellsArea.setForeground( TEXT_COLOR );
-        spellsArea.setFont( font );
-        spellsArea.setToolTipText( "Comma-separted list of spells" );
-        spellsArea.setAlignmentX( Component.LEFT_ALIGNMENT );
-        spellsArea.setPreferredSize( INPUT_SIZE );
-        spellsArea.setMinimumSize( INPUT_SIZE );
-        spellsArea.setMaximumSize( INPUT_SIZE );
-        this.add( spellsArea );
-
-        JLabel skillsLabel = new JLabel("Skills");
-        skillsLabel.setBackground( BG_COLOR );
-        skillsLabel.setForeground( TEXT_COLOR );
-        skillsLabel.setFont(labelFont);
-        skillsLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
-        this.add( skillsLabel );
-
-        skillsArea.setBounds( 0, 0, TEXT_INPUT_WIDTH, TEXT_INPUT_HEIGHT );
-        skillsArea.setEditable( true );
-        skillsArea.setColumns( 25 );
-        skillsArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
-        skillsArea.setBackground( BG_COLOR_EDITABLE );
-        skillsArea.setForeground( TEXT_COLOR );
-        skillsArea.setFont( font );
-        skillsArea.setToolTipText( "Comma-separted list of skill" );
-        skillsArea.setAlignmentX( Component.LEFT_ALIGNMENT );
-        skillsArea.setPreferredSize( INPUT_SIZE );
-        skillsArea.setMinimumSize( INPUT_SIZE );
-        skillsArea.setMaximumSize( INPUT_SIZE );
-        this.add( skillsArea );
-
-        JLabel alignmentLabel = new JLabel("Alignment");
-        alignmentLabel.setBackground( BG_COLOR );
-        alignmentLabel.setForeground( TEXT_COLOR );
-        alignmentLabel.setFont(labelFont);
-        alignmentLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
-        this.add( alignmentLabel );
-
-        alignmentArea.setBounds( 0, 0, TEXT_INPUT_WIDTH, TEXT_INPUT_HEIGHT );
-        alignmentArea.setEditable( true );
-        alignmentArea.setColumns( 25 );
-        alignmentArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
-        alignmentArea.setBackground( BG_COLOR_EDITABLE );
-        alignmentArea.setForeground( TEXT_COLOR );
-        alignmentArea.setFont( font );
-        alignmentArea.setToolTipText( "This is the alignment of the mob." );
-        alignmentArea.setAlignmentX( Component.LEFT_ALIGNMENT );
-        alignmentArea.setPreferredSize( INPUT_SIZE );
-        alignmentArea.setMinimumSize( INPUT_SIZE );
-        alignmentArea.setMaximumSize( INPUT_SIZE );
-        this.add( alignmentArea );
-
-        JLabel repLabel = new JLabel("Rep");
-        repLabel.setBackground( BG_COLOR );
-        repLabel.setForeground( TEXT_COLOR );
-        repLabel.setFont(labelFont);
-        repLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
-        this.add( repLabel );
-
-        repArea.setBounds( 0, 0, TEXT_INPUT_WIDTH, TEXT_INPUT_HEIGHT );
-        repArea.setEditable( true );
-        repArea.setColumns( 25 );
-        repArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
-        repArea.setBackground( BG_COLOR_EDITABLE );
-        repArea.setForeground( TEXT_COLOR );
-        repArea.setFont( font );
-        repArea.setToolTipText( "This is the rep gained for the mob." );
-        repArea.setAlignmentX( Component.LEFT_ALIGNMENT );
-        repArea.setPreferredSize( INPUT_SIZE );
-        repArea.setMinimumSize( INPUT_SIZE );
-        repArea.setMaximumSize( INPUT_SIZE );
-        this.add( repArea );
-
-        isUndead.setBackground( BG_COLOR );
-        isUndead.setForeground( TEXT_COLOR );
-        isUndead.setAlignmentX( Component.LEFT_ALIGNMENT );
-        isUndead.setPreferredSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
-        isUndead.setMinimumSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
-        isUndead.setMaximumSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
-        isUndead.setAlignmentX( Component.LEFT_ALIGNMENT );
-        isUndead.setFont( font );
-        this.add(isUndead);
-
-        isAggro.setBackground( BG_COLOR );
-        isAggro.setForeground( TEXT_COLOR );
-        isAggro.setAlignmentX( Component.LEFT_ALIGNMENT );
-        isAggro.setPreferredSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
-        isAggro.setMinimumSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
-        isAggro.setMaximumSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
-        isAggro.setAlignmentX( Component.LEFT_ALIGNMENT );
-        isAggro.setFont( font );
-        this.add(isAggro);
-
-        JLabel genderLabel = new JLabel("Gender");
-        genderLabel.setBackground( BG_COLOR );
-        genderLabel.setForeground( TEXT_COLOR );
-        genderLabel.setFont(labelFont);
-        this.add( genderLabel );
-
-        genderArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
-        genderArea.setBackground( BG_COLOR_EDITABLE );
-        genderArea.setForeground( TEXT_COLOR );
-        genderArea.setFont( font );
-        genderArea.setToolTipText( "This is the rep gained for the mob." );
-        genderArea.setAlignmentX( Component.LEFT_ALIGNMENT );
-        genderArea.setPreferredSize( INPUT_SIZE );
-        genderArea.setMinimumSize( INPUT_SIZE );
-        genderArea.setMaximumSize( INPUT_SIZE );
-        this.add(genderArea);
-
-        JLabel notesLabel = new JLabel("Notes");
-        notesLabel.setBackground( BG_COLOR_EDITABLE );
-        notesLabel.setForeground( TEXT_COLOR );
-        notesLabel.setFont(labelFont);
-        notesLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
-        this.add( notesLabel );
+        JPanel notesPanel = new JPanel();
+        notesPanel.setBackground( BG_COLOR );
+        notesPanel.setForeground( TEXT_COLOR );
+        notesPanel.setLayout(new BoxLayout(notesPanel, BoxLayout.Y_AXIS));
+        notesPanel.setAlignmentX( Component.LEFT_ALIGNMENT );
+        JLabel notesLabel = createLabel("Notes");
+        notesPanel.add(notesLabel);
 
         notesArea.setWrapStyleWord( true );
         notesArea.setEditable( true );
@@ -367,13 +205,23 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         notesArea.setForeground( TEXT_COLOR );
         notesArea.setBackground( BG_COLOR_EDITABLE );
         notesArea.setLineWrap( true );
-        //notesArea.setPreferredSize( new Dimension( 370, 100 ) );
-        //notesArea.setMinimumSize( new Dimension( 370, 500 ) );
-        //notesArea.setMaximumSize( new Dimension( 370, 100 ) );
+        notesArea.setAlignmentX( Component.LEFT_ALIGNMENT );
+        notesArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
         scrollableNotes = new JScrollPane( notesArea );
-        scrollableNotes.setAlignmentX( Component.LEFT_ALIGNMENT );
-        scrollableNotes.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
-        this.add( scrollableNotes );
+        scrollableNotes.setPreferredSize( new Dimension( PANEL_WIDTH, TEXT_INPUT_HEIGHT * 2) );
+        scrollableNotes.setMinimumSize( new Dimension( PANEL_WIDTH, TEXT_INPUT_HEIGHT * 2 ) );
+        scrollableNotes.setMaximumSize( new Dimension( PANEL_WIDTH, TEXT_INPUT_HEIGHT * 2 ) );
+        
+        notesPanel.add(notesLabel);
+        notesPanel.add( scrollableNotes );
+
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 0.0;
+        c.gridy = 10;
+        c.gridx = 0;
+        c.gridwidth = 2;
+        c.gridheight = 1;
+        this.add(notesPanel, c);
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout( new BoxLayout(buttonPanel, BoxLayout.X_AXIS) );
@@ -401,11 +249,73 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         buttonPanel.add( wikiButton );
         wikiButton.addActionListener( this );
 
-        this.add(buttonPanel);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 0.5;
+        c.gridx = 0;
+        c.gridy = 11;
+        c.gridwidth = 2;
+        c.gridheight = 1;
+        this.add(buttonPanel, c);
     }
 
     public void setQueryEngine(MediaWikiApi queryEngine) {
         this.queryEngine = queryEngine;
+    }
+
+    private JLabel createLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setBackground( BG_COLOR );
+        label.setForeground( TEXT_COLOR );
+        label.setBorder(new EmptyBorder(5,3,3,3));
+        label.setFont(labelFont);
+        //label.setPreferredSize( LABEL_SIZE );
+        //label.setMinimumSize( LABEL_SIZE );
+        //label.setMaximumSize( LABEL_SIZE );
+        label.setAlignmentX( Component.LEFT_ALIGNMENT );
+        return label;
+    }
+
+    private JTextField createInput(Color borderColor, String tooltip, boolean editable) {
+        JTextField field = new JTextField();
+        if (editable) {
+            field.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
+            field.setBackground( BG_COLOR_EDITABLE );
+        } else {
+            field.setBorder( new LineBorder( BORDER_COLOR ) );
+            field.setBackground( BG_COLOR_NONEDITABLE );
+        }
+        field.setForeground( TEXT_COLOR );
+        field.setFont( font );
+        field.setToolTipText( tooltip );
+        field.setAlignmentX( Component.LEFT_ALIGNMENT );
+        //field.setPreferredSize( INPUT_SIZE );
+        //field.setMinimumSize( INPUT_SIZE );
+        //field.setMaximumSize( INPUT_SIZE );
+
+        return field;
+    }
+
+    private JTextField createPanel(JPanel container, int gridY, int gridX, int w, int h, String labelText, Color borderColor, String tooltip, boolean editable) {
+        JPanel subContainer = new JPanel();
+        subContainer.setLayout(new BoxLayout(subContainer, BoxLayout.Y_AXIS));
+        JLabel label = createLabel(labelText);
+        JTextField field = createInput(borderColor, tooltip, editable);
+        subContainer.setBackground( BG_COLOR );
+        subContainer.setForeground( TEXT_COLOR );
+        subContainer.add(label);
+        subContainer.add(field);
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 0.0;
+        c.gridx = gridX;
+        c.gridy = gridY;
+        c.gridwidth = w;
+        c.gridheight = h;
+        c.ipadx = 5;
+        c.ipady = 5;
+        container.add(subContainer, c);
+        return field;
     }
 
     @Override
@@ -518,6 +428,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         this.spellsArea.setText("");
 
         this.raceArea.setText("");
+        this.genderArea.setText("");
         this.repArea.setText("");
         this.notesArea.setText("");
         this.isUndead.setSelected(false);

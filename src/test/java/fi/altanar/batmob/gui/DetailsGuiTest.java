@@ -1,8 +1,6 @@
 package fi.altanar.batmob.gui;
 
 import java.awt.FlowLayout;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
