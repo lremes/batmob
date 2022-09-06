@@ -40,7 +40,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     public final Dimension LABEL_SIZE = new Dimension( PANEL_WIDTH, LABEL_HEIGHT );
 
     private final int TEXT_INPUT_WIDTH = PANEL_WIDTH / 2;
-    protected int BORDERLINE = 7;
+    private final int BORDERLINE = 7;
     private final int BUTTON_HEIGHT = 25;
     private final int BUTTON_WIDTH = 100;
     private final int TEXT_INPUT_HEIGHT = 22;
