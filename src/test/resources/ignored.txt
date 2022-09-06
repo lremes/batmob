@@ -1,3 +1,6 @@
+[1;31m{[0mVanquisher[1;31m}[0m [0mGotrek the Primordial Vampire - Jussi waitingroom < Team Sweden >[0m
+[1;32m([0m  64-bit  [1;32m)[0m [0mAnatea the altered Zombie toils eternal < Curtain Call >[0m
+[1;32m([0m  64-bit  [1;32m)[0m [0mSilencer Silence the quiet Draconian[0m
 [1;31You break your skill attempt.[0m
 [1;31Your movement prevents you from doing the skill.[0m
 [1;32m([0;32m 82[1;32m)[0m Glamdring    [0m[[0m 86[0m][0m Sssszzz      [1;32m([0;32m 86[1;32m)[0m Alistar      [0m[[0m 88[0m][0m Sylvester    
@@ -11,3 +14,28 @@
 [1;32mf[1;32mf[1;32mf[1;32mf[1;30m|[1;32mf[1;32mf[1;32mf[1;32mf[0m  Obvious exits are: [1m<31n|n>31[0m and [1m<31s|s>31[0m.
 [1;32mf[1;32mf[1;32mf[0;32m$[1;30m|[0;32m$[1;32mf[1;32mf[1;32mf[0m  stands limply here.
 [1;32mf[1;32mf[1;32mf[0;32m$[1;30m|[0;32m$[1;32mf[1;32mf[1;32mf[0m  Obvious exits are: [1m<31n|n>31[0m, [1m<31e|e>31[0m, [1m<31s|s>31[0m and [1m<31w|w>31[0m.
+[1;32mf[0;32mF[0;32mF[0;32mF[1;37m*[1;32mf[1;32mf[1;33mz[0;34m~[0m  in diameter. Some may even be hollow inside. They provide good
+[1;32mf[0;34m~[1;32mf[1;32mf[1;32mf[1;32mf[1;33mz[0;34m~[0;34m~[0m  hiding places, maybe you should look around for hidden animals and
+[1;32mf[1;32mf[0;32mF[0;32mF[1;37m*[1;32mf[1;32mf[1;32mf[1;33mz[0m  in diameter. Some may even be hollow inside. They provide good
+[1;32mf[1;32mf[0;34m~[1;32mf[1;32mf[1;32mf[1;32mf[1;33mz[0;34m~[0m  hiding places, maybe you should look around for hidden animals and
+[1;32mf[1;32mf[0;32mF[0;32mF[0;32mF[1;32mf[1;32mf[1;32mf[1;33mz[0m  You are walking in a forest. The trees around you are tall and huge
+[1;32mf[1;32mf[0;34m~[1;32mf[1;37m*[1;32mf[1;32mf[1;33mz[0;34m~[0m  in diameter. Some may even be hollow inside. They provide good
+[1;32mf[0;32mF[0;32mF[0;32mF[0;32mF[1;37m?[0;32mF[1;32mf[1;32mf[0m  The Forest[0m.
+[1;32mf[1;32mf[1;32mf[0;34m~[1;37m*[1;32mf[1;32mf[1;32mf[1;33mz[0m  in diameter. Some may even be hollow inside. They provide good
+[1;32mf[1;32mf[0;32mF[0;32mF[0;32mF[1;32mf[1;32mf[1;32mf[1;33mz[0m  You are walking in a forest. The trees around you are tall and huge
+[1;32mf[1;32mf[0;34m~[1;32mf[1;37m*[1;32mf[1;32mf[1;33mz[0;34m~[0m  in diameter. Some may even be hollow inside. They provide good
+[1;32mf[0;32mF[0;32mF[0;32mF[1;32mf[1;32mf[1;32mf[1;33mz[0;34m~[0m  You are walking in a forest. The trees around you are tall and huge
+[1;32mf[0;34m~[1;32mf[1;32mf[1;37m*[1;32mf[1;33mz[0;34m~[0;34m~[0m  in diameter. Some may even be hollow inside. They provide good
+[1;32mf[0;32mF[0;32mF[0;32mF[1;37m*[1;32mf[1;32mf[1;33mz[0;34m~[0m  in diameter. Some may even be hollow inside. They provide good
+[1;32mf[0;34m~[1;32mf[1;32mf[1;32mf[1;32mf[1;33mz[0;34m~[0;34m~[0m  hiding places, maybe you should look around for hidden animals and
+[1;32mf[1;32mf[0;32mF[0;32mF[0;32mF[1;32mf[1;32mf[1;32mf[1;33mz[0m  curious name for an inn. Above you is a chilly, moving, clear sky.
+[1;32mf[1;32mf[0;34m~[1;32mf[1;32mf[1;32mf[1;32mf[1;33mz[0;34m~[0m  There is a brisk wind.
+[1;32mf[0;32mF[0;32mF[0;32mF[1;37m*[1;37m?[0;32mF[1;32mf[1;32mf[0m  in diameter. Some may even be hollow inside. They provide good
+[1;32mf[1;32mf[1;32mf[0;34m~[1;32mf[1;32mf[1;32mf[1;32mf[1;33mz[0m  treasures. An apple tree that is just budding is growing here.
+[1;32mf[1;32mf[0;32mF[0;32mF[1;37m*[0;32mF[1;37m?[0;32mF[1;32mf[0m  in diameter. Some may even be hollow inside. They provide good
+[1;32mf[1;32mf[1;32mf[0;32mF[1;37m*[0;32mF[0;32mF[1;37m?[0;32mF[0m  in diameter. Some may even be hollow inside. They provide good
+[1;32mf[1;32mf[1;32mf[0;32mF[0;32mF[0;32mF[0;32mF[1;37m?[0;32mF[0m  hiding places, maybe you should look around for hidden animals and
+[1;32mf[1;32mf[0;32mF[0;32mF[0;32mF[0;32mF[1;37m?[0;32mF[1;32mf[0m  hiding places, maybe you should look around for hidden animals and
+[1;32mf[0;32mF[0;32mF[0;32mF[0;32mF[1;37m?[0;32mF[1;32mf[1;32mf[0m  hiding places, maybe you should look around for hidden animals and
+[1;32mf[0;32mF[0;32mF[0;32mF[0;32mF[1;37m?[0;32mF[1;32mf[1;32mf[0m  treasures. A small cotton shrub is growing here.
+[1;32mf[1;32mf[0;32mF[0;32mF[0;32mF[0;32mF[1;37m?[0;32mF[1;32mf[0m  treasures. A young cabbage plant is growing here.

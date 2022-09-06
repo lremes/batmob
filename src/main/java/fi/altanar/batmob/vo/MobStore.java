@@ -71,7 +71,7 @@ public class MobStore {
             m.setSpells(mob.getSpells());
             m.setNotes(mob.getNotes());
             m.setRep(mob.getRep());
-            m.setRixx(mob.isRixx());
+            m.setZinium(mob.isZinium());
             m.setAggro(mob.isAggro());
             m.setUndead(mob.isUndead());
             this.mobs.put(m.getName(), m);

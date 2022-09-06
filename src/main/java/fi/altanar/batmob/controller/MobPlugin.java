@@ -72,6 +72,7 @@ public class MobPlugin extends BatClientPlugin implements
         searchPanel = new SearchPanel(engine);
         searchPanel.addMobListener(this);
         clientWin.newTab( "Search", searchPanel);
+        searchPanel.addComponentListener(searchPanel);
 
         clientWin.setVisible( true );
         clientWin.removeTabAt( 0 );
@@ -177,7 +178,7 @@ public class MobPlugin extends BatClientPlugin implements
     @Override
     public void internalFrameDeiconified(InternalFrameEvent arg0) {
         // TODO Auto-generated method stub
-        if (arg0.getSource().equals(this)) {
+        if (arg0.getSource().equals(clientWin)) {
             this.clientWin.setVisible(true);
         }
     }
@@ -185,7 +186,7 @@ public class MobPlugin extends BatClientPlugin implements
     @Override
     public void internalFrameIconified(InternalFrameEvent arg0) {
         // TODO Auto-generated method stub
-        if (arg0.getSource().equals(this)) {
+        if (arg0.getSource().equals(clientWin)) {
             this.clientWin.setVisible(false);
         }
     }

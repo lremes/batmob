@@ -148,11 +148,11 @@ public class Mob implements Serializable {
         this.rep = rep;
     }
 
-    public boolean isRixx() {
+    public boolean isZinium() {
         return rixx;
     }
 
-    public void setRixx(boolean rixx) {
+    public void setZinium(boolean rixx) {
         this.rixx = rixx;
     }
 

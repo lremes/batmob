@@ -3,6 +3,9 @@ package fi.altanar.batmob.gui;
 
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -10,9 +13,12 @@ import java.awt.event.ComponentListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
@@ -30,9 +36,9 @@ import java.awt.Font;
 
 import fi.altanar.batmob.controller.MobEngine;
 import fi.altanar.batmob.controller.SearchEngine;
-import fi.altanar.batmob.controller.SearchEngine.SearchCriteria;
 import fi.altanar.batmob.io.IMobListener;
 import fi.altanar.batmob.vo.Mob;
+import fi.altanar.batmob.vo.MobFilter;
 
 public class SearchPanel extends JPanel implements 
     MouseInputListener, 
@@ -55,11 +61,14 @@ public class SearchPanel extends JPanel implements
 
     private JPanel filterPanel = new JPanel();
     private JPanel resultPanel = new JPanel();
-
+    
     private JTextField searchInput = new JTextField();
-
+    private JComboBox<String> areaSelect = new JComboBox<String>();
     private JList<Mob> resultList;
     private JScrollPane scrollableResults;
+    private JButton searchButton = new JButton("Search");
+
+    private JCheckBox isZinium = new JCheckBox("Zin");
 
     private Font font = new Font( "Consolas", Font.PLAIN, 14 );
     private Font labelFont = new Font( "Consolas", Font.PLAIN, 12 );
@@ -101,7 +110,7 @@ public class SearchPanel extends JPanel implements
         resultPanel.setBackground( BG_COLOR );
         resultPanel.setForeground( TEXT_COLOR );
 
-        JLabel searchLabel = new JLabel("Search");
+        JLabel searchLabel = new JLabel("Name");
         searchLabel.setBackground( BG_COLOR );
         searchLabel.setForeground( TEXT_COLOR );
         searchLabel.setPreferredSize( new Dimension( 60, TEXT_INPUT_HEIGHT) );
@@ -114,9 +123,9 @@ public class SearchPanel extends JPanel implements
         searchInput.setEditable( true );
         searchInput.setColumns( 25 );
         searchInput.setBorder( new LineBorder( BORDER_COLOR ) );
-        searchInput.setPreferredSize( new Dimension( LAYOUT_WIDTH - 60, TEXT_INPUT_HEIGHT) );
-        searchInput.setMaximumSize( new Dimension( LAYOUT_WIDTH - 60, TEXT_INPUT_HEIGHT) );
-        searchInput.setMinimumSize( new Dimension( LAYOUT_WIDTH - 60, TEXT_INPUT_HEIGHT) );
+        searchInput.setPreferredSize( new Dimension( 60, TEXT_INPUT_HEIGHT) );
+        searchInput.setMaximumSize( new Dimension( 60, TEXT_INPUT_HEIGHT) );
+        searchInput.setMinimumSize( new Dimension( 60, TEXT_INPUT_HEIGHT) );
         searchInput.setBackground( BG_COLOR );
         searchInput.setForeground( TEXT_COLOR );
         searchInput.setFont( font );
@@ -124,6 +133,37 @@ public class SearchPanel extends JPanel implements
         searchInput.setAlignmentX( Component.LEFT_ALIGNMENT );
         searchInput.addActionListener(this);
         filterPanel.add(searchInput);
+
+        JLabel areaLabel = new JLabel("Area");
+        areaLabel.setBackground( BG_COLOR );
+        areaLabel.setForeground( TEXT_COLOR );
+        areaLabel.setPreferredSize( new Dimension( 60, TEXT_INPUT_HEIGHT) );
+        areaLabel.setMinimumSize( new Dimension( 60, TEXT_INPUT_HEIGHT) );
+        areaLabel.setMaximumSize( new Dimension( 60, TEXT_INPUT_HEIGHT) );
+        areaLabel.setFont(labelFont);
+        areaLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
+        filterPanel.add(areaLabel);
+
+        areaSelect.setEditable( true );
+        areaSelect.setBorder( new LineBorder( BORDER_COLOR ) );
+        //areaSelect.setPreferredSize( new Dimension( 60, TEXT_INPUT_HEIGHT) );
+        //areaSelect.setMaximumSize( new Dimension( LAYOUT_WIDTH - 60, TEXT_INPUT_HEIGHT) );
+        //areaSelect.setMinimumSize( new Dimension( LAYOUT_WIDTH - 60, TEXT_INPUT_HEIGHT) );
+        areaSelect.setBackground( BG_COLOR );
+        areaSelect.setForeground( TEXT_COLOR );
+        areaSelect.setFont( font );
+        areaSelect.setToolTipText( "Name to search for" );
+        areaSelect.setAlignmentX( Component.LEFT_ALIGNMENT );
+        areaSelect.addActionListener(this);
+        filterPanel.add(areaSelect);
+
+        isZinium.setBackground( BG_COLOR );
+        isZinium.setForeground( TEXT_COLOR );
+        filterPanel.add(isZinium);
+
+        searchButton.addActionListener(this);
+        filterPanel.add(searchButton);
+        populateSelect();
 
         resultList = new JList<Mob>(this.listModel);
         resultList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -196,12 +236,15 @@ public class SearchPanel extends JPanel implements
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource().equals(searchInput)) {
-            JTextField source = (JTextField) e.getSource();
-            String textFieldContent = source.getText();
-            ArrayList<Mob> results = engine.getSearchEngine().search(textFieldContent, SearchCriteria.NAME, 0);
-
-            this.setResults(results);
+        if (e.getSource().equals( searchButton )) {
+            MobFilter f = new MobFilter();
+            f.name = searchInput.getText();
+            f.area = (String)areaSelect.getSelectedItem();
+            f.isZinium = isZinium.isSelected();
+    
+            ArrayList<Mob> results = engine.getSearchEngine().search(f);
+    
+            this.setResults(results);    
         }
     }
 
@@ -227,9 +270,23 @@ public class SearchPanel extends JPanel implements
     }
 
     @Override
-    public void componentShown(ComponentEvent e) {
-        // TODO Auto-generated method stub
+    public void componentShown(ComponentEvent ev) {
+        populateSelect();
+    }
 
+    private void populateSelect() {
+        HashSet<String> areas = new HashSet<String>();
+        Iterator<Entry<String,Mob>> iter = engine.getMobStore().iterator();
+        while(iter.hasNext()) {
+            Entry<String,Mob> e = iter.next();
+            areas.add(e.getValue().getArea());
+        }
+
+        areaSelect.removeAllItems();
+        Iterator<String> it = areas.iterator();
+         while(it.hasNext()){
+            areaSelect.addItem(it.next());
+        }
     }
 
     @Override

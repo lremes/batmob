@@ -1,7 +1,6 @@
 package fi.altanar.batmob.gui;
 
 import java.awt.FlowLayout;
-import java.util.ArrayList;
 
 import javax.swing.JFrame;
 
@@ -23,12 +22,20 @@ public class SearchGuiTest {
         MobStore store = new MobStore();
         MobPlugin plugin = mock(MobPlugin.class);
         MobEngine engine = new MobEngine(plugin, store, null);
-        
+
         SearchPanel panel = new SearchPanel(engine);
 
-        store.store(new Mob(0, "a rabbit"));
-        store.store(new Mob(0, "a fox"));
-        store.store(new Mob(0, "jumpy rabbit"));
+        Mob m = new Mob(0, "a rabbit");
+        m.setArea("REALM_MAP");
+        store.store(m);
+
+        m = new Mob(0, "a fox");
+        m.setZinium(true);
+        store.store(m);
+
+        m = new Mob(0, "a jumpy rabbit");
+        m.setArea("Diggas");
+        store.store(m);
 
         frame.setSize( 1200, 800 );
         frame.getContentPane().add( panel );

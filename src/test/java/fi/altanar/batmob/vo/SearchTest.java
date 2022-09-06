@@ -33,7 +33,7 @@ public class SearchTest {
         m.setRace("elf");
         m.setAlignment("evil");
         m.setRep("wicked");
-        m.setRixx(true);
+        m.setZinium(true);
         m.setArea("Area a2");
         this.store.store(m);
 
@@ -62,52 +62,74 @@ public class SearchTest {
 
     @Test
     void testSearchName() {
-        ArrayList<Mob> results = this.engine.search("John ", SearchEngine.SearchCriteria.NAME);
+        MobFilter f = new MobFilter();
+        f.name = "John ";
+
+        ArrayList<Mob> results = this.engine.search(f);
         assertEquals(2, results.size());
 
-        results = this.engine.search("John W", SearchEngine.SearchCriteria.NAME);
+        f.name = "John W";
+        results = this.engine.search(f);
         assertEquals(1, results.size());
     }
 
     @Test
     void testSearchAlignment() {
-        ArrayList<Mob> results = this.engine.search("good", SearchEngine.SearchCriteria.ALIGNMENT);
+        MobFilter f = new MobFilter();
+        f.alignment = "good";
+
+        ArrayList<Mob> results = this.engine.search(f);
         assertEquals(1, results.size());
 
-        results = this.engine.search("evil", SearchEngine.SearchCriteria.ALIGNMENT);
+        f.alignment = "evil";
+
+        results = this.engine.search(f);
         assertEquals(1, results.size());
     }
 
     @Test
     void testSearchArea() {
-        ArrayList<Mob> results = this.engine.search("Area a", SearchEngine.SearchCriteria.AREA);
-        assertEquals(2, results.size());
+        MobFilter f = new MobFilter();
+        f.area = "city";
 
-        results = this.engine.search("city", SearchEngine.SearchCriteria.AREA);
+        ArrayList<Mob> results = this.engine.search(f);
         assertEquals(3, results.size());
 
-        results = this.engine.search("B cit", SearchEngine.SearchCriteria.AREA);
+        f.area = "B city";
+        results = this.engine.search(f);
         assertEquals(2, results.size());
     }
 
-    @Test
-    void testSearchRep() {
-        ArrayList<Mob> results = this.engine.search("wicked", SearchEngine.SearchCriteria.REP);
-        assertEquals(1, results.size());
-    }
 
     @Test
-    void testSearchRixx() {
-        ArrayList<Mob> results = this.engine.search("true", SearchEngine.SearchCriteria.RIXX);
+    void testSearcZinium() {
+        MobFilter f = new MobFilter();
+        f.isZinium = true;
+
+        ArrayList<Mob> results = this.engine.search(f);
         assertEquals(1, results.size());
     }
 
     @Test
     void testSearchRace() {
-        ArrayList<Mob> results = this.engine.search("elf", SearchEngine.SearchCriteria.RACE);
+        MobFilter f = new MobFilter();
+        f.race = "elf";
+
+        ArrayList<Mob> results = this.engine.search(f);
         assertEquals(3, results.size());
 
-        results = this.engine.search("human", SearchEngine.SearchCriteria.RACE);
+        f.race = "human";
+
+        results = this.engine.search(f);
+        assertEquals(1, results.size());
+    }
+
+    @Test
+    void testSearchNameAndArea() {
+        MobFilter f = new MobFilter();
+        f.name = "John";
+        f.area = "Area a2";
+        ArrayList<Mob> results = this.engine.search(f);
         assertEquals(1, results.size());
     }
 

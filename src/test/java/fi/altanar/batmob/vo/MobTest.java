@@ -129,7 +129,7 @@ public class MobTest {
       mob.setRace("race");
       mob.setNotes("notes");
       mob.setRep("rep");
-      mob.setRixx(true);
+      mob.setZinium(true);
 
       ArrayList<String> s = new ArrayList<String>();
       s.add("s1");
@@ -147,7 +147,7 @@ public class MobTest {
       assertEquals(expected.getShortNames(), s);
       assertEquals(expected.getNotes(), "notes");
       assertEquals(expected.getRep(), "rep");
-      assertTrue(expected.isRixx());
+      assertTrue(expected.isZinium());
     }
 
     @Test
