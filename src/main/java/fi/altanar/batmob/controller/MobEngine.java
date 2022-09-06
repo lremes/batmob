@@ -60,9 +60,9 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
         "a flask"
     };
 
-    public static final Pattern IGNORE_MAPS = Pattern.compile("^[\\Q?*$~|\\/\\EfzFpd^]{9}\\s+");
+    //public static final Pattern IGNORE_MAPS = Pattern.compile("");
     //public static final Pattern IGNORE_MAPS = Pattern.compile("^\\w{9}\\s");
-    public static final Pattern IGNORE_TITLES = Pattern.compile("^[\\Q{<([\\E]+[\\w\\s-]{10}[\\Q>])}\\E]+|^[\\Q<([{\\E]+[\\d\\s]{3}[\\Q>]})\\E]+|^[(\\[][\\d\\s]{3}[])]");
+    public static final Pattern IGNORED_PATTERNS = Pattern.compile("^[\\Q{<([\\E]+[\\w\\s-]{10}[\\Q>])}\\E]+|^[\\Q<([{\\E]+[\\d\\s]{3}[\\Q>]})\\E]+|^[(\\[][\\d\\s]{3}[])]|^\\[\\d\\d:\\d\\d\\]|^[\\Q?*$~|\\/\\EfzFpd^]{9}\\s+");
     //public static final Pattern IGNORE_TITLES = Pattern.compile("^[\\(\\[][\\d\\s]{3}[\\]\\)]");
 
     private ArrayList<IMobListener> listeners = new ArrayList<IMobListener>();
@@ -135,7 +135,7 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
             }
         }
 
-        if (IGNORE_MAPS.matcher(strippedName).find() || IGNORE_TITLES.matcher(strippedName).find()) {
+        if (IGNORED_PATTERNS.matcher(strippedName).find()) {
             return null;
         }
 

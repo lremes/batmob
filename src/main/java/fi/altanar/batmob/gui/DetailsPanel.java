@@ -31,7 +31,7 @@ import fi.altanar.batmob.vo.Mob;
 
 public class DetailsPanel extends JPanel implements ActionListener, ComponentListener, IMobListener {
     
-    private final int PANEL_WIDTH = 390;
+    private final int PANEL_WIDTH = 400;
     private final int PANEL_HEIGHT = 540;
 
     private final int LABEL_HEIGHT = 20;
@@ -40,7 +40,6 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     public final Dimension LABEL_SIZE = new Dimension( PANEL_WIDTH, LABEL_HEIGHT );
 
     private final int TEXT_INPUT_WIDTH = PANEL_WIDTH / 2;
-    private final int DESC_HEIGHT = 270;
     protected int BORDERLINE = 7;
     private final int BUTTON_HEIGHT = 25;
     private final int BUTTON_WIDTH = 100;
@@ -61,8 +60,6 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     private JTextArea notesArea = new JTextArea();
     private JScrollPane scrollableNotes;
     private JTextField nameArea = new JTextField();
-    private JTextArea descArea = new JTextArea();
-    private JScrollPane scrollableDesc;
     private JTextField areaNameArea = new JTextField();
     private JTextField expArea = new JTextField();
     private JTextField shortNameArea = new JTextField();
@@ -177,41 +174,6 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         c.gridheight = 1;
         this.add(isZinium, c);
 
-        JPanel descPanel = new JPanel();
-        descPanel.setBackground( BG_COLOR );
-        descPanel.setForeground( TEXT_COLOR );
-        descPanel.setAlignmentX( Component.LEFT_ALIGNMENT );
-        descPanel.setLayout(new BoxLayout(descPanel, BoxLayout.Y_AXIS));
-
-        JLabel descLabel = createLabel("Description");
-        descLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
-        
-        descArea.setBounds( 0, BORDERLINE, TEXT_INPUT_WIDTH, DESC_HEIGHT );
-        descArea.setEditable( false );
-        descArea.setColumns( 25 );
-        descArea.setBorder( new LineBorder( BORDER_COLOR ) );
-        descArea.setAlignmentY( Component.BOTTOM_ALIGNMENT );
-        descArea.setLineWrap( true );
-        descArea.setBackground( BG_COLOR_NONEDITABLE );
-        descArea.setForeground( TEXT_COLOR );
-        descArea.setFont( font );
-        descArea.setToolTipText( "This is mob description" );
-        descArea.setAlignmentX( Component.LEFT_ALIGNMENT );
-        scrollableDesc = new JScrollPane( descArea );
-        scrollableDesc.setPreferredSize( new Dimension( PANEL_WIDTH, TEXT_INPUT_HEIGHT * 2) );
-        scrollableDesc.setMinimumSize( new Dimension( PANEL_WIDTH, TEXT_INPUT_HEIGHT * 2 ) );
-        scrollableDesc.setMaximumSize( new Dimension( PANEL_WIDTH, TEXT_INPUT_HEIGHT * 2 ) );
-        descPanel.add(descLabel);
-        descPanel.add(scrollableDesc);
-
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 0.5;
-        c.gridy = 10;
-        c.gridx = 0;
-        c.gridwidth = 2;
-        c.gridheight = 1;
-        this.add( descPanel, c );
-
         JPanel notesPanel = new JPanel();
         notesPanel.setBackground( BG_COLOR );
         notesPanel.setForeground( TEXT_COLOR );
@@ -231,9 +193,9 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         notesArea.setAlignmentX( Component.LEFT_ALIGNMENT );
         notesArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
         scrollableNotes = new JScrollPane( notesArea );
-        scrollableNotes.setPreferredSize( new Dimension( PANEL_WIDTH, TEXT_INPUT_HEIGHT * 2) );
-        scrollableNotes.setMinimumSize( new Dimension( PANEL_WIDTH, TEXT_INPUT_HEIGHT * 2 ) );
-        scrollableNotes.setMaximumSize( new Dimension( PANEL_WIDTH, TEXT_INPUT_HEIGHT * 2 ) );
+        scrollableNotes.setPreferredSize( new Dimension( PANEL_WIDTH + 80, TEXT_INPUT_HEIGHT * 5) );
+        scrollableNotes.setMinimumSize( new Dimension( PANEL_WIDTH + 80, TEXT_INPUT_HEIGHT * 5 ) );
+        scrollableNotes.setMaximumSize( new Dimension( PANEL_WIDTH + 80, TEXT_INPUT_HEIGHT * 5 ) );
         
         notesPanel.add(notesLabel);
         notesPanel.add( scrollableNotes );
