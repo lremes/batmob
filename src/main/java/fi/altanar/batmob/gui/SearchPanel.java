@@ -134,6 +134,16 @@ public class SearchPanel extends JPanel implements
         searchInput.addActionListener(this);
         filterPanel.add(searchInput);
 
+        JLabel expLabel = new JLabel("Min Exp");
+        expLabel.setBackground( BG_COLOR );
+        expLabel.setForeground( TEXT_COLOR );
+        expLabel.setPreferredSize( new Dimension( 60, TEXT_INPUT_HEIGHT) );
+        expLabel.setMinimumSize( new Dimension( 60, TEXT_INPUT_HEIGHT) );
+        expLabel.setMaximumSize( new Dimension( 60, TEXT_INPUT_HEIGHT) );
+        expLabel.setFont(labelFont);
+        expLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
+        filterPanel.add(expLabel);
+
         expInput.setEditable( true );
         expInput.setColumns( 7 );
         expInput.setBorder( new LineBorder( BORDER_COLOR ) );
@@ -250,6 +260,7 @@ public class SearchPanel extends JPanel implements
             MobFilter f = new MobFilter();
             f.name = searchInput.getText();
             f.area = (String)areaSelect.getSelectedItem();
+            f.minExp = Integer.parseInt(expInput.getText());
             f.isZinium = isZinium.isSelected();
 
             ArrayList<Mob> results = searchEngine.search(f);

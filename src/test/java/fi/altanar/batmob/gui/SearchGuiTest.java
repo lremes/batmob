@@ -21,15 +21,15 @@ public class SearchGuiTest {
 
         SearchPanel panel = new SearchPanel(se);
 
-        Mob m = new Mob(0, "a rabbit");
+        Mob m = new Mob(1500, "a rabbit");
         m.setArea("REALM_MAP");
         store.store(m);
 
-        m = new Mob(0, "a fox");
+        m = new Mob(1000, "a fox");
         m.setZinium(true);
         store.store(m);
 
-        m = new Mob(0, "a jumpy rabbit");
+        m = new Mob(500, "a jumpy rabbit");
         m.setArea("Diggas");
         store.store(m);
 
