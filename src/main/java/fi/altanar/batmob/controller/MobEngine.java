@@ -41,8 +41,6 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     private RegexTrigger triggers = new RegexTrigger();
     private String currentAreaName = "";
 
-    private SearchEngine searchEngine;
-
     private ArrayList<Mob> roomMobs = new ArrayList<Mob>();
 
     private ArrayList<IStatusListener> statusListeners = new ArrayList<IStatusListener>();
@@ -57,12 +55,13 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
         "'",
         "A hot",
         "an essence",
-        "a flask"
+        "a flask",
+        "A virulent"
     };
 
     //public static final Pattern IGNORE_MAPS = Pattern.compile("");
     //public static final Pattern IGNORE_MAPS = Pattern.compile("^\\w{9}\\s");
-    public static final Pattern IGNORED_PATTERNS = Pattern.compile("^[\\Q{<([\\E]+[\\w\\s-]{10}[\\Q>])}\\E]+|^[\\Q<([{\\E]+[\\d\\s]{3}[\\Q>]})\\E]+|^[(\\[][\\d\\s]{3}[])]|^\\[\\d\\d:\\d\\d\\]|^[\\Q?*$~|\\/\\EfzFpd^]{9}\\s+");
+    public static final Pattern IGNORED_PATTERNS = Pattern.compile("^[\\Q{<([\\E]+[\\w\\s-]{10}[\\Q>])}\\E]+|^[\\Q<([{\\E]+[\\d\\s]{3}[\\Q>]})\\E]+|^[(\\[][\\d\\s]{3}[])]|^\\[\\d\\d:\\d\\d\\]|^[\\Q?^*+$~|\\/\\Ef#vyrbhHxfzFpd]{9}\\s+");
     //public static final Pattern IGNORE_TITLES = Pattern.compile("^[\\(\\[][\\d\\s]{3}[\\]\\)]");
 
     private ArrayList<IMobListener> listeners = new ArrayList<IMobListener>();
@@ -72,7 +71,6 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     public MobEngine(MobPlugin plugin, MobStore store, MediaWikiApi queryEngine) {
         this.plugin = plugin;
         this.mobStore = store;
-        this.searchEngine = new SearchEngine(this.mobStore);
         this.queryEngine = queryEngine;
     }
 
@@ -255,10 +253,6 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
 
     public MobStore getMobStore() {
         return this.mobStore;
-    }
-
-    public SearchEngine getSearchEngine() {
-        return this.searchEngine;
     }
 
     public void addStatusListener(IStatusListener l) {

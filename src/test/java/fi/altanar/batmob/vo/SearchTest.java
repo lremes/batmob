@@ -18,7 +18,7 @@ public class SearchTest {
     @BeforeEach
     void setUp() {
         this.store = new MobStore();
-        this.engine = new SearchEngine(store);
+        this.engine = new SearchEngine(store, null);
 
         Mob m = new Mob(10, "nameTest");
         m.setRace("elf");

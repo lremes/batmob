@@ -59,6 +59,7 @@ public class MobPlugin extends BatClientPlugin implements
         MobStore store = new MobStore();
         MediaWikiApi api = new MediaWikiApi("https://taikajuoma.ovh/");
 
+
         engine = new MobEngine(this, store, api);
         engine.setBatWindow( clientWin );
         engine.setBaseDir(BASEDIR);
@@ -69,7 +70,8 @@ public class MobPlugin extends BatClientPlugin implements
         engine.addStatusListener(mobDetailPanel);
         clientWin.newTab( "Details", mobDetailPanel );
 
-        searchPanel = new SearchPanel(engine);
+        SearchEngine searchEngine = new SearchEngine(store, engine);
+        searchPanel = new SearchPanel(searchEngine);
         searchPanel.addMobListener(this);
         clientWin.newTab( "Search", searchPanel);
         searchPanel.addComponentListener(searchPanel);

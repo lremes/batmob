@@ -9,4 +9,12 @@ public class MobFilter {
     public String alignment = "";
     public boolean isZinium = false;
 
+    public String toString() {
+        return name + "|" +
+            area + "|" +
+            race + "|" +
+            alignment + "|" +
+            isZinium;
+    }
+
 }

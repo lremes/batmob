@@ -63,6 +63,7 @@ public class SearchPanel extends JPanel implements
     private JPanel resultPanel = new JPanel();
     
     private JTextField searchInput = new JTextField();
+    private JTextField expInput = new JTextField();
     private JComboBox<String> areaSelect = new JComboBox<String>();
     private JList<Mob> resultList;
     private JScrollPane scrollableResults;
@@ -73,7 +74,6 @@ public class SearchPanel extends JPanel implements
     private Font font = new Font( "Consolas", Font.PLAIN, 14 );
     private Font labelFont = new Font( "Consolas", Font.PLAIN, 12 );
 
-    MobEngine engine;
     SearchEngine searchEngine;
 
     private ArrayList<IMobListener> listeners = new ArrayList<IMobListener>();
@@ -81,10 +81,10 @@ public class SearchPanel extends JPanel implements
     //private SearchResults listModel = new SearchResults(null);
     private DefaultListModel<Mob> listModel = new DefaultListModel<Mob>();
 
-    public SearchPanel(MobEngine engine) {
+    public SearchPanel(SearchEngine searchEngine) {
         super();
 
-        this.engine = engine;
+        this.searchEngine = searchEngine;
 
         this.setPreferredSize( LAYOUT_SIZE );
         this.setMinimumSize( LAYOUT_SIZE );
@@ -134,6 +134,20 @@ public class SearchPanel extends JPanel implements
         searchInput.addActionListener(this);
         filterPanel.add(searchInput);
 
+        expInput.setEditable( true );
+        expInput.setColumns( 7 );
+        expInput.setBorder( new LineBorder( BORDER_COLOR ) );
+        expInput.setPreferredSize( new Dimension( 60, TEXT_INPUT_HEIGHT) );
+        expInput.setMaximumSize( new Dimension( 60, TEXT_INPUT_HEIGHT) );
+        expInput.setMinimumSize( new Dimension( 60, TEXT_INPUT_HEIGHT) );
+        expInput.setBackground( BG_COLOR );
+        expInput.setForeground( TEXT_COLOR );
+        expInput.setFont( font );
+        expInput.setToolTipText( "Min exp" );
+        expInput.setAlignmentX( Component.LEFT_ALIGNMENT );
+        expInput.addActionListener(this);
+        filterPanel.add(expInput);
+
         JLabel areaLabel = new JLabel("Area");
         areaLabel.setBackground( BG_COLOR );
         areaLabel.setForeground( TEXT_COLOR );
@@ -163,7 +177,6 @@ public class SearchPanel extends JPanel implements
 
         searchButton.addActionListener(this);
         filterPanel.add(searchButton);
-        populateSelect();
 
         resultList = new JList<Mob>(this.listModel);
         resultList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -175,7 +188,6 @@ public class SearchPanel extends JPanel implements
         resultList.setMaximumSize( new Dimension( LAYOUT_WIDTH, LAYOUT_HEIGHT - (TEXT_INPUT_HEIGHT * 1)) );
         resultList.setMinimumSize( new Dimension( LAYOUT_WIDTH, LAYOUT_HEIGHT - (TEXT_INPUT_HEIGHT * 1)) );
         resultList.addListSelectionListener(this);
-        resultList.setBorder( new LineBorder( Color.GREEN ) );
         resultList.setAlignmentX( Component.LEFT_ALIGNMENT );
         scrollableResults = new JScrollPane( resultList );
         scrollableResults.setAlignmentX( Component.LEFT_ALIGNMENT );
@@ -186,10 +198,8 @@ public class SearchPanel extends JPanel implements
 
         this.add(filterPanel);
         this.add(resultPanel);
-    }
 
-    public void setSearchEngine(SearchEngine searchEngine) {
-        this.searchEngine = searchEngine;
+        populateSelect();
     }
 
     @Override
@@ -236,15 +246,15 @@ public class SearchPanel extends JPanel implements
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource().equals( searchButton )) {
+        if (e.getSource() == this.searchButton) {
             MobFilter f = new MobFilter();
             f.name = searchInput.getText();
             f.area = (String)areaSelect.getSelectedItem();
             f.isZinium = isZinium.isSelected();
-    
-            ArrayList<Mob> results = engine.getSearchEngine().search(f);
-    
-            this.setResults(results);    
+
+            ArrayList<Mob> results = searchEngine.search(f);
+
+            this.setResults(results);
         }
     }
 
@@ -276,7 +286,7 @@ public class SearchPanel extends JPanel implements
 
     private void populateSelect() {
         HashSet<String> areas = new HashSet<String>();
-        Iterator<Entry<String,Mob>> iter = engine.getMobStore().iterator();
+        Iterator<Entry<String,Mob>> iter = searchEngine.getMobStore().iterator();
         while(iter.hasNext()) {
             Entry<String,Mob> e = iter.next();
             areas.add(e.getValue().getArea());

@@ -4,12 +4,9 @@ import java.awt.FlowLayout;
 
 import javax.swing.JFrame;
 
-import fi.altanar.batmob.controller.MobEngine;
-import fi.altanar.batmob.controller.MobPlugin;
+import fi.altanar.batmob.controller.SearchEngine;
 import fi.altanar.batmob.vo.Mob;
 import fi.altanar.batmob.vo.MobStore;
-
-import static org.mockito.Mockito.*;
 
 public class SearchGuiTest {
 
@@ -20,10 +17,9 @@ public class SearchGuiTest {
         frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 
         MobStore store = new MobStore();
-        MobPlugin plugin = mock(MobPlugin.class);
-        MobEngine engine = new MobEngine(plugin, store, null);
+        SearchEngine se = new SearchEngine(store, null);
 
-        SearchPanel panel = new SearchPanel(engine);
+        SearchPanel panel = new SearchPanel(se);
 
         Mob m = new Mob(0, "a rabbit");
         m.setArea("REALM_MAP");
