@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 
 import com.mythicscape.batclient.interfaces.BatWindow;
+import com.mythicscape.batclient.interfaces.ClientGUI;
 import com.mythicscape.batclient.interfaces.ParsedResult;
 
 import fi.altanar.batmob.io.GuiDataPersister;
@@ -40,6 +41,8 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     private MobStore mobStore;
     private RegexTrigger triggers = new RegexTrigger();
     private String currentAreaName = "";
+
+    private ClientGUI clientGui;
 
     private ArrayList<Mob> roomMobs = new ArrayList<Mob>();
 
@@ -83,6 +86,10 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
         this.baseDir = baseDir;
     }
 
+    public void setClientGui( ClientGUI gui ) {
+        this.clientGui = gui;
+    }
+
     public String getBaseDir() {
         return this.baseDir;
     }
@@ -95,8 +102,15 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
         return this.queryEngine;
     }
 
+    public void doCommand( String string ) {
+        this.clientGui.doCommand( string );
+
+    }
+
     public Mob trigger(ParsedResult input) {
         String stripped = input.getStrippedText().trim();
+
+        // TODO strip (undead) from name and limit to 57 chars
         Object obj = this.triggers.process(stripped);
         if (obj instanceof Mob) {
             // from pkils

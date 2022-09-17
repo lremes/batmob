@@ -63,6 +63,7 @@ public class MobPlugin extends BatClientPlugin implements
         engine = new MobEngine(this, store, api);
         engine.setBatWindow( clientWin );
         engine.setBaseDir(BASEDIR);
+        engine.setClientGui(this.getClientGUI());
 
         clientWin.addInternalFrameListener(this);
 

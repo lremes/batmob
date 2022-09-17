@@ -77,6 +77,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     private JButton saveButton;
     private JButton deleteButton;
     private JButton wikiButton;
+    private JButton reportButton;
 
     private MediaWikiApi queryEngine;
 
@@ -234,6 +235,13 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         buttonPanel.add( wikiButton );
         wikiButton.addActionListener( this );
 
+        reportButton = new JButton( "Report" );
+        reportButton.setFont( font );
+        reportButton.setBounds( 0, BUTTON_HEIGHT + BORDERLINE, BUTTON_WIDTH, BUTTON_HEIGHT );
+        reportButton.setToolTipText( "Update data from wiki." );
+        buttonPanel.add( reportButton );
+        reportButton.addActionListener( this );
+
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 0.5;
         c.gridx = 0;
@@ -350,7 +358,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
             this.mob.setZinium(this.isZinium.isSelected());
 
             engine.getMobStore().updateEditableFields(this.mob);
-        } else if (e.getSource().equals( deleteButton )) {            
+        } else if (e.getSource().equals( deleteButton )) {
             engine.getMobStore().remove(this.mob);
             this.mob = null;
             this.clearAll();
@@ -363,6 +371,17 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
                 } else {
                     this.engine.notifyStatusListeners("Nothing found");
                 }
+            }
+        } else if (e.getSource().equals( reportButton )) {
+            this.engine.doCommand("party report " + this.mob.getName());
+            this.engine.doCommand("party report " + this.mob.getAllExpAsString());
+            ArrayList<String> spells = this.mob.getSpells();
+            if (spells.size() > 0) {
+                this.engine.doCommand("party report Spells: " + spells);
+            }
+            ArrayList<String> skills = this.mob.getSkills();
+            if (skills.size() > 0) {
+                this.engine.doCommand("party report Skills: " + skills);
             }
         }
     }

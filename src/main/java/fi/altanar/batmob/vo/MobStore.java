@@ -89,6 +89,10 @@ public class MobStore {
     }
 
     public boolean contains(Mob m) {
+        // pkills limits name to 57 chars
+        if (m.getName().length() > 57) {
+            return this.mobs.containsKey(m.getName().substring(0,56));
+        }
         return this.mobs.containsKey(m.getName());
     }
 
@@ -107,8 +111,16 @@ public class MobStore {
         HashMap<String,Mob> fixed = new HashMap<String,Mob>();
         for (Map.Entry<String, Mob> entry : this.mobs.entrySet()) {
             String tName = entry.getKey().trim();
+            Mob e = entry.getValue();
+            if (tName.contains(" (undead)")) {
+                e.setUndead(true);
+                tName.replace(" (undead)", "");
+            }
+            if (tName.length() > 57) {
+                tName = tName.substring(0, 56);
+            }
+            // Remove names starting with |
             if (!tName.startsWith("|")) {
-                Mob e = entry.getValue();
                 fixed.put(tName, e);
             }
         }
