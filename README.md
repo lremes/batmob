@@ -9,7 +9,7 @@ This repository contains code to build the BatMob plugin for batclient. ( http:/
 ```
 mvn clean install    
 
-copy target/batMob-0.0.1-full.jar into batclient/plugins directory    
+copy target/batMob-0.0.3-full.jar into batclient/plugins directory    
 
 start batclient
 
