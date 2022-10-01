@@ -375,6 +375,12 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         } else if (e.getSource().equals( reportButton )) {
             this.engine.doCommand("party report " + this.mob.getName());
             this.engine.doCommand("party report " + this.mob.getAllExpAsString());
+            if (this.mob.getRace() != null && !this.mob.getRace().isBlank()) {
+                this.engine.doCommand("party report Race: " + this.mob.getRace());
+            }
+            if (this.mob.getAlignment() != null && !this.mob.getAlignment().isBlank()) {
+                this.engine.doCommand("party report Align: " + this.mob.getAlignment());
+            }
             ArrayList<String> spells = this.mob.getSpells();
             if (spells.size() > 0) {
                 this.engine.doCommand("party report Spells: " + spells);
