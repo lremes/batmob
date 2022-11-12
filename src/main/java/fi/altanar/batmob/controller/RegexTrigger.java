@@ -26,7 +26,7 @@ public class RegexTrigger {
         while (i.hasNext()) {
             Matcher m = i.next().matcher(input);
             if (m.matches() == true) {
-                Mob mob = new Mob(Integer.parseInt(m.group(1)), m.group(2).trim());
+                Mob mob = new Mob(Integer.parseInt(m.group(1)), m.group(2));
                 return mob;
             }
         }

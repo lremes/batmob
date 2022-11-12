@@ -3,6 +3,8 @@ package fi.altanar.batmob.vo;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Mob implements Serializable {
 
@@ -27,8 +29,11 @@ public class Mob implements Serializable {
     private boolean undead;
     private String gender;
 
+    public static final Pattern IGNORE_PARTS = Pattern.compile("\\((undead|bleeding)\\)|<wrapped>|<encircled>");
+
     public Mob(int exp, String name) {
-        this.name = name;
+        this.undead = name.contains("(undead)");
+        this.setName(name);
         this.updateExp(exp);
     }
 
@@ -60,7 +65,7 @@ public class Mob implements Serializable {
     }
 
     public void setName( String name ) {
-        this.name = name;
+        this.name = normalizeName(name);
     }
 
     public String getNotes() {
@@ -222,6 +227,21 @@ public class Mob implements Serializable {
             "|" + this.shortNames + 
             "|" + this.skills +
             "|" + this.spells;
+    }
+
+    public static String normalizeName(String name) {
+        // pkill removes (undead)
+        Matcher mtch = IGNORE_PARTS.matcher(name);
+        name = mtch.replaceAll("");
+
+        //name = name.replace("(bleeding)", "");
+        //name = name.replace("<wrapped>", "");
+
+        // pkills limits name to 57 chars
+        if (name.length() > 57) {
+            name = name.substring(0,56);
+        }
+        return name.trim();
     }
 
 }

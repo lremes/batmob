@@ -75,7 +75,7 @@ public class MobPlugin extends BatClientPlugin implements
         searchPanel = new SearchPanel(searchEngine);
         searchPanel.addMobListener(this);
         clientWin.newTab( "Search", searchPanel);
-        searchPanel.addComponentListener(searchPanel);
+        clientWin.addComponentListener(searchPanel);
 
         clientWin.setVisible( true );
         clientWin.removeTabAt( 0 );

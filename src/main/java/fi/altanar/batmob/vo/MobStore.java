@@ -81,18 +81,14 @@ public class MobStore {
     }
 
     public Mob get(String name) {
-        return this.mobs.get(name);
+        return this.mobs.get(Mob.normalizeName(name));
     }
 
     public boolean contains(String name) {
-        return this.mobs.containsKey(name);
+        return this.mobs.containsKey(Mob.normalizeName(name));
     }
 
     public boolean contains(Mob m) {
-        // pkills limits name to 57 chars
-        if (m.getName().length() > 57) {
-            return this.mobs.containsKey(m.getName().substring(0,56));
-        }
         return this.mobs.containsKey(m.getName());
     }
 
@@ -107,18 +103,14 @@ public class MobStore {
     public void restoreFromSaveObject(MobSaveObject saved) {
         this.mobs = saved.getData();
 
-        // Trim all mob names
         HashMap<String,Mob> fixed = new HashMap<String,Mob>();
         for (Map.Entry<String, Mob> entry : this.mobs.entrySet()) {
-            String tName = entry.getKey().trim();
+            String tName = entry.getKey();
             Mob e = entry.getValue();
-            if (tName.contains(" (undead)")) {
-                e.setUndead(true);
-                tName.replace(" (undead)", "");
-            }
-            if (tName.length() > 57) {
-                tName = tName.substring(0, 56);
-            }
+
+            // normalize all mob names
+            e.setName(Mob.normalizeName(e.getName()));
+
             // Remove names starting with |
             if (!tName.startsWith("|")) {
                 fixed.put(tName, e);

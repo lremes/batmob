@@ -245,5 +245,23 @@ public class MobTest {
           e.printStackTrace();
       }
     }
+
+    @Test
+    void testNormalize() {
+      Mob m = new Mob(0, " simple ");
+      assertEquals(m.getName(), "simple");
+
+      m = new Mob(0, "thisisaverylongnamethatshouldbecutshortbythenormalization1234567890");
+      assertEquals(m.getName(), "thisisaverylongnamethatshouldbecutshortbythenormalizatio");
+
+      m = new Mob(0, "mobname (undead)");
+      assertEquals(m.getName(), "mobname");
+
+      m = new Mob(0, "mobname (bleeding)");
+      assertEquals(m.getName(), "mobname");
+
+      m = new Mob(0, "mobname <wrapped>");
+      assertEquals(m.getName(), "mobname");
+    }
 }
 

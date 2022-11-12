@@ -5,6 +5,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -260,7 +261,11 @@ public class SearchPanel extends JPanel implements
             MobFilter f = new MobFilter();
             f.name = searchInput.getText();
             f.area = (String)areaSelect.getSelectedItem();
-            f.minExp = Integer.parseInt(expInput.getText());
+            try {
+                f.minExp = Integer.parseInt(expInput.getText());
+            } catch (Exception ex) {
+                // ignored
+            }
             f.isZinium = isZinium.isSelected();
 
             ArrayList<Mob> results = searchEngine.search(f);
@@ -296,16 +301,17 @@ public class SearchPanel extends JPanel implements
     }
 
     private void populateSelect() {
-        HashSet<String> areas = new HashSet<String>();
+        System.out.println("populate");
+        TreeSet<String> areas = new TreeSet<String>();
         Iterator<Entry<String,Mob>> iter = searchEngine.getMobStore().iterator();
-        while(iter.hasNext()) {
+        while (iter.hasNext()) {
             Entry<String,Mob> e = iter.next();
             areas.add(e.getValue().getArea());
         }
 
         areaSelect.removeAllItems();
         Iterator<String> it = areas.iterator();
-         while(it.hasNext()){
+        while (it.hasNext()) {
             areaSelect.addItem(it.next());
         }
     }
@@ -330,7 +336,6 @@ public class SearchPanel extends JPanel implements
                 for (IMobListener ml : this.listeners) {
                     ml.mobSelected(m);
                 }
-
             }
         }
     }

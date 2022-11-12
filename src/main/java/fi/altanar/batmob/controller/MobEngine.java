@@ -110,10 +110,9 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     public Mob trigger(ParsedResult input) {
         String stripped = input.getStrippedText().trim();
 
-        // TODO strip (undead) from name and limit to 57 chars
         Object obj = this.triggers.process(stripped);
         if (obj instanceof Mob) {
-            // from pkils
+            // from pkills
             Mob mob = (Mob)obj;
             if (!this.mobStore.contains(mob)) {
                 this.log("NEW: " + mob.getName());
@@ -159,17 +158,17 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
             this.log("NEW: " + m.getName());
             this.mobStore.store(m);
         } else {
-            // update status of old mobs if data is missing
+            // update status of old mobs if some data is missing
             if (m.getArea() == null || m.getArea() != this.currentAreaName) {
                 m.setArea(this.currentAreaName);
             }
             m.setAggro(isAgro);
             m = this.mobStore.updateAutofilledFields(m);
-            this.log("Update: " + m.getName());
+            //this.log("Update: " + m.getName());
         }
 
-        while (this.roomMobs.size() > 20) {
-            this.roomMobs.remove(0); // remove oldest entry
+        while (this.roomMobs.size() > 25) {
+            this.roomMobs.remove(0); // remove oldest entry from view
         }
         if (!this.roomMobs.contains(m)) {
             this.roomMobs.add(m);
