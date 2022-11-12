@@ -30,7 +30,7 @@ import fi.altanar.batmob.io.IMobListener;
 import fi.altanar.batmob.vo.Mob;
 
 public class DetailsPanel extends JPanel implements ActionListener, ComponentListener, IMobListener {
-    
+
     private final int PANEL_WIDTH = 400;
     private final int PANEL_HEIGHT = 540;
 
@@ -84,14 +84,14 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     MobEngine engine;
 
     private Mob mob;
-    
+
     public DetailsPanel(MobEngine engine) {
         super();
 
         this.engine = engine;
 
         this.queryEngine = engine.getQueryEngine();
-        
+
         this.setPreferredSize( PANEL_SIZE );
         this.setMinimumSize( PANEL_SIZE );
         this.setMaximumSize( PANEL_SIZE );
@@ -197,7 +197,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         scrollableNotes.setPreferredSize( new Dimension( PANEL_WIDTH + 80, TEXT_INPUT_HEIGHT * 5) );
         scrollableNotes.setMinimumSize( new Dimension( PANEL_WIDTH + 80, TEXT_INPUT_HEIGHT * 5 ) );
         scrollableNotes.setMaximumSize( new Dimension( PANEL_WIDTH + 80, TEXT_INPUT_HEIGHT * 5 ) );
-        
+
         notesPanel.add(notesLabel);
         notesPanel.add( scrollableNotes );
 
@@ -375,10 +375,10 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         } else if (e.getSource().equals( reportButton )) {
             this.engine.doCommand("party report " + this.mob.getName());
             this.engine.doCommand("party report " + this.mob.getAllExpAsString());
-            if (this.mob.getRace() != null && !this.mob.getRace().isBlank()) {
+            if (this.mob.getRace() != null && this.mob.getRace() != "") {
                 this.engine.doCommand("party report Race: " + this.mob.getRace());
             }
-            if (this.mob.getAlignment() != null && !this.mob.getAlignment().isBlank()) {
+            if (this.mob.getAlignment() != null && this.mob.getAlignment() != "") {
                 this.engine.doCommand("party report Align: " + this.mob.getAlignment());
             }
             ArrayList<String> spells = this.mob.getSpells();
@@ -406,22 +406,22 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
             if (this.mob.getShortNames() != null) {
                 this.shortNameArea.setText(String.join(",", this.mob.getShortNames()));
             }
-    
+
             this.areaNameArea.setText(this.mob.getArea());
             this.alignmentArea.setText(this.mob.getAlignment());
-    
+
             ArrayList<String> list = m.getSkills();
             if (list != null) {
                 String[] skills = list.toArray(new String[0]);
                 this.skillsArea.setText(String.join(",", skills));
             }
-    
+
             list = m.getSpells();
             if (list != null) {
                 String[] spells = list.toArray(new String[0]);
                 this.spellsArea.setText(String.join(",", spells));
             }
-    
+
             this.raceArea.setText(this.mob.getRace());
             this.repArea.setText(this.mob.getRep());
             this.notesArea.setText(this.mob.getNotes());
@@ -455,7 +455,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     @Override
     public void mobsDetected(ArrayList<Mob> mob) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override

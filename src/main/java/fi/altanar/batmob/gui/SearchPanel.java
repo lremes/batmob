@@ -41,9 +41,9 @@ import fi.altanar.batmob.io.IMobListener;
 import fi.altanar.batmob.vo.Mob;
 import fi.altanar.batmob.vo.MobFilter;
 
-public class SearchPanel extends JPanel implements 
-    MouseInputListener, 
-    ComponentListener, 
+public class SearchPanel extends JPanel implements
+    MouseInputListener,
+    ComponentListener,
     ActionListener,
     ListSelectionListener {
 
@@ -62,7 +62,7 @@ public class SearchPanel extends JPanel implements
 
     private JPanel filterPanel = new JPanel();
     private JPanel resultPanel = new JPanel();
-    
+
     private JTextField searchInput = new JTextField();
     private JTextField expInput = new JTextField();
     private JComboBox<String> areaSelect = new JComboBox<String>();
@@ -268,7 +268,7 @@ public class SearchPanel extends JPanel implements
             }
             f.isZinium = isZinium.isSelected();
 
-            ArrayList<Mob> results = searchEngine.search(f);
+            ArrayList<Mob> results = this.searchEngine.search(f);
 
             this.setResults(results);
         }
@@ -301,18 +301,19 @@ public class SearchPanel extends JPanel implements
     }
 
     private void populateSelect() {
-        System.out.println("populate");
         TreeSet<String> areas = new TreeSet<String>();
-        Iterator<Entry<String,Mob>> iter = searchEngine.getMobStore().iterator();
+        Iterator<Entry<String,Mob>> iter = this.searchEngine.getMobStore().iterator();
         while (iter.hasNext()) {
             Entry<String,Mob> e = iter.next();
-            areas.add(e.getValue().getArea());
+            if (e.getValue().getArea() != null) {
+                areas.add(e.getValue().getArea());
+            }
         }
 
-        areaSelect.removeAllItems();
+        this.areaSelect.removeAllItems();
         Iterator<String> it = areas.iterator();
         while (it.hasNext()) {
-            areaSelect.addItem(it.next());
+            this.areaSelect.addItem(it.next());
         }
     }
 

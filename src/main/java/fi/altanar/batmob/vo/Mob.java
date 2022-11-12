@@ -47,7 +47,7 @@ public class Mob implements Serializable {
             if (this.minExp == 0 || this.minExp > exp) {
                 this.minExp = exp;
             }
-            
+
             if (this.maxExp == 0 || this.maxExp < exp) {
                 this.maxExp = exp;
             }
@@ -91,7 +91,7 @@ public class Mob implements Serializable {
         if (spells != null) {
             return new ArrayList<String>(Arrays.asList(spells));
         }
-        return null;
+        return new ArrayList<String>();
     }
 
     public void setSpells(ArrayList<String> spells) {
@@ -102,7 +102,7 @@ public class Mob implements Serializable {
         if (skills != null) {
             return new ArrayList<String>(Arrays.asList(skills));
         }
-        return null;
+        return new ArrayList<String>();
     }
 
     public void setSkills(ArrayList<String> skills) {
@@ -198,8 +198,7 @@ public class Mob implements Serializable {
             "|" + this.exp +
             "|" + this.minExp +
             "|" + this.maxExp +
-            "|" + this.area + 
-            "|" + this.race;
+            "|" + this.area;
     }
 
     public void updateFrom(Mob other) {
@@ -218,13 +217,13 @@ public class Mob implements Serializable {
             "|" + this.exp +
             "|" + this.minExp +
             "|" + this.maxExp +
-            "|" + this.area + 
+            "|" + this.area +
             "|" + this.race +
             "|" + this.alignment +
-            "|" + this.isAggro() + 
+            "|" + this.isAggro() +
             "|" + this.isUndead() +
-            "|" + this.rep + 
-            "|" + this.shortNames + 
+            "|" + this.rep +
+            "|" + this.shortNames +
             "|" + this.skills +
             "|" + this.spells;
     }
