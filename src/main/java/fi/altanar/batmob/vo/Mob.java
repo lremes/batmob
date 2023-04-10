@@ -29,7 +29,7 @@ public class Mob implements Serializable {
     private boolean undead;
     private String gender;
 
-    public static final Pattern IGNORE_PARTS = Pattern.compile("\\((undead|bleeding)\\)|<wrapped>|<encircled>");
+    public static final Pattern IGNORE_PARTS = Pattern.compile("\\((undead|bleeding)\\)|<[-=]*wrapped[-=]*>|<encircled>");
 
     public Mob(int exp, String name) {
         this.undead = name.contains("(undead)");

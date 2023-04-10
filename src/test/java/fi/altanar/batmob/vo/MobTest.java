@@ -262,6 +262,9 @@ public class MobTest {
 
       m = new Mob(0, "mobname <wrapped>");
       assertEquals(m.getName(), "mobname");
+
+      m = new Mob(0, "mobname <-=wrapped=->");
+      assertEquals(m.getName(), "mobname");
     }
 }
 
