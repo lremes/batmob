@@ -98,6 +98,10 @@ public class SearchTest {
         f.area = "B city";
         results = this.engine.search(f);
         assertEquals(2, results.size());
+
+        f.area = "area";
+        results = this.engine.search(f);
+        assertEquals(2, results.size());
     }
 
 

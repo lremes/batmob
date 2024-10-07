@@ -311,10 +311,13 @@ public class SearchPanel extends JPanel implements
         }
 
         this.areaSelect.removeAllItems();
+        this.areaSelect.addItem("");
         Iterator<String> it = areas.iterator();
         while (it.hasNext()) {
             this.areaSelect.addItem(it.next());
         }
+
+        
     }
 
     @Override

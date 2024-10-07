@@ -41,7 +41,7 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     private MobStore mobStore;
     private RegexTrigger triggers = new RegexTrigger();
     private String currentAreaName = "";
-
+    private SpellTriggers spellTriggers = new SpellTriggers();
     private ClientGUI clientGui;
 
     private ArrayList<Mob> roomMobs = new ArrayList<Mob>();
@@ -52,20 +52,22 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     private static final String GREEN_BOLD = "\u001b[1;32m";
     private static final String RED_BOLD = "\u001b[1;31m";
 
-    public static final String[] IGNORED = new String[]{
-        "Your ",
-        "You ",
-        "'",
-        "A hot",
-        "an essence",
-        "a flask",
-        "A virulent"
+    public static final String[] IGNORED = new String[] {
+            "Your ",
+            "You ",
+            "'",
+            "A hot",
+            "an essence",
+            "a flask",
+            "A virulent"
     };
 
-    //public static final Pattern IGNORE_MAPS = Pattern.compile("");
-    //public static final Pattern IGNORE_MAPS = Pattern.compile("^\\w{9}\\s");
-    public static final Pattern IGNORED_PATTERNS = Pattern.compile("^[\\Q{<([\\E]+[\\w\\s-]{10}[\\Q>])}\\E]+|^[\\Q<([{\\E]+[\\d\\s]{3}[\\Q>]})\\E]+|^[(\\[][\\d\\s]{3}[])]|^\\[\\d\\d:\\d\\d\\]|^[\\Q?^*+$~|\\/\\Ef#vyrbhHxfzFpd]{9}\\s+");
-    //public static final Pattern IGNORE_TITLES = Pattern.compile("^[\\(\\[][\\d\\s]{3}[\\]\\)]");
+    // public static final Pattern IGNORE_MAPS = Pattern.compile("");
+    // public static final Pattern IGNORE_MAPS = Pattern.compile("^\\w{9}\\s");
+    public static final Pattern IGNORED_PATTERNS = Pattern.compile(
+            "^[\\Q{<([\\E]+[\\w\\s-]{10}[\\Q>])}\\E]+|^[\\Q<([{\\E]+[\\d\\s]{3}[\\Q>]})\\E]+|^[(\\[][\\d\\s]{3}[])]|^\\[\\d\\d:\\d\\d\\]|^[\\Q?^*+$~|\\/\\Ef#vyrbhHxfzFpd]{9}\\s+");
+    // public static final Pattern IGNORE_TITLES =
+    // Pattern.compile("^[\\(\\[][\\d\\s]{3}[\\]\\)]");
 
     private ArrayList<IMobListener> listeners = new ArrayList<IMobListener>();
 
@@ -78,15 +80,15 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     }
 
     @Override
-    public void itemStateChanged( ItemEvent e ) {
-        //Object subject = e.getItem();
+    public void itemStateChanged(ItemEvent e) {
+        // Object subject = e.getItem();
     }
 
-    public void setBaseDir( String baseDir ) {
+    public void setBaseDir(String baseDir) {
         this.baseDir = baseDir;
     }
 
-    public void setClientGui( ClientGUI gui ) {
+    public void setClientGui(ClientGUI gui) {
         this.clientGui = gui;
     }
 
@@ -102,18 +104,20 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
         return this.queryEngine;
     }
 
-    public void doCommand( String string ) {
-        this.clientGui.doCommand( string );
+    public void doCommand(String string) {
+        this.clientGui.doCommand(string);
 
     }
 
     public Mob trigger(ParsedResult input) {
         String stripped = input.getStrippedText().trim();
 
+        this.spellTriggers.process(stripped);
+
         Object obj = this.triggers.process(stripped);
         if (obj instanceof Mob) {
             // from pkills
-            Mob mob = (Mob)obj;
+            Mob mob = (Mob) obj;
             if (!this.mobStore.contains(mob)) {
                 this.log("NEW: " + mob.getName());
                 this.mobStore.store(mob);
@@ -140,7 +144,7 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
             return null;
         }
 
-        for (String s: IGNORED) {
+        for (String s : IGNORED) {
             if (strippedName.startsWith(s)) {
                 return null;
             }
@@ -164,7 +168,6 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
             }
             m.setAggro(isAgro);
             m = this.mobStore.updateAutofilledFields(m);
-            //this.log("Update: " + m.getName());
         }
 
         while (this.roomMobs.size() > 25) {
@@ -181,16 +184,16 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
         return m;
     }
 
-    public void setBatWindow( BatWindow clientWin ) {
+    public void setBatWindow(BatWindow clientWin) {
         this.batWindow = clientWin;
     }
 
-    public void saveGuiData( Point location, Dimension size ) {
-        GuiDataPersister.save( this.baseDir, location, size );
+    public void saveGuiData(Point location, Dimension size) {
+        GuiDataPersister.save(this.baseDir, location, size);
     }
 
     @Override
-    public void componentHidden( ComponentEvent e ) {
+    public void componentHidden(ComponentEvent e) {
 
     }
 
@@ -199,30 +202,30 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     }
 
     @Override
-    public void componentMoved( ComponentEvent e ) {
+    public void componentMoved(ComponentEvent e) {
         if (this.batWindow != null) {
-            GuiDataPersister.save( this.baseDir, this.batWindow.getLocation(), this.batWindow.getSize() );
+            GuiDataPersister.save(this.baseDir, this.batWindow.getLocation(), this.batWindow.getSize());
         }
     }
 
     @Override
-    public void componentResized( ComponentEvent e ) {
+    public void componentResized(ComponentEvent e) {
         if (this.batWindow != null) {
-            GuiDataPersister.save( this.baseDir, this.batWindow.getLocation(), this.batWindow.getSize() );
+            GuiDataPersister.save(this.baseDir, this.batWindow.getLocation(), this.batWindow.getSize());
         }
     }
 
     @Override
-    public void componentShown( ComponentEvent e ) {
+    public void componentShown(ComponentEvent e) {
 
     }
 
-    public void sendToMud(String command){
-        this.plugin.doCommand( command );
+    public void sendToMud(String command) {
+        this.plugin.doCommand(command);
     }
 
-    public void sendToParty(String message){
-        this.plugin.doCommand( "party say " + message );
+    public void sendToParty(String message) {
+        this.plugin.doCommand("party say " + message);
     }
 
     public String getCurrentAreaName() {
@@ -284,7 +287,7 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
                 Date date = Calendar.getInstance().getTime();
                 DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 
-                File logFile = getFile( "logs", dateFormat.format(date) + "-batmob.txt" );
+                File logFile = getFile("logs", dateFormat.format(date) + "-batmob.txt");
                 FileWriter myWriter = new FileWriter(logFile, true);
                 myWriter.write(msg + '\n');
                 myWriter.close();
@@ -294,9 +297,9 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
         }
     }
 
-    private File getFile( String subDir, String filename ) {
-        File dirFile = new File( this.baseDir, subDir );
-        File file = new File( dirFile, filename );
+    private File getFile(String subDir, String filename) {
+        File dirFile = new File(this.baseDir, subDir);
+        File file = new File(dirFile, filename);
         return file;
     }
 

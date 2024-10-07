@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 
 import fi.altanar.batmob.controller.MobEngine;
 import fi.altanar.batmob.controller.MobPlugin;
+import fi.altanar.batmob.controller.SearchEngine;
 import fi.altanar.batmob.io.MediaWikiApi;
 import fi.altanar.batmob.vo.Mob;
 import fi.altanar.batmob.vo.MobStore;
@@ -33,9 +34,11 @@ public class DetailsGuiTest {
             store.store(m);
         }
 
+        SearchEngine se = new SearchEngine(store, null);
+
         MobPlugin plugin = mock(MobPlugin.class);
         MobEngine engine = new MobEngine(plugin, store, api);
-        MobDetailsPanel panel = new MobDetailsPanel(engine);
+        MobDetailsPanel panel = new MobDetailsPanel(engine, se);
 
         panel.mobsDetected(mobs);
 

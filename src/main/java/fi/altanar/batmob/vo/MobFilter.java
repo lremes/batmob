@@ -7,7 +7,8 @@ public class MobFilter {
     public int minExp = 0;
     public String race = "";
     public String alignment = "";
-    public boolean isZinium = false;
+    public Boolean isZinium = null;
+    public Boolean exact = false;
 
     public String toString() {
         return name + "|" +
@@ -15,6 +16,13 @@ public class MobFilter {
             race + "|" +
             alignment + "|" +
             isZinium;
+    }
+
+    public void normalize() {
+        this.name = this.name.toLowerCase();
+        this.area = this.area.toLowerCase();
+        this.race = this.race.toLowerCase();
+        this.alignment = this.alignment.toLowerCase();
     }
 
 }

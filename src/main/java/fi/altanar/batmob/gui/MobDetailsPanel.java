@@ -19,6 +19,7 @@ import javax.swing.event.MouseInputListener;
 import javax.swing.text.BadLocationException;
 
 import fi.altanar.batmob.controller.MobEngine;
+import fi.altanar.batmob.controller.SearchEngine;
 import fi.altanar.batmob.io.IMobListener;
 import fi.altanar.batmob.io.IStatusListener;
 import fi.altanar.batmob.vo.Mob;
@@ -54,11 +55,13 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
     DetailsPanel detailsPanel;
 
     MobEngine engine;
+    SearchEngine searchEngine;
 
-    public MobDetailsPanel(MobEngine engine) {
+    public MobDetailsPanel(MobEngine engine, SearchEngine searchEngine) {
         super();
 
         this.engine = engine;
+        this.searchEngine = searchEngine;
 
         this.setPreferredSize( LAYOUT_SIZE );
         this.setMinimumSize( LAYOUT_SIZE );
@@ -111,13 +114,13 @@ public class MobDetailsPanel extends JPanel implements MouseInputListener, Compo
         roomArea.setMinimumSize( new Dimension(PANEL_WIDTH, PANEL_HEIGHT - TEXT_INPUT_HEIGHT) );
         roomArea.setMaximumSize( new Dimension(PANEL_WIDTH, PANEL_HEIGHT - TEXT_INPUT_HEIGHT) );
         scrollableRoom = new JScrollPane( roomArea );
-        roomArea.setToolTipText( "Mobs in the current room. Click to show details." );
+        roomArea.setToolTipText( "Mobs detected. Click to show details." );
 
         roomPanel.add(scrollableRoom, BorderLayout.CENTER);
 
         roomPanel.add(statusPanel, BorderLayout.PAGE_END );
         
-        detailsPanel = new DetailsPanel(this.engine);
+        detailsPanel = new DetailsPanel(this.engine, this.searchEngine);
 
         this.add(roomPanel, BorderLayout.LINE_START);
         this.add(detailsPanel, BorderLayout.CENTER);

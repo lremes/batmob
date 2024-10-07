@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.Map.Entry;
 
 import fi.altanar.batmob.io.ILogger;
@@ -27,19 +26,25 @@ public class SearchEngine {
     }
 
     public ArrayList<Mob> search(MobFilter filter) {
+        filter.normalize();
         ArrayList<Mob> results = new ArrayList<Mob>();
-        Iterator<Entry<String,Mob>> i = store.iterator();
+        Iterator<Entry<String,Mob>> i = this.store.iterator();
         
         try {
             while(i.hasNext()) {
                 Mob m = i.next().getValue();
-                if (filter.name != null && filter.name != "") {
-                    if (m.getName() == null || !m.getName().contains(filter.name)) {
+                if (filter.name != null && ! filter.name.equals("")) {
+                    if (m.getName() == null || !m.getName().toLowerCase().contains(filter.name)) {
                         continue;
                     }
                 }
-                if (filter.area != null && filter.area != "") {
-                    if (m.getArea() == null || !m.getArea().contains(filter.area)) {
+                if (filter.area != null && ! filter.area.equals("")) {
+                    if (m.getArea() == null) {
+                        continue;
+                    }
+                    if (filter.exact && !m.getArea().toLowerCase().equals(filter.area)) {
+                        continue;
+                    } else if (!m.getArea().toLowerCase().contains(filter.area)) {
                         continue;
                     }
                 } 
@@ -48,21 +53,22 @@ public class SearchEngine {
                         continue;
                     }
                 }
-                if (filter.race != null && filter.race != "") {
-                    if (m.getRace() == null || !m.getRace().contains(filter.race)) {
+                if (filter.race != null  && ! filter.race.equals("")) {
+                    if (m.getRace() == null || !m.getRace().toLowerCase().contains(filter.race)) {
                         continue;
                     }
                 }
-                if (filter.alignment != null && filter.alignment != "") {
-                    if (m.getAlignment() == null || !m.getAlignment().contains(filter.alignment)) {
+                if (filter.alignment != null && ! filter.alignment.equals("")) {
+                    if (m.getAlignment() == null || !m.getAlignment().toLowerCase().contains(filter.alignment)) {
                         continue;
                     }
                 }
-                if (filter.isZinium) {
+                if (filter.isZinium != null && filter.isZinium) {
                     if (!m.isZinium()) {
                         continue;
                     }
                 }
+                System.out.println(m.getName());
                 results.add(m);
             }
 
@@ -74,7 +80,7 @@ public class SearchEngine {
             });
 
         } catch (Throwable ex) {
-            if (logger != null) {
+            if (this.logger != null) {
                 this.logger.log(ex.toString());
             } else {
                 System.out.println(ex.toString());

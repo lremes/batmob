@@ -8,6 +8,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.ListIterator;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.GridBagLayout;
@@ -25,9 +28,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import fi.altanar.batmob.controller.MobEngine;
+import fi.altanar.batmob.controller.SearchEngine;
 import fi.altanar.batmob.io.MediaWikiApi;
 import fi.altanar.batmob.io.IMobListener;
 import fi.altanar.batmob.vo.Mob;
+import fi.altanar.batmob.vo.MobFilter;
 
 public class DetailsPanel extends JPanel implements ActionListener, ComponentListener, IMobListener {
 
@@ -78,17 +83,20 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     private JButton deleteButton;
     private JButton wikiButton;
     private JButton reportButton;
+    private JButton topButton;
 
     private MediaWikiApi queryEngine;
 
     MobEngine engine;
+    SearchEngine searchEngine;
 
     private Mob mob;
 
-    public DetailsPanel(MobEngine engine) {
+    public DetailsPanel(MobEngine engine, SearchEngine searchEngine) {
         super();
 
         this.engine = engine;
+        this.searchEngine = searchEngine;
 
         this.queryEngine = engine.getQueryEngine();
 
@@ -242,6 +250,13 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         buttonPanel.add( reportButton );
         reportButton.addActionListener( this );
 
+        topButton = new JButton( "Top exp" );
+        topButton.setFont( font );
+        topButton.setBounds( 0, BUTTON_HEIGHT + BORDERLINE, BUTTON_WIDTH, BUTTON_HEIGHT );
+        topButton.setToolTipText( "List top mobs for area." );
+        buttonPanel.add( topButton );
+        topButton.addActionListener( this );
+
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 0.5;
         c.gridx = 0;
@@ -388,6 +403,38 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
             ArrayList<String> skills = this.mob.getSkills();
             if (skills.size() > 0) {
                 this.engine.doCommand("party report Skills: " + skills);
+            }
+        } else if (e.getSource().equals( topButton )) {
+            this.engine.doCommand("party report Top exp mobs for " + this.engine.getCurrentAreaName());
+            this.engine.doCommand("party report -------------------------------------");
+
+            try {
+                MobFilter f = new MobFilter();
+                f.area = this.engine.getCurrentAreaName().toLowerCase();
+                f.exact = true;
+                this.engine.log("Searching " + f);
+
+                ArrayList<Mob> results = this.searchEngine.search(f);
+                this.engine.log("Found " + results.size() + " mobs");
+                
+                Collections.sort(results, new Comparator<Mob>() {
+                    @Override
+                    public int compare(final Mob mob1, final Mob mob2) {
+                        return mob2.getMaxExp() - mob1.getMaxExp();
+                    }
+                });
+
+                int i = 0;
+                for (ListIterator<Mob> iter = results.listIterator(); iter.hasNext(); ) {
+                    Mob m = iter.next();
+                    this.engine.doCommand("party report " + Integer.toString(m.getMaxExp()) + " \t" + m.getName());
+                    i++;
+                    if (i > 15) {
+                        break;
+                    }
+                }
+            } catch (Exception e1) {
+                this.engine.log(e1.getMessage());
             }
         }
     }

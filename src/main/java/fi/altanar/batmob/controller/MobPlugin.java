@@ -15,6 +15,7 @@ import com.mythicscape.batclient.interfaces.ParsedResult;
 
 import fi.altanar.batmob.gui.MobDetailsPanel;
 import fi.altanar.batmob.gui.SearchPanel;
+import fi.altanar.batmob.gui.SpellsPanel;
 import fi.altanar.batmob.io.GuiDataPersister;
 import fi.altanar.batmob.vo.GuiData;
 import fi.altanar.batmob.vo.Mob;
@@ -22,18 +23,19 @@ import fi.altanar.batmob.vo.MobStore;
 import fi.altanar.batmob.io.MediaWikiApi;
 import fi.altanar.batmob.io.IMobListener;
 
-public class MobPlugin extends BatClientPlugin implements 
-    BatClientPluginTrigger, 
-    ActionListener, 
-    BatClientPluginUtil, 
-    IMobListener, 
-    InternalFrameListener {
+public class MobPlugin extends BatClientPlugin implements
+        BatClientPluginTrigger,
+        ActionListener,
+        BatClientPluginUtil,
+        IMobListener,
+        InternalFrameListener {
 
     private String BASEDIR = null;
 
     private MobEngine engine;
     private SearchPanel searchPanel;
     private MobDetailsPanel mobDetailPanel;
+    private SpellsPanel spellsPanel;
 
     private final String CHANNEL_PREFIX = "BAT_MAPPER";
     private final int PREFIX = 0;
@@ -48,39 +50,41 @@ public class MobPlugin extends BatClientPlugin implements
 
     public void loadPlugin() {
         BASEDIR = this.getBaseDirectory();
-        GuiData guiData = GuiDataPersister.load( BASEDIR );
+        GuiData guiData = GuiDataPersister.load(BASEDIR);
 
         if (guiData != null) {
-            clientWin = this.getClientGUI().createBatWindow( "Mobs", guiData.getX(), guiData.getY(), guiData.getWidth(), guiData.getHeight() );
+            clientWin = this.getClientGUI().createBatWindow("Mobs", guiData.getX(), guiData.getY(), guiData.getWidth(),
+                    guiData.getHeight());
         } else {
-            clientWin = this.getClientGUI().createBatWindow( "Mobs", 300, 300, 820, 550 );
+            clientWin = this.getClientGUI().createBatWindow("Mobs", 300, 300, 820, 550);
         }
 
         MobStore store = new MobStore();
         MediaWikiApi api = new MediaWikiApi("https://taikajuoma.ovh/");
 
-
         engine = new MobEngine(this, store, api);
-        engine.setBatWindow( clientWin );
+        engine.setBatWindow(clientWin);
         engine.setBaseDir(BASEDIR);
         engine.setClientGui(this.getClientGUI());
 
         clientWin.addInternalFrameListener(this);
 
-        mobDetailPanel = new MobDetailsPanel(engine);
-        engine.addStatusListener(mobDetailPanel);
-        clientWin.newTab( "Details", mobDetailPanel );
-
         SearchEngine searchEngine = new SearchEngine(store, engine);
         searchPanel = new SearchPanel(searchEngine);
         searchPanel.addMobListener(this);
-        clientWin.newTab( "Search", searchPanel);
         clientWin.addComponentListener(searchPanel);
 
-        clientWin.setVisible( true );
-        clientWin.removeTabAt( 0 );
-        this.getPluginManager().addProtocolListener( this );
-        clientWin.addComponentListener( engine );
+        mobDetailPanel = new MobDetailsPanel(engine, searchEngine);
+        engine.addStatusListener(mobDetailPanel);
+        clientWin.newTab("Details", mobDetailPanel);
+        clientWin.newTab("Search", searchPanel);
+
+        spellsPanel = new SpellsPanel(engine);
+
+        clientWin.setVisible(true);
+        clientWin.removeTabAt(0);
+        this.getPluginManager().addProtocolListener(this);
+        clientWin.addComponentListener(engine);
 
         engine.addMobListener(this.mobDetailPanel);
         engine.load();
@@ -91,28 +95,27 @@ public class MobPlugin extends BatClientPlugin implements
         return "batMob";
     }
 
-    //	ArrayList<BatClientPlugin> plugins=this.getPluginManager().getPlugins();
+    // ArrayList<BatClientPlugin> plugins=this.getPluginManager().getPlugins();
     @Override
-    public ParsedResult trigger( ParsedResult input ) {
+    public ParsedResult trigger(ParsedResult input) {
         engine.trigger(input);
         return null;
     }
 
     @Override
-    public void actionPerformed( ActionEvent event ) {
-        //cMapper;areaname;roomUID;exitUsed;indoor boolean;shortDesc;longDesc;exits
+    public void actionPerformed(ActionEvent event) {
+        // cMapper;areaname;roomUID;exitUsed;indoor boolean;shortDesc;longDesc;exits
 
         String input = event.getActionCommand();
-        String[] values = input.split( ";;", - 1 );
+        String[] values = input.split(";;", -1);
 
-        if (values[PREFIX].equals( CHANNEL_PREFIX ) && values.length == MESSAGE_LENGTH) {
+        if (values[PREFIX].equals(CHANNEL_PREFIX) && values.length == MESSAGE_LENGTH) {
             String areaName = values[AREA_NAME];
             this.engine.setCurrentAreaName(areaName);
             this.engine.log("Area: " + areaName);
-        } else if (values[PREFIX].equals( CHANNEL_PREFIX ) && values.length == EXIT_AREA_LENGTH) {
-            if (values[AREA_NAME].equals( EXIT_AREA_MESSAGE )) {
+        } else if (values[PREFIX].equals(CHANNEL_PREFIX) && values.length == EXIT_AREA_LENGTH) {
+            if (values[AREA_NAME].equals(EXIT_AREA_MESSAGE)) {
                 this.engine.setCurrentAreaName(EXIT_AREA_MESSAGE);
-                this.engine.saveMobs();
             }
         }
     }
@@ -123,26 +126,24 @@ public class MobPlugin extends BatClientPlugin implements
     }
 
     @Override
-    public void process(Object input){
-        if ( input == null){
+    public void process(Object input) {
+        if (input == null) {
             printConsoleMessage("Mob companion has following commands:");
         }
     }
 
-    private void printConsoleError(String msg){
-        this.getClientGUI().printText("general","[batMob error] "+msg+"\n", "F7856D");
+    private void printConsoleError(String msg) {
+        this.getClientGUI().printText("general", "[batMob error] " + msg + "\n", "F7856D");
     }
 
-    private void printConsoleMessage(String msg){
-        this.getClientGUI().printText("general","[batMob] "+msg+"\n", "6AFA63");
+    private void printConsoleMessage(String msg) {
+        this.getClientGUI().printText("general", "[batMob] " + msg + "\n", "6AFA63");
     }
 
-    public void doCommand( String string ) {
-        this.getClientGUI().doCommand( string );
+    public void doCommand(String string) {
+        this.getClientGUI().doCommand(string);
 
     }
-
-
 
     @Override
     public void mobSelected(Mob m) {
@@ -157,25 +158,25 @@ public class MobPlugin extends BatClientPlugin implements
     @Override
     public void internalFrameActivated(InternalFrameEvent arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void internalFrameClosed(InternalFrameEvent arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void internalFrameClosing(InternalFrameEvent arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void internalFrameDeactivated(InternalFrameEvent arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -197,6 +198,6 @@ public class MobPlugin extends BatClientPlugin implements
     @Override
     public void internalFrameOpened(InternalFrameEvent arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 }
