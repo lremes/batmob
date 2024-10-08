@@ -500,9 +500,16 @@ public class SpellTriggers {
                 break;
             }
         }
+
         if (found) {
-            // get the caster of the spell
-            return spell;
+            try {
+                Spell copy = (Spell) spell.clone();
+                copy.setTrigger(input);
+                return copy;
+            } catch (CloneNotSupportedException ex) {
+                // noop
+            }
+
         }
         return null;
     }

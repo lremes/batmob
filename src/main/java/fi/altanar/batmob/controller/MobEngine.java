@@ -14,9 +14,11 @@ import fi.altanar.batmob.io.MobDataPersister;
 import fi.altanar.batmob.io.IMobListener;
 import fi.altanar.batmob.io.IMobStoreListener;
 import fi.altanar.batmob.io.IStatusListener;
+import fi.altanar.batmob.io.ISpellListener;
 import fi.altanar.batmob.vo.Mob;
 import fi.altanar.batmob.vo.MobSaveObject;
 import fi.altanar.batmob.vo.MobStore;
+import fi.altanar.batmob.vo.Spell;
 
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -47,6 +49,7 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     private ArrayList<Mob> roomMobs = new ArrayList<Mob>();
 
     private ArrayList<IStatusListener> statusListeners = new ArrayList<IStatusListener>();
+    private ArrayList<ISpellListener> spellListeners = new ArrayList<ISpellListener>();
 
     // [1;32mVlad the Inhaler, the slavic golem[0m
     private static final String GREEN_BOLD = "\u001b[1;32m";
@@ -112,7 +115,10 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     public Mob trigger(ParsedResult input) {
         String stripped = input.getStrippedText().trim();
 
-        this.spellTriggers.process(stripped);
+        Object spell = this.spellTriggers.process(stripped);
+        if (spell instanceof Spell) {
+            this.notifySpellListeners((Spell) spell);
+        }
 
         Object obj = this.triggers.process(stripped);
         if (obj instanceof Mob) {
@@ -173,7 +179,13 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
         while (this.roomMobs.size() > 25) {
             this.roomMobs.remove(0); // remove oldest entry from view
         }
-        if (!this.roomMobs.contains(m)) {
+
+        // latest mob to bottom of list
+        int pos = this.roomMobs.indexOf(m);
+        if (pos == -1) {
+            this.roomMobs.add(m);
+        } else {
+            this.roomMobs.remove(pos); // remove oldest entry from view
             this.roomMobs.add(m);
         }
 
@@ -199,6 +211,10 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
 
     public void addMobListener(IMobListener l) {
         this.listeners.add(l);
+    }
+
+    public void addSpellListener(ISpellListener l) {
+        this.spellListeners.add(l);
     }
 
     @Override
@@ -278,6 +294,12 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     public void notifyStatusListeners(String str) {
         for (IStatusListener s : this.statusListeners) {
             s.statusChanged(str);
+        }
+    }
+
+    public void notifySpellListeners(Spell spell) {
+        for (ISpellListener s : this.spellListeners) {
+            s.spellDetected(spell);
         }
     }
 

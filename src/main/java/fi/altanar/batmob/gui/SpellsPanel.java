@@ -38,14 +38,15 @@ import java.awt.event.ComponentListener;
 import java.awt.event.ActionListener;
 
 import fi.altanar.batmob.controller.MobEngine;
-import fi.altanar.batmob.io.IMobListener;
+import fi.altanar.batmob.io.ISpellListener;
 import fi.altanar.batmob.vo.Mob;
-import fi.altanar.batmob.vo.MobFilter;
+import fi.altanar.batmob.vo.Spell;
 
 public class SpellsPanel extends JPanel implements
         MouseInputListener,
         ActionListener,
-        ListSelectionListener {
+        ListSelectionListener,
+        ISpellListener {
     MobEngine engine;
 
     private final int LAYOUT_WIDTH = 800;
@@ -58,11 +59,11 @@ public class SpellsPanel extends JPanel implements
     private final Color TEXT_COLOR = Color.LIGHT_GRAY;
     private final Color BG_COLOR = Color.BLACK;
 
-    private JList<Object[]> resultList;
+    private JList<Spell> resultList;
     private JScrollPane scrollableResults;
     private JPanel resultPanel = new JPanel();
 
-    private DefaultListModel<Object[]> listModel = new DefaultListModel<Object[]>();
+    private DefaultListModel<Spell> listModel = new DefaultListModel<Spell>();
 
     public SpellsPanel(MobEngine engine) {
         super();
@@ -76,7 +77,15 @@ public class SpellsPanel extends JPanel implements
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        resultList = new JList<Object[]>(this.listModel);
+        resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
+        resultPanel.setPreferredSize(new Dimension(LAYOUT_WIDTH, LAYOUT_HEIGHT));
+        resultPanel.setMinimumSize(new Dimension(LAYOUT_WIDTH, LAYOUT_HEIGHT));
+        resultPanel.setMaximumSize(new Dimension(LAYOUT_WIDTH, LAYOUT_HEIGHT));
+        resultPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        resultPanel.setBackground(BG_COLOR);
+        resultPanel.setForeground(TEXT_COLOR);
+
+        resultList = new JList<Spell>(this.listModel);
         resultList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         resultList.setLayoutOrientation(JList.VERTICAL);
         resultList.setVisibleRowCount(-1);
@@ -92,6 +101,7 @@ public class SpellsPanel extends JPanel implements
         scrollableResults.setBorder(new LineBorder(BORDER_COLOR));
         resultList.setVisible(true);
         resultList.setVisibleRowCount(25);
+
         resultPanel.add(scrollableResults);
 
         this.add(resultPanel);
@@ -146,5 +156,12 @@ public class SpellsPanel extends JPanel implements
     @Override
     public void valueChanged(ListSelectionEvent e) {
         // search result clicked
+    }
+
+    public void spellDetected(Spell e) {
+        if (e.trigger.startsWith("You ")) {
+            return;
+        }
+        this.listModel.addElement(e);
     }
 }

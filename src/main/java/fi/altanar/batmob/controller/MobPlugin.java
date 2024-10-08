@@ -80,6 +80,7 @@ public class MobPlugin extends BatClientPlugin implements
         clientWin.newTab("Search", searchPanel);
 
         spellsPanel = new SpellsPanel(engine);
+        clientWin.newTab("Spells", spellsPanel);
 
         clientWin.setVisible(true);
         clientWin.removeTabAt(0);
@@ -87,6 +88,8 @@ public class MobPlugin extends BatClientPlugin implements
         clientWin.addComponentListener(engine);
 
         engine.addMobListener(this.mobDetailPanel);
+        engine.addSpellListener(this.spellsPanel);
+
         engine.load();
     }
 
