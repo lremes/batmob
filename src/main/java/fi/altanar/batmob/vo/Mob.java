@@ -29,7 +29,10 @@ public class Mob implements Serializable {
     private boolean undead;
     private String gender;
 
-    public static final Pattern IGNORE_PARTS = Pattern.compile("\\((undead|bleeding)\\)|<[-=]*wrapped[-=]*>|<encircled>");
+    private String folkloristRating;
+
+    public static final Pattern IGNORE_PARTS = Pattern
+            .compile("\\((undead|bleeding)\\)|<[-=]*wrapped[-=]*>|<encircled>");
 
     public Mob(int exp, String name) {
         this.undead = name.contains("(undead)");
@@ -56,20 +59,28 @@ public class Mob implements Serializable {
 
     public String getAllExpAsString() {
         return " " + this.exp + " / " +
-            this.minExp + " / " +
-            this.maxExp;
+                this.minExp + " / " +
+                this.maxExp;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName( String name ) {
+    public void setName(String name) {
         this.name = normalizeName(name);
     }
 
     public String getNotes() {
         return notes;
+    }
+
+    public String getFolkloristRating() {
+        return folkloristRating;
+    }
+
+    public void setFolkloristRating(String folkloristRating) {
+        this.folkloristRating = folkloristRating;
     }
 
     public void setNotes(String notes) {
@@ -195,37 +206,68 @@ public class Mob implements Serializable {
 
     public String toString() {
         return this.name +
-            "|" + this.exp +
-            "|" + this.minExp +
-            "|" + this.maxExp +
-            "|" + this.area;
+                "|" + this.exp +
+                "|" + this.minExp +
+                "|" + this.maxExp +
+                "|" + this.area;
     }
 
-    public void updateFrom(Mob other) {
-        this.gender = other.gender;
-        this.race = other.race;
-        this.alignment = other.alignment;
-        this.notes = other.notes;
-        this.spells = other.spells;
-        this.skills = other.skills;
-        this.shortNames = other.shortNames;
-        this.undead = other.undead;
+    public void updateFromWiki(Mob other) {
+        if (this.gender == null || this.gender.isEmpty()) {
+            this.gender = other.gender;
+        }
+        if (this.race == null || this.race.isEmpty()) {
+            this.race = other.race;
+        }
+        if (this.alignment == null || this.alignment.isEmpty()) {
+            this.alignment = other.alignment;
+        }
+        if (this.notes == null || this.gender.isEmpty()) {
+            this.notes = other.notes;
+        }
+        if (this.spells == null || this.spells.length == 0) {
+            this.spells = other.spells;
+        }
+        if (this.skills == null || this.skills.length == 0) {
+            this.skills = other.skills;
+        }
+        if (this.shortNames == null || this.shortNames.length == 0) {
+            this.shortNames = other.shortNames;
+        }
+    }
+
+    public void updateFromStudy(Mob other) {
+        if (this.gender == null || this.gender.isEmpty()) {
+            this.gender = other.gender;
+        }
+        if (this.race == null || this.race.isEmpty()) {
+            this.race = other.race;
+        }
+        if (this.alignment == null || this.alignment.isEmpty()) {
+            this.alignment = other.alignment;
+        }
+        if (this.shortNames == null || this.shortNames.length == 0) {
+            this.shortNames = other.shortNames;
+        }
+        if (this.folkloristRating == null || this.folkloristRating.isEmpty()) {
+            this.folkloristRating = other.folkloristRating;
+        }
     }
 
     public String dump() {
         return this.name +
-            "|" + this.exp +
-            "|" + this.minExp +
-            "|" + this.maxExp +
-            "|" + this.area +
-            "|" + this.race +
-            "|" + this.alignment +
-            "|" + this.isAggro() +
-            "|" + this.isUndead() +
-            "|" + this.rep +
-            "|" + this.shortNames +
-            "|" + this.skills +
-            "|" + this.spells;
+                "|" + this.exp +
+                "|" + this.minExp +
+                "|" + this.maxExp +
+                "|" + this.area +
+                "|" + this.race +
+                "|" + this.alignment +
+                "|" + this.isAggro() +
+                "|" + this.isUndead() +
+                "|" + this.rep +
+                "|" + this.shortNames +
+                "|" + this.skills +
+                "|" + this.spells;
     }
 
     public static String normalizeName(String name) {
@@ -233,12 +275,21 @@ public class Mob implements Serializable {
         Matcher mtch = IGNORE_PARTS.matcher(name);
         name = mtch.replaceAll("");
 
-        //name = name.replace("(bleeding)", "");
-        //name = name.replace("<wrapped>", "");
+        if (name.charAt(0) == '(') {
+            name = name.substring(1);
+        }
+
+        // remove trailing bracers
+        if (name.charAt(name.length() - 1) == ')') {
+            name = name.substring(0, name.length() - 1);
+        }
+
+        // name = name.replace("(bleeding)", "");
+        // name = name.replace("<wrapped>", "");
 
         // pkills limits name to 57 chars
         if (name.length() > 57) {
-            name = name.substring(0,56);
+            name = name.substring(0, 56);
         }
         return name.trim();
     }

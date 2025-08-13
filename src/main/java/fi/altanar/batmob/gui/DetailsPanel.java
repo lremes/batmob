@@ -41,8 +41,8 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
 
     private final int LABEL_HEIGHT = 20;
 
-    public final Dimension PANEL_SIZE = new Dimension( PANEL_WIDTH, PANEL_HEIGHT );
-    public final Dimension LABEL_SIZE = new Dimension( PANEL_WIDTH, LABEL_HEIGHT );
+    public final Dimension PANEL_SIZE = new Dimension(PANEL_WIDTH, PANEL_HEIGHT);
+    public final Dimension LABEL_SIZE = new Dimension(PANEL_WIDTH, LABEL_HEIGHT);
 
     private final int TEXT_INPUT_WIDTH = PANEL_WIDTH / 2;
     private final int BORDERLINE = 7;
@@ -50,7 +50,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     private final int BUTTON_WIDTH = 100;
     private final int TEXT_INPUT_HEIGHT = 22;
     private final int CHECKBOX_HEIGHT = 20;
-    public final Dimension INPUT_SIZE = new Dimension( PANEL_WIDTH, TEXT_INPUT_HEIGHT );
+    public final Dimension INPUT_SIZE = new Dimension(PANEL_WIDTH, TEXT_INPUT_HEIGHT);
 
     private final Color BORDER_COLOR = Color.LIGHT_GRAY;
     private final Color TEXT_COLOR = Color.LIGHT_GRAY;
@@ -59,8 +59,8 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     private final Color BORDER_EDITABLE_COLOR = Color.LIGHT_GRAY;
     private final Color BG_COLOR_EDITABLE = Color.BLACK;
 
-    private Font font = new Font( "Consolas", Font.PLAIN, 12 );
-    private Font labelFont = new Font( "Consolas", Font.PLAIN, 11 );
+    private Font font = new Font("Consolas", Font.PLAIN, 12);
+    private Font labelFont = new Font("Consolas", Font.PLAIN, 11);
 
     private JTextArea notesArea = new JTextArea();
     private JScrollPane scrollableNotes;
@@ -100,19 +100,20 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
 
         this.queryEngine = engine.getQueryEngine();
 
-        this.setPreferredSize( PANEL_SIZE );
-        this.setMinimumSize( PANEL_SIZE );
-        this.setMaximumSize( PANEL_SIZE );
+        this.setPreferredSize(PANEL_SIZE);
+        this.setMinimumSize(PANEL_SIZE);
+        this.setMaximumSize(PANEL_SIZE);
 
         this.setLayout(new GridBagLayout());
-        this.setBackground( BG_COLOR );
-        this.setForeground( TEXT_COLOR );
-        this.setAlignmentX( Component.LEFT_ALIGNMENT );
-        this.setAlignmentY( Component.TOP_ALIGNMENT );
+        this.setBackground(BG_COLOR);
+        this.setForeground(TEXT_COLOR);
+        this.setAlignmentX(Component.LEFT_ALIGNMENT);
+        this.setAlignmentY(Component.TOP_ALIGNMENT);
 
         nameArea = createPanel(this, 0, 0, 2, 1, "Long name", BORDER_COLOR, "This is the long name of the mob", false);
 
-        expArea = createPanel(this, 1, 0, 2, 1, "Exp (latest/min/max)", BORDER_COLOR, "This is the exp gained for the mob", false);
+        expArea = createPanel(this, 1, 0, 2, 1, "Exp (latest/min/max)", BORDER_COLOR,
+                "This is the exp gained for the mob", false);
 
         areaNameArea = createPanel(this, 3, 0, 1, 1, "Area", BORDER_COLOR, "This is the area where the mob is", true);
 
@@ -130,14 +131,14 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
 
         repArea = createPanel(this, 7, 1, 1, 1, "Rep", BORDER_COLOR, "Rep gained for killing the mob", true);
 
-        isUndead.setBackground( BG_COLOR );
-        isUndead.setForeground( TEXT_COLOR );
-        isUndead.setAlignmentX( Component.LEFT_ALIGNMENT );
-        isUndead.setPreferredSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
-        isUndead.setMinimumSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
-        isUndead.setMaximumSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
-        isUndead.setAlignmentX( Component.LEFT_ALIGNMENT );
-        isUndead.setFont( font );
+        isUndead.setBackground(BG_COLOR);
+        isUndead.setForeground(TEXT_COLOR);
+        isUndead.setAlignmentX(Component.LEFT_ALIGNMENT);
+        isUndead.setPreferredSize(new Dimension(PANEL_WIDTH, CHECKBOX_HEIGHT));
+        isUndead.setMinimumSize(new Dimension(PANEL_WIDTH, CHECKBOX_HEIGHT));
+        isUndead.setMaximumSize(new Dimension(PANEL_WIDTH, CHECKBOX_HEIGHT));
+        isUndead.setAlignmentX(Component.LEFT_ALIGNMENT);
+        isUndead.setFont(font);
 
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -148,14 +149,14 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         c.gridheight = 1;
         this.add(isUndead, c);
 
-        isAggro.setBackground( BG_COLOR );
-        isAggro.setForeground( TEXT_COLOR );
-        isAggro.setAlignmentX( Component.LEFT_ALIGNMENT );
-        isAggro.setPreferredSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
-        isAggro.setMinimumSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
-        isAggro.setMaximumSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
-        isAggro.setAlignmentX( Component.LEFT_ALIGNMENT );
-        isAggro.setFont( font );
+        isAggro.setBackground(BG_COLOR);
+        isAggro.setForeground(TEXT_COLOR);
+        isAggro.setAlignmentX(Component.LEFT_ALIGNMENT);
+        isAggro.setPreferredSize(new Dimension(PANEL_WIDTH, CHECKBOX_HEIGHT));
+        isAggro.setMinimumSize(new Dimension(PANEL_WIDTH, CHECKBOX_HEIGHT));
+        isAggro.setMaximumSize(new Dimension(PANEL_WIDTH, CHECKBOX_HEIGHT));
+        isAggro.setAlignmentX(Component.LEFT_ALIGNMENT);
+        isAggro.setFont(font);
 
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 0.5;
@@ -165,14 +166,14 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         c.gridheight = 1;
         this.add(isAggro, c);
 
-        isZinium.setBackground( BG_COLOR );
-        isZinium.setForeground( TEXT_COLOR );
-        isZinium.setAlignmentX( Component.LEFT_ALIGNMENT );
-        isZinium.setPreferredSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
-        isZinium.setMinimumSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
-        isZinium.setMaximumSize( new Dimension( PANEL_WIDTH, CHECKBOX_HEIGHT ) );
-        isZinium.setAlignmentX( Component.LEFT_ALIGNMENT );
-        isZinium.setFont( font );
+        isZinium.setBackground(BG_COLOR);
+        isZinium.setForeground(TEXT_COLOR);
+        isZinium.setAlignmentX(Component.LEFT_ALIGNMENT);
+        isZinium.setPreferredSize(new Dimension(PANEL_WIDTH, CHECKBOX_HEIGHT));
+        isZinium.setMinimumSize(new Dimension(PANEL_WIDTH, CHECKBOX_HEIGHT));
+        isZinium.setMaximumSize(new Dimension(PANEL_WIDTH, CHECKBOX_HEIGHT));
+        isZinium.setAlignmentX(Component.LEFT_ALIGNMENT);
+        isZinium.setFont(font);
 
         c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -184,30 +185,30 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         this.add(isZinium, c);
 
         JPanel notesPanel = new JPanel();
-        notesPanel.setBackground( BG_COLOR );
-        notesPanel.setForeground( TEXT_COLOR );
+        notesPanel.setBackground(BG_COLOR);
+        notesPanel.setForeground(TEXT_COLOR);
         notesPanel.setLayout(new BoxLayout(notesPanel, BoxLayout.Y_AXIS));
-        notesPanel.setAlignmentX( Component.LEFT_ALIGNMENT );
+        notesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel notesLabel = createLabel("Notes");
-        notesLabel.setAlignmentX( Component.LEFT_ALIGNMENT );
+        notesLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         notesPanel.add(notesLabel);
 
-        notesArea.setWrapStyleWord( true );
-        notesArea.setEditable( true );
-        notesArea.setColumns( 50 );
-        notesArea.setForeground( TEXT_COLOR );
-        notesArea.setBackground( BG_COLOR_EDITABLE );
-        notesArea.setLineWrap( true );
-        notesArea.setAlignmentX( Component.LEFT_ALIGNMENT );
-        notesArea.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
-        scrollableNotes = new JScrollPane( notesArea );
-        scrollableNotes.setPreferredSize( new Dimension( PANEL_WIDTH + 80, TEXT_INPUT_HEIGHT * 5) );
-        scrollableNotes.setMinimumSize( new Dimension( PANEL_WIDTH + 80, TEXT_INPUT_HEIGHT * 5 ) );
-        scrollableNotes.setMaximumSize( new Dimension( PANEL_WIDTH + 80, TEXT_INPUT_HEIGHT * 5 ) );
+        notesArea.setWrapStyleWord(true);
+        notesArea.setEditable(true);
+        notesArea.setColumns(50);
+        notesArea.setForeground(TEXT_COLOR);
+        notesArea.setBackground(BG_COLOR_EDITABLE);
+        notesArea.setLineWrap(true);
+        notesArea.setAlignmentX(Component.LEFT_ALIGNMENT);
+        notesArea.setBorder(new LineBorder(BORDER_EDITABLE_COLOR));
+        scrollableNotes = new JScrollPane(notesArea);
+        scrollableNotes.setPreferredSize(new Dimension(PANEL_WIDTH + 80, TEXT_INPUT_HEIGHT * 5));
+        scrollableNotes.setMinimumSize(new Dimension(PANEL_WIDTH + 80, TEXT_INPUT_HEIGHT * 5));
+        scrollableNotes.setMaximumSize(new Dimension(PANEL_WIDTH + 80, TEXT_INPUT_HEIGHT * 5));
 
         notesPanel.add(notesLabel);
-        notesPanel.add( scrollableNotes );
+        notesPanel.add(scrollableNotes);
 
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 0.0;
@@ -218,44 +219,44 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         this.add(notesPanel, c);
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout( new BoxLayout(buttonPanel, BoxLayout.X_AXIS) );
-        buttonPanel.setAlignmentX( Component.LEFT_ALIGNMENT );
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        saveButton = new JButton( "Save" );
-        saveButton.setFont( font );
-        saveButton.setBounds( 0, BUTTON_HEIGHT + BORDERLINE, BUTTON_WIDTH, BUTTON_HEIGHT );
-        saveButton.setToolTipText( "Save the mob data." );
-        saveButton.setAlignmentX( Component.LEFT_ALIGNMENT );
-        buttonPanel.add( saveButton );
-        saveButton.addActionListener( this );
+        saveButton = new JButton("Save");
+        saveButton.setFont(font);
+        saveButton.setBounds(0, BUTTON_HEIGHT + BORDERLINE, BUTTON_WIDTH, BUTTON_HEIGHT);
+        saveButton.setToolTipText("Save the mob data.");
+        saveButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+        buttonPanel.add(saveButton);
+        saveButton.addActionListener(this);
 
-        deleteButton = new JButton( "Remove" );
-        deleteButton.setFont( font );
-        deleteButton.setBounds( 0, BUTTON_HEIGHT + BORDERLINE, BUTTON_WIDTH, BUTTON_HEIGHT );
-        deleteButton.setToolTipText( "Remove this mob data from database." );
-        buttonPanel.add( deleteButton );
-        deleteButton.addActionListener( this );
+        deleteButton = new JButton("Remove");
+        deleteButton.setFont(font);
+        deleteButton.setBounds(0, BUTTON_HEIGHT + BORDERLINE, BUTTON_WIDTH, BUTTON_HEIGHT);
+        deleteButton.setToolTipText("Remove this mob data from database.");
+        buttonPanel.add(deleteButton);
+        deleteButton.addActionListener(this);
 
-        wikiButton = new JButton( "Wiki" );
-        wikiButton.setFont( font );
-        wikiButton.setBounds( 0, BUTTON_HEIGHT + BORDERLINE, BUTTON_WIDTH, BUTTON_HEIGHT );
-        wikiButton.setToolTipText( "Update data from wiki." );
-        buttonPanel.add( wikiButton );
-        wikiButton.addActionListener( this );
+        wikiButton = new JButton("Wiki");
+        wikiButton.setFont(font);
+        wikiButton.setBounds(0, BUTTON_HEIGHT + BORDERLINE, BUTTON_WIDTH, BUTTON_HEIGHT);
+        wikiButton.setToolTipText("Update data from wiki.");
+        buttonPanel.add(wikiButton);
+        wikiButton.addActionListener(this);
 
-        reportButton = new JButton( "Report" );
-        reportButton.setFont( font );
-        reportButton.setBounds( 0, BUTTON_HEIGHT + BORDERLINE, BUTTON_WIDTH, BUTTON_HEIGHT );
-        reportButton.setToolTipText( "Update data from wiki." );
-        buttonPanel.add( reportButton );
-        reportButton.addActionListener( this );
+        reportButton = new JButton("Report");
+        reportButton.setFont(font);
+        reportButton.setBounds(0, BUTTON_HEIGHT + BORDERLINE, BUTTON_WIDTH, BUTTON_HEIGHT);
+        reportButton.setToolTipText("Update data from wiki.");
+        buttonPanel.add(reportButton);
+        reportButton.addActionListener(this);
 
-        topButton = new JButton( "Top exp" );
-        topButton.setFont( font );
-        topButton.setBounds( 0, BUTTON_HEIGHT + BORDERLINE, BUTTON_WIDTH, BUTTON_HEIGHT );
-        topButton.setToolTipText( "List top mobs for area." );
-        buttonPanel.add( topButton );
-        topButton.addActionListener( this );
+        topButton = new JButton("Top exp");
+        topButton.setFont(font);
+        topButton.setBounds(0, BUTTON_HEIGHT + BORDERLINE, BUTTON_WIDTH, BUTTON_HEIGHT);
+        topButton.setToolTipText("List top mobs for area.");
+        buttonPanel.add(topButton);
+        topButton.addActionListener(this);
 
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 0.5;
@@ -272,45 +273,46 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
 
     private JLabel createLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setBackground( BG_COLOR );
-        label.setForeground( TEXT_COLOR );
-        label.setBorder(new EmptyBorder(5,3,3,3));
+        label.setBackground(BG_COLOR);
+        label.setForeground(TEXT_COLOR);
+        label.setBorder(new EmptyBorder(5, 3, 3, 3));
         label.setFont(labelFont);
-        label.setPreferredSize( LABEL_SIZE );
-        label.setMinimumSize( LABEL_SIZE );
-        label.setMaximumSize( LABEL_SIZE );
-        label.setAlignmentX( Component.LEFT_ALIGNMENT );
+        label.setPreferredSize(LABEL_SIZE);
+        label.setMinimumSize(LABEL_SIZE);
+        label.setMaximumSize(LABEL_SIZE);
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
         return label;
     }
 
     private JTextField createInput(Color borderColor, String tooltip, boolean editable, int w) {
         JTextField field = new JTextField();
         if (editable) {
-            field.setBorder( new LineBorder( BORDER_EDITABLE_COLOR ) );
-            field.setBackground( BG_COLOR_EDITABLE );
+            field.setBorder(new LineBorder(BORDER_EDITABLE_COLOR));
+            field.setBackground(BG_COLOR_EDITABLE);
         } else {
-            field.setBorder( new LineBorder( BORDER_COLOR ) );
-            field.setBackground( BG_COLOR_NONEDITABLE );
+            field.setBorder(new LineBorder(BORDER_COLOR));
+            field.setBackground(BG_COLOR_NONEDITABLE);
         }
-        field.setForeground( TEXT_COLOR );
-        field.setFont( font );
-        field.setToolTipText( tooltip );
-        field.setAlignmentX( Component.LEFT_ALIGNMENT );
+        field.setForeground(TEXT_COLOR);
+        field.setFont(font);
+        field.setToolTipText(tooltip);
+        field.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        field.setPreferredSize( new Dimension( TEXT_INPUT_WIDTH * w, TEXT_INPUT_HEIGHT) );
-        field.setMinimumSize( new Dimension( TEXT_INPUT_WIDTH * w, TEXT_INPUT_HEIGHT) );
-        field.setMaximumSize( new Dimension( TEXT_INPUT_WIDTH * w, TEXT_INPUT_HEIGHT) );
+        field.setPreferredSize(new Dimension(TEXT_INPUT_WIDTH * w, TEXT_INPUT_HEIGHT));
+        field.setMinimumSize(new Dimension(TEXT_INPUT_WIDTH * w, TEXT_INPUT_HEIGHT));
+        field.setMaximumSize(new Dimension(TEXT_INPUT_WIDTH * w, TEXT_INPUT_HEIGHT));
 
         return field;
     }
 
-    private JTextField createPanel(JPanel container, int gridY, int gridX, int w, int h, String labelText, Color borderColor, String tooltip, boolean editable) {
+    private JTextField createPanel(JPanel container, int gridY, int gridX, int w, int h, String labelText,
+            Color borderColor, String tooltip, boolean editable) {
         JPanel subContainer = new JPanel();
         subContainer.setLayout(new BoxLayout(subContainer, BoxLayout.Y_AXIS));
         JLabel label = createLabel(labelText);
         JTextField field = createInput(borderColor, tooltip, editable, w);
-        subContainer.setBackground( BG_COLOR );
-        subContainer.setForeground( TEXT_COLOR );
+        subContainer.setBackground(BG_COLOR);
+        subContainer.setForeground(TEXT_COLOR);
         subContainer.add(label);
         subContainer.add(field);
 
@@ -330,8 +332,8 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     }
 
     @Override
-    public void actionPerformed( ActionEvent e ) {
-        if (e.getSource().equals( saveButton )) {
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource().equals(saveButton)) {
             this.mob.setNotes(this.notesArea.getText());
 
             ArrayList<String> sNames = new ArrayList<String>(Arrays.asList(this.shortNameArea.getText().split("\\.")));
@@ -373,21 +375,21 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
             this.mob.setZinium(this.isZinium.isSelected());
 
             engine.getMobStore().updateEditableFields(this.mob);
-        } else if (e.getSource().equals( deleteButton )) {
+        } else if (e.getSource().equals(deleteButton)) {
             engine.getMobStore().remove(this.mob);
             this.mob = null;
             this.clearAll();
-        } else if (e.getSource().equals( wikiButton )) {
+        } else if (e.getSource().equals(wikiButton)) {
             if (this.queryEngine != null) {
                 Mob m = this.queryEngine.fetchMobInfo(this.mob.getName());
                 if (m != null) {
-                    this.mob.updateFrom(m);
+                    this.mob.updateFromWiki(m);
                     showMob(this.mob);
                 } else {
                     this.engine.notifyStatusListeners("Nothing found");
                 }
             }
-        } else if (e.getSource().equals( reportButton )) {
+        } else if (e.getSource().equals(reportButton)) {
             this.engine.doCommand("party report " + this.mob.getName());
             this.engine.doCommand("party report " + this.mob.getAllExpAsString());
             if (this.mob.getRace() != null && this.mob.getRace() != "") {
@@ -404,7 +406,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
             if (skills.size() > 0) {
                 this.engine.doCommand("party report Skills: " + skills);
             }
-        } else if (e.getSource().equals( topButton )) {
+        } else if (e.getSource().equals(topButton)) {
             this.engine.doCommand("party report Top exp mobs for " + this.engine.getCurrentAreaName());
             this.engine.doCommand("party report -------------------------------------");
 
@@ -416,7 +418,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
 
                 ArrayList<Mob> results = this.searchEngine.search(f);
                 this.engine.log("Found " + results.size() + " mobs");
-                
+
                 Collections.sort(results, new Comparator<Mob>() {
                     @Override
                     public int compare(final Mob mob1, final Mob mob2) {
@@ -425,7 +427,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
                 });
 
                 int i = 0;
-                for (ListIterator<Mob> iter = results.listIterator(); iter.hasNext(); ) {
+                for (ListIterator<Mob> iter = results.listIterator(); iter.hasNext();) {
                     Mob m = iter.next();
                     this.engine.doCommand("party report " + Integer.toString(m.getMaxExp()) + " \t" + m.getName());
                     i++;
@@ -506,22 +508,22 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     }
 
     @Override
-    public void componentHidden( ComponentEvent e ) {
+    public void componentHidden(ComponentEvent e) {
 
     }
 
     @Override
-    public void componentMoved( ComponentEvent e ) {
+    public void componentMoved(ComponentEvent e) {
 
     }
 
     @Override
-    public void componentResized( ComponentEvent e ) {
+    public void componentResized(ComponentEvent e) {
 
     }
 
     @Override
-    public void componentShown( ComponentEvent e ) {
+    public void componentShown(ComponentEvent e) {
 
     }
 }

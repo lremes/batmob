@@ -1,0 +1,36 @@
+SCRIPT_NAME="bm";
+SCRIPT_DESC = "Reloads bat Mob Companion after some silly person closed it.";
+SCRIPT_OFF = true;
+import com.mythicscape.batclient.interfaces.BatClientPlugin;
+
+void reload(){
+	for(BatClientPlugin plugin : pluginManager.getPlugins()){
+		if(plugin.getName().equals("batMob")){
+			plugin.loadPlugin();
+		}	
+	}
+}
+
+void search(text) {
+	for(BatClientPlugin plugin : pluginManager.getPlugins()){
+		if(plugin.getName().equals("batMob")){
+			plugin.search(text);
+		}	
+	}
+}
+
+void top() {
+	for(BatClientPlugin plugin : pluginManager.getPlugins()){
+		if(plugin.getName().equals("batMob")){
+			plugin.top();
+		}	
+	}
+}
+
+void show(text) {
+	for(BatClientPlugin plugin : pluginManager.getPlugins()){
+		if(plugin.getName().equals("batMob")){
+			plugin.showMob(text);
+		}	
+	}
+}

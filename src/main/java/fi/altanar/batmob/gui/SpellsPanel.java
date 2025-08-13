@@ -163,5 +163,9 @@ public class SpellsPanel extends JPanel implements
             return;
         }
         this.listModel.addElement(e);
+
+        while (this.listModel.size() > 30) {
+            this.listModel.remove(0); // remove oldest entry from view
+        }
     }
 }

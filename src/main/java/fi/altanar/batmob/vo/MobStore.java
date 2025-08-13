@@ -10,9 +10,10 @@ import fi.altanar.batmob.io.IMobStoreListener;
 
 public class MobStore {
 
-    private HashMap<String, Mob> mobs = new HashMap<String,Mob>();
+    private HashMap<String, Mob> mobs = new HashMap<String, Mob>();
 
     private ArrayList<IMobStoreListener> listeners = new ArrayList<IMobStoreListener>();
+
     public MobStore() {
         super();
     }
@@ -72,6 +73,7 @@ public class MobStore {
             m.setNotes(mob.getNotes());
             m.setRep(mob.getRep());
             m.setZinium(mob.isZinium());
+            m.setFolkloristRating(mob.getFolkloristRating());
             m.setAggro(mob.isAggro());
             m.setUndead(mob.isUndead());
             this.mobs.put(m.getName(), m);
@@ -103,7 +105,7 @@ public class MobStore {
     public void restoreFromSaveObject(MobSaveObject saved) {
         this.mobs = saved.getData();
 
-        HashMap<String,Mob> fixed = new HashMap<String,Mob>();
+        HashMap<String, Mob> fixed = new HashMap<String, Mob>();
         for (Map.Entry<String, Mob> entry : this.mobs.entrySet()) {
             String tName = entry.getKey();
             Mob e = entry.getValue();
@@ -127,7 +129,7 @@ public class MobStore {
         }
     }
 
-    public Iterator<Entry<String,Mob>> iterator() {
+    public Iterator<Entry<String, Mob>> iterator() {
         return this.mobs.entrySet().iterator();
     }
 

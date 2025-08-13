@@ -14,6 +14,7 @@ import fi.altanar.batmob.io.MobDataPersister;
 import fi.altanar.batmob.io.IMobListener;
 import fi.altanar.batmob.io.IMobStoreListener;
 import fi.altanar.batmob.io.IStatusListener;
+import fi.altanar.batmob.io.IStudyListener;
 import fi.altanar.batmob.io.ISpellListener;
 import fi.altanar.batmob.vo.Mob;
 import fi.altanar.batmob.vo.MobSaveObject;
@@ -44,12 +45,14 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     private RegexTrigger triggers = new RegexTrigger();
     private String currentAreaName = "";
     private SpellTriggers spellTriggers = new SpellTriggers();
+    private StudyTriggers studyTriggers = new StudyTriggers();
     private ClientGUI clientGui;
 
     private ArrayList<Mob> roomMobs = new ArrayList<Mob>();
 
     private ArrayList<IStatusListener> statusListeners = new ArrayList<IStatusListener>();
     private ArrayList<ISpellListener> spellListeners = new ArrayList<ISpellListener>();
+    private ArrayList<IStudyListener> studyListeners = new ArrayList<IStudyListener>();
 
     // [1;32mVlad the Inhaler, the slavic golem[0m
     private static final String GREEN_BOLD = "\u001b[1;32m";
@@ -120,6 +123,13 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
             this.notifySpellListeners((Spell) spell);
         }
 
+        Object studiedMob = this.studyTriggers.process(stripped);
+        if (studiedMob instanceof Mob) {
+            this.notifyStudyListeners((Mob) studiedMob);
+
+            this.updateFromStudy((Mob) studiedMob);
+        }
+
         Object obj = this.triggers.process(stripped);
         if (obj instanceof Mob) {
             // from pkills
@@ -143,6 +153,37 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
             }
         }
         return null;
+    }
+
+    private void updateFromStudy(Mob mob) {
+        // find the mob from the room list
+        Mob found = null;
+        String match = mob.getShortNames().toArray()[0].toString();
+        Iterator<Mob> mi = this.roomMobs.iterator();
+        while (mi.hasNext() && found == null) {
+            Mob m = mi.next();
+            Iterator<String> it = m.getShortNames().iterator();
+            while (it.hasNext()) {
+                String shortName = it.next();
+                if (shortName.equals(match)) {
+                    found = m;
+                    break;
+                }
+            }
+
+            // try partial match with short name
+            if (m.getName().contains(match)) {
+                found = m;
+                break;
+            }
+        }
+
+        if (found != null) {
+            found.updateFromStudy(mob);
+            this.log("Updated from study: " + found.getName());
+        } else {
+            this.log("Could not find mob to update: " + match);
+        }
     }
 
     private Mob handleMob(String strippedName, boolean isAgro) {
@@ -215,6 +256,10 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
 
     public void addSpellListener(ISpellListener l) {
         this.spellListeners.add(l);
+    }
+
+    public void addStudyListener(IStudyListener l) {
+        this.studyListeners.add(l);
     }
 
     @Override
@@ -300,6 +345,12 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     public void notifySpellListeners(Spell spell) {
         for (ISpellListener s : this.spellListeners) {
             s.spellDetected(spell);
+        }
+    }
+
+    public void notifyStudyListeners(Mob mob) {
+        for (IStudyListener l : this.studyListeners) {
+            l.mobStudied(mob);
         }
     }
 

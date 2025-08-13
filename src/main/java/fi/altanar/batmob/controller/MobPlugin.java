@@ -34,6 +34,7 @@ public class MobPlugin extends BatClientPlugin implements
 
     private MobEngine engine;
     private SearchPanel searchPanel;
+    private SearchEngine searchEngine;
     private MobDetailsPanel mobDetailPanel;
     private SpellsPanel spellsPanel;
 
@@ -69,7 +70,7 @@ public class MobPlugin extends BatClientPlugin implements
 
         clientWin.addInternalFrameListener(this);
 
-        SearchEngine searchEngine = new SearchEngine(store, engine);
+        searchEngine = new SearchEngine(store, engine);
         searchPanel = new SearchPanel(searchEngine);
         searchPanel.addMobListener(this);
         clientWin.addComponentListener(searchPanel);
@@ -96,6 +97,106 @@ public class MobPlugin extends BatClientPlugin implements
     @Override
     public String getName() {
         return "batMob";
+    }
+
+    public void search(String text) {
+        String[] parts = text.split(" ");
+
+        if (parts.length > 1) {
+            this.getClientGUI().printText("general", "Top 15 Search results\n", "6AFA63");
+            this.getClientGUI().printText("general", "------------------------------\n", "6AFA63");
+            MobFilter f = new MobFilter();
+            f.exact = false;
+            f.name = parts[1];
+
+            ArrayList<Mob> results = this.searchEngine.search(f);
+            int i = 0;
+            for (ListIterator<Mob> iter = results.listIterator(); iter.hasNext();) {
+                Mob m = iter.next();
+                this.getClientGUI().printText("general", m.getName() + "\n", "6AFA63");
+                i++;
+                if (i > 15) {
+                    break;
+                }
+            }
+        }
+    }
+
+    public void showMobs(String text) {
+        String[] parts = text.split(" ");
+
+        if (parts.length > 1) {
+            this.getClientGUI().printText("general", "Top 15 Search results\n", "6AFA63");
+            this.getClientGUI().printText("general", "------------------------------\n", "6AFA63");
+            MobFilter f = new MobFilter();
+            f.exact = false;
+            f.name = parts[1];
+
+            ArrayList<Mob> results = this.searchEngine.search(f);
+            int i = 0;
+            for (ListIterator<Mob> iter = results.listIterator(); iter.hasNext();) {
+                Mob m = iter.next();
+                this.reportMod(m);
+                this.getClientGUI().printText("general", m.getName() + "\n", "6AFA63");
+                i++;
+                if (i > 15) {
+                    break;
+                }
+            }
+        }
+    }
+
+    public void reportMod(Mob mob) {
+        this.engine.doCommand("party report " + mob.getName());
+        this.engine.doCommand("party report " + mob.getAllExpAsString());
+        if (mob.getRace() != null && !mob.getRace().isEmpty()) {
+            this.engine.doCommand("party report Race: " + mob.getRace());
+        }
+        if (mob.getAlignment() != null && !mob.getAlignment().isEmpty()) {
+            this.engine.doCommand("party report Align: " + mob.getAlignment());
+        }
+        ArrayList<String> spells = mob.getSpells();
+        if (spells.size() > 0) {
+            this.engine.doCommand("party report Spells: " + spells);
+        }
+        ArrayList<String> skills = mob.getSkills();
+        if (skills.size() > 0) {
+            this.engine.doCommand("party report Skills: " + skills);
+        }
+    }
+
+    public void top() {
+        this.engine.doCommand("party report Top exp mobs for " + this.engine.getCurrentAreaName());
+        this.engine.doCommand("party report -------------------------------------");
+
+        try {
+            MobFilter f = new MobFilter();
+            f.area = this.engine.getCurrentAreaName().toLowerCase();
+            f.exact = true;
+            this.engine.log("Searching " + f);
+
+            ArrayList<Mob> results = this.searchEngine.search(f);
+            this.engine.log("Found " + results.size() + " mobs");
+
+            Collections.sort(results, new Comparator<Mob>() {
+                @Override
+                public int compare(final Mob mob1, final Mob mob2) {
+                    return mob2.getMaxExp() - mob1.getMaxExp();
+                }
+            });
+
+            int i = 0;
+            for (ListIterator<Mob> iter = results.listIterator(); iter.hasNext();) {
+                Mob m = iter.next();
+                this.engine.doCommand("party report " + Integer.toString(m.getMaxExp()) + " \t" + m.getName());
+                i++;
+                if (i > 15) {
+                    break;
+                }
+            }
+        } catch (Exception e1) {
+            this.engine.log(e1.getMessage());
+        }
     }
 
     // ArrayList<BatClientPlugin> plugins=this.getPluginManager().getPlugins();
