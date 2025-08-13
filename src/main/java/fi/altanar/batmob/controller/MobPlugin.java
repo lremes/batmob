@@ -3,6 +3,9 @@ package fi.altanar.batmob.controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.ListIterator;
+import java.util.Comparator;
+import java.util.Collections;
 
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
@@ -22,6 +25,7 @@ import fi.altanar.batmob.vo.Mob;
 import fi.altanar.batmob.vo.MobStore;
 import fi.altanar.batmob.io.MediaWikiApi;
 import fi.altanar.batmob.io.IMobListener;
+import fi.altanar.batmob.vo.MobFilter;
 
 public class MobPlugin extends BatClientPlugin implements
         BatClientPluginTrigger,
