@@ -74,6 +74,7 @@ public class MobStore {
             m.setRep(mob.getRep());
             m.setZinium(mob.isZinium());
             m.setFolkloristRating(mob.getFolkloristRating());
+            m.setDamageType(mob.getDamageType());
             m.setAggro(mob.isAggro());
             m.setUndead(mob.isUndead());
             this.mobs.put(m.getName(), m);

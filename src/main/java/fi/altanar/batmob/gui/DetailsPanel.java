@@ -70,10 +70,11 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     private JTextField shortNameArea = new JTextField();
     private JTextField raceArea = new JTextField();
     private JTextField alignmentArea = new JTextField();
-    private JTextField repArea = new JTextField();
+    private JTextField ratingArea = new JTextField();
     private JTextField genderArea = new JTextField();
     private JTextField skillsArea = new JTextField();
     private JTextField spellsArea = new JTextField();
+    private JTextField damageTypeArea = new JTextField();
 
     private JCheckBox isUndead = new JCheckBox("Undead");
     private JCheckBox isAggro = new JCheckBox("Aggro");
@@ -129,7 +130,9 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
 
         alignmentArea = createPanel(this, 7, 0, 1, 1, "Alignment", BORDER_COLOR, "Alignment of the mob", true);
 
-        repArea = createPanel(this, 7, 1, 1, 1, "Rep", BORDER_COLOR, "Rep gained for killing the mob", true);
+        ratingArea = createPanel(this, 7, 1, 1, 1, "Rating", BORDER_COLOR, "Folklorist rating", true);
+
+        damageTypeArea = createPanel(this, 8, 1, 1, 1, "Damagetype", BORDER_COLOR, "Inflicts", true);
 
         isUndead.setBackground(BG_COLOR);
         isUndead.setForeground(TEXT_COLOR);
@@ -160,7 +163,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
 
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 0.5;
-        c.gridy = 8;
+        c.gridy = 9;
         c.gridx = 1;
         c.gridwidth = 1;
         c.gridheight = 1;
@@ -341,8 +344,9 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
             this.mob.setRace(this.raceArea.getText());
             this.mob.setAlignment(this.alignmentArea.getText());
             this.mob.setGender(this.genderArea.getText());
-            this.mob.setRep(this.repArea.getText());
+            this.mob.setFolkloristRating(this.ratingArea.getText());
             this.mob.setArea(this.areaNameArea.getText());
+            this.mob.setDamageType(this.damageTypeArea.getText());
 
             String skillz = this.skillsArea.getText();
             if (!skillz.isEmpty()) {
@@ -472,7 +476,8 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
             }
 
             this.raceArea.setText(this.mob.getRace());
-            this.repArea.setText(this.mob.getRep());
+            this.ratingArea.setText(this.mob.getFolkloristRating());
+            this.damageTypeArea.setText(this.mob.getDamageType());
             this.notesArea.setText(this.mob.getNotes());
             this.isUndead.setSelected(this.mob.isUndead());
             this.isAggro.setSelected(this.mob.isAggro());
@@ -494,7 +499,8 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
 
         this.raceArea.setText("");
         this.genderArea.setText("");
-        this.repArea.setText("");
+        this.ratingArea.setText("");
+        this.damageTypeArea.setText("");
         this.notesArea.setText("");
         this.isUndead.setSelected(false);
         this.isAggro.setSelected(false);

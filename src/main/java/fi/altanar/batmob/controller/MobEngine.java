@@ -20,6 +20,7 @@ import fi.altanar.batmob.vo.Mob;
 import fi.altanar.batmob.vo.MobSaveObject;
 import fi.altanar.batmob.vo.MobStore;
 import fi.altanar.batmob.vo.Spell;
+import fi.altanar.batmob.vo.MobFinder;
 
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -126,8 +127,6 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
         Object studiedMob = this.studyTriggers.process(stripped);
         if (studiedMob instanceof Mob) {
             this.notifyStudyListeners((Mob) studiedMob);
-
-            this.updateFromStudy((Mob) studiedMob);
         }
 
         Object obj = this.triggers.process(stripped);
@@ -153,37 +152,6 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
             }
         }
         return null;
-    }
-
-    private void updateFromStudy(Mob mob) {
-        // find the mob from the room list
-        Mob found = null;
-        String match = mob.getShortNames().toArray()[0].toString();
-        Iterator<Mob> mi = this.roomMobs.iterator();
-        while (mi.hasNext() && found == null) {
-            Mob m = mi.next();
-            Iterator<String> it = m.getShortNames().iterator();
-            while (it.hasNext()) {
-                String shortName = it.next();
-                if (shortName.equals(match)) {
-                    found = m;
-                    break;
-                }
-            }
-
-            // try partial match with short name
-            if (m.getName().contains(match)) {
-                found = m;
-                break;
-            }
-        }
-
-        if (found != null) {
-            found.updateFromStudy(mob);
-            this.log("Updated from study: " + found.getName());
-        } else {
-            this.log("Could not find mob to update: " + match);
-        }
     }
 
     private Mob handleMob(String strippedName, boolean isAgro) {

@@ -52,7 +52,7 @@ public class StudyTriggerTest {
             e.printStackTrace();
         }
 
-        assertEquals(5, this.mobs.size());
+        assertEquals(8, this.mobs.size());
 
         Mob m = this.mobs.get(0);
         assertEquals("Shezot", m.getShortNames().toArray()[0]);
@@ -82,5 +82,19 @@ public class StudyTriggerTest {
         assertEquals("Barsoomian", m.getShortNames().toArray()[0]);
         assertEquals("barsoomian", m.getRace());
         assertEquals("weak", m.getFolkloristRating());
+
+        m = this.mobs.get(5);
+        assertEquals("Ugly magpie", m.getShortNames().toArray()[0]);
+        assertEquals("bird", m.getRace());
+        assertEquals("extremely weak", m.getFolkloristRating());
+
+        m = this.mobs.get(6);
+        assertEquals("Sing Wu", m.getShortNames().toArray()[0]);
+        assertEquals("human", m.getRace());
+
+        m = this.mobs.get(7);
+        assertEquals("Laudia Zemovrez", m.getShortNames().toArray()[0]);
+        assertEquals("elf", m.getRace());
+        assertEquals("physical", m.getDamageType());
     }
 }

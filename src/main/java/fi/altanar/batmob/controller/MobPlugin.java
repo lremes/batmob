@@ -94,6 +94,7 @@ public class MobPlugin extends BatClientPlugin implements
 
         engine.addMobListener(this.mobDetailPanel);
         engine.addSpellListener(this.spellsPanel);
+        engine.addStudyListener(this.mobDetailPanel);
 
         engine.load();
     }

@@ -20,7 +20,7 @@ public class SpellTriggers {
 
     List<Pattern> patterns;
 
-    LinkedList spells = new LinkedList();
+    LinkedList<Spell> spells = new LinkedList<Spell>();
 
     Map<String, Object[]> colors = new HashMap<String, Object[]>();
     Map<String, Object[]> damageTypeColors = new HashMap<String, Object[]>();
@@ -489,7 +489,7 @@ public class SpellTriggers {
 
     public Object process(String input) {
         Spell spell = null;
-        ListIterator iter = this.spells.listIterator();
+        ListIterator<Spell> iter = this.spells.listIterator();
         boolean found = false;
         while (iter.hasNext()) {
             spell = (Spell) iter.next();

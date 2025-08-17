@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Mob implements Serializable {
+public class Mob implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 0L;
 
@@ -28,6 +28,7 @@ public class Mob implements Serializable {
     private boolean aggro;
     private boolean undead;
     private String gender;
+    private String damageType;
 
     private String folkloristRating;
 
@@ -71,6 +72,14 @@ public class Mob implements Serializable {
         this.name = normalizeName(name);
     }
 
+    public String getDamageType() {
+        return damageType;
+    }
+
+    public void setDamageType(String damType) {
+        this.damageType = damType;
+    }
+
     public String getNotes() {
         return notes;
     }
@@ -96,6 +105,18 @@ public class Mob implements Serializable {
 
     public void setShortNames(ArrayList<String> shortNames) {
         this.shortNames = shortNames.toArray(new String[0]);
+    }
+
+    public void addShortName(String shortName) {
+        if (this.shortNames == null) {
+            this.shortNames = new String[] { shortName };
+        } else {
+            ArrayList<String> list = new ArrayList<>(Arrays.asList(this.shortNames));
+            if (!list.contains(shortName)) {
+                list.add(shortName);
+                this.shortNames = list.toArray(new String[0]);
+            }
+        }
     }
 
     public ArrayList<String> getSpells() {
@@ -294,4 +315,7 @@ public class Mob implements Serializable {
         return name.trim();
     }
 
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }
