@@ -65,4 +65,47 @@ public class PartyTriggersTest {
         assertFalse(feed(pt, "| 1.2   Bobby       fol   500( 640) |", END));
         assertFalse(pt.isMember("Bobby"));
     }
+
+    @Test
+    void testRealOutput() {
+        PartyTriggers pt = new PartyTriggers();
+
+        // single player party, as printed by batmud
+        assertTrue(feed(pt,
+                ",-----------------------------------------------------------------------------.",
+                "| 1.2  Armin          ldr  473( 473)  956( 956) 267(267) |  59 |            0 |",
+                "`-----------------------------------------------------------------------------'"));
+
+        assertTrue(pt.isMember("Armin"));
+        assertEquals(1, pt.getMembers().size());
+    }
+
+    @Test
+    void testRealOutputWithMinions() {
+        PartyTriggers pt = new PartyTriggers();
+
+        assertTrue(feed(pt,
+                ",-----------------------------------------------------------------------------.",
+                "| 1.1  Brurin         fol 1593(1593)  169( 169) 442(442) | 100 |        69933 |",
+                "| 1.2  Lysander       fol 1236(1337)  697( 697) 350(408) |  96 |       183942 |",
+                "| 2.1  Armin          fol  440( 473)  781( 956) 267(267) |  59 |            0 |",
+                "| 2.2  Kjeldoran      ldr  339( 360)  653(1639) 164(231) |  83 |       194269 |",
+                "`-----------------------------------------------------------------------------'",
+                "| Brurin's soul       fol VERY high     full      full   | ??? |              |",
+                "| Lysander's soul    form    full       full      full   | ??? |              |",
+                "`-----------------------------------------------------------------------------'"));
+
+        assertEquals(4, pt.getMembers().size());
+        assertTrue(pt.isMember("Kjeldoran"));
+        assertFalse(pt.isMember("Brurin's"));
+
+        // minions and unrecognized casters (whole line) of members
+        assertTrue(pt.isMember("Brurin's soul"));
+        assertTrue(pt.isMember("Lysander's soul utters the magic words 'xyz'"));
+        assertTrue(pt.isMember("Kjeldoran waves his hands"));
+
+        // not members even if the name starts the same
+        assertFalse(pt.isMember("Brurinson"));
+        assertFalse(pt.isMember("Baroness gets an evil gleam in her eyes"));
+    }
 }

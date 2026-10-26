@@ -59,8 +59,26 @@ public class PartyTriggers {
         return false;
     }
 
+    /**
+     * @param name caster name, or the whole line when the caster wasn't recognized
+     * @return true for a party member, their minions ("Brurin's soul") or a line starting with a member name
+     */
     public boolean isMember(String name) {
-        return name != null && this.members.contains(name.trim());
+        if (name == null) {
+            return false;
+        }
+        String trimmed = name.trim();
+        if (this.members.contains(trimmed)) {
+            return true;
+        }
+        String lower = trimmed.toLowerCase();
+        for (String member : this.members) {
+            String m = member.toLowerCase();
+            if (lower.startsWith(m + "'s ") || lower.startsWith(m + " ")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Set<String> getMembers() {
