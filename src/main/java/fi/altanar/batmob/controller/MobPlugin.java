@@ -3,10 +3,10 @@ package fi.altanar.batmob.controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.ListIterator;
 import java.util.Comparator;
 import java.util.Collections;
 
+import javax.swing.Timer;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
@@ -53,6 +53,10 @@ public class MobPlugin extends BatClientPlugin implements
 
     private BatWindow clientWin;
 
+    private static final int AUTOSAVE_INTERVAL_MS = 5 * 60 * 1000;
+    private static final int MAX_RESULTS = 15;
+    private Timer autoSaveTimer;
+
     public void loadPlugin() {
         BASEDIR = this.getBaseDirectory();
         GuiData guiData = GuiDataPersister.load(BASEDIR);
@@ -68,6 +72,7 @@ public class MobPlugin extends BatClientPlugin implements
         MediaWikiApi api = new MediaWikiApi("https://taikajuoma.ovh/");
 
         engine = new MobEngine(this, store, api);
+        store.addListener(engine);
         engine.setBatWindow(clientWin);
         engine.setBaseDir(BASEDIR);
         engine.setClientGui(this.getClientGUI());
@@ -97,6 +102,19 @@ public class MobPlugin extends BatClientPlugin implements
         engine.addStudyListener(this.mobDetailPanel);
 
         engine.load();
+
+        // save periodically so a client crash doesn't lose the whole session,
+        // loadPlugin may be called again (bm reload) so replace any old timer
+        if (autoSaveTimer != null) {
+            autoSaveTimer.stop();
+        }
+        autoSaveTimer = new Timer(AUTOSAVE_INTERVAL_MS, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                engine.saveMobs();
+            }
+        });
+        autoSaveTimer.start();
     }
 
     @Override
@@ -105,50 +123,48 @@ public class MobPlugin extends BatClientPlugin implements
     }
 
     public void search(String text) {
-        String[] parts = text.split(" ");
+        String query = searchText(text);
 
-        if (parts.length > 1) {
-            this.getClientGUI().printText("general", "Top 15 Search results\n", "6AFA63");
+        if (!query.isEmpty()) {
+            this.getClientGUI().printText("general", "Top " + MAX_RESULTS + " Search results\n", "6AFA63");
             this.getClientGUI().printText("general", "------------------------------\n", "6AFA63");
             MobFilter f = new MobFilter();
             f.exact = false;
-            f.name = parts[1];
+            f.name = query;
 
             ArrayList<Mob> results = this.searchEngine.search(f);
-            int i = 0;
-            for (ListIterator<Mob> iter = results.listIterator(); iter.hasNext();) {
-                Mob m = iter.next();
+            for (int i = 0; i < results.size() && i < MAX_RESULTS; i++) {
+                Mob m = results.get(i);
                 this.getClientGUI().printText("general", m.getName() + "\n", "6AFA63");
-                i++;
-                if (i > 15) {
-                    break;
-                }
             }
         }
     }
 
     public void showMobs(String text) {
-        String[] parts = text.split(" ");
+        String query = searchText(text);
 
-        if (parts.length > 1) {
-            this.getClientGUI().printText("general", "Top 15 Search results\n", "6AFA63");
+        if (!query.isEmpty()) {
+            this.getClientGUI().printText("general", "Top " + MAX_RESULTS + " Search results\n", "6AFA63");
             this.getClientGUI().printText("general", "------------------------------\n", "6AFA63");
             MobFilter f = new MobFilter();
             f.exact = false;
-            f.name = parts[1];
+            f.name = query;
 
             ArrayList<Mob> results = this.searchEngine.search(f);
-            int i = 0;
-            for (ListIterator<Mob> iter = results.listIterator(); iter.hasNext();) {
-                Mob m = iter.next();
+            for (int i = 0; i < results.size() && i < MAX_RESULTS; i++) {
+                Mob m = results.get(i);
                 this.reportMod(m);
                 this.getClientGUI().printText("general", m.getName() + "\n", "6AFA63");
-                i++;
-                if (i > 15) {
-                    break;
-                }
             }
         }
+    }
+
+    /**
+     * The text is the whole command, e.g. "search big dragon", return the part after the command.
+     */
+    static String searchText(String text) {
+        int idx = text.indexOf(' ');
+        return idx < 0 ? "" : text.substring(idx + 1).trim();
     }
 
     public void reportMod(Mob mob) {
@@ -190,14 +206,9 @@ public class MobPlugin extends BatClientPlugin implements
                 }
             });
 
-            int i = 0;
-            for (ListIterator<Mob> iter = results.listIterator(); iter.hasNext();) {
-                Mob m = iter.next();
+            for (int i = 0; i < results.size() && i < MAX_RESULTS; i++) {
+                Mob m = results.get(i);
                 this.engine.doCommand("party report " + Integer.toString(m.getMaxExp()) + " \t" + m.getName());
-                i++;
-                if (i > 15) {
-                    break;
-                }
             }
         } catch (Exception e1) {
             this.engine.log(e1.getMessage());

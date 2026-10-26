@@ -52,7 +52,7 @@ public class StudyTriggerTest {
             e.printStackTrace();
         }
 
-        assertEquals(8, this.mobs.size());
+        assertEquals(9, this.mobs.size());
 
         Mob m = this.mobs.get(0);
         assertEquals("Shezot", m.getShortNames().toArray()[0]);
@@ -82,6 +82,7 @@ public class StudyTriggerTest {
         assertEquals("Barsoomian", m.getShortNames().toArray()[0]);
         assertEquals("barsoomian", m.getRace());
         assertEquals("weak", m.getFolkloristRating());
+        assertEquals("extremely evil", m.getAlignment());
 
         m = this.mobs.get(5);
         assertEquals("Ugly magpie", m.getShortNames().toArray()[0]);
@@ -96,5 +97,36 @@ public class StudyTriggerTest {
         assertEquals("Laudia Zemovrez", m.getShortNames().toArray()[0]);
         assertEquals("elf", m.getRace());
         assertEquals("physical", m.getDamageType());
+
+        m = this.mobs.get(8);
+        assertEquals("Elemental", m.getShortNames().toArray()[0]);
+        assertEquals("elemental", m.getRace());
+        assertEquals("physical, poison", m.getDamageType());
+        assertEquals("a bit good", m.getAlignment());
+
+    }
+
+    @Test
+    void testLinesOutsideStudyAreIgnored() {
+        StudyTriggers tm = new StudyTriggers();
+
+        // these match the race/alignment/damage patterns but no study is running
+        assertNull(tm.process("The door is closed."));
+        assertNull(tm.process("He is a bit evil."));
+        assertNull(tm.process("She inflicts fire damage."));
+        assertNull(tm.process("... You are done studying!"));
+
+        // a study after that still works
+        assertNull(tm.process("You start studying Kiec..."));
+        assertNull(tm.process("... You are done studying!"));
+        assertNull(tm.process("Kiec is a half-orc."));
+        Mob m = (Mob) tm.process(
+                "He appears to be of average dangerousness on the official folklorist danger level rating system.");
+        assertNotNull(m);
+        assertEquals("half-orc", m.getRace());
+
+        // lines after the rating no longer belong to a study
+        assertNull(tm.process("He inflicts physical damage."));
+        assertNull(tm.process("Bob is a dwarf."));
     }
 }

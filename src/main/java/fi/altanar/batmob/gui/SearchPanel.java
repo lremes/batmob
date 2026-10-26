@@ -2,6 +2,7 @@ package fi.altanar.batmob.gui;
 
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -10,9 +11,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -184,10 +190,36 @@ public class SearchPanel extends JPanel implements
         areaSelect.setBackground(BG_COLOR);
         areaSelect.setForeground(TEXT_COLOR);
         areaSelect.setFont(font);
-        areaSelect.setToolTipText("Name to search for");
+        areaSelect.setToolTipText("Area to search for, type to filter");
         areaSelect.setAlignmentX(Component.LEFT_ALIGNMENT);
-        areaSelect.addActionListener(this);
-        areaSelect.addKeyListener(this);
+        // key events go to the editor of an editable combo box, not to the box itself
+        areaSelect.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_ENTER:
+                        areaSelect.hidePopup();
+                        doSearch();
+                        break;
+                    case KeyEvent.VK_UP:
+                    case KeyEvent.VK_DOWN:
+                    case KeyEvent.VK_ESCAPE:
+                    case KeyEvent.VK_LEFT:
+                    case KeyEvent.VK_RIGHT:
+                    case KeyEvent.VK_SHIFT:
+                        break;
+                    default:
+                        filterAreas();
+                }
+            }
+        });
+        // areas of mobs detected since the window was shown
+        areaSelect.getEditor().getEditorComponent().addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                populateSelect();
+            }
+        });
         filterPanel.add(areaSelect);
 
         isZinium.setBackground(BG_COLOR);
@@ -295,7 +327,7 @@ public class SearchPanel extends JPanel implements
         populateSelect();
     }
 
-    private void populateSelect() {
+    void populateSelect() {
         Iterator<Entry<String, Mob>> iter = this.searchEngine.getMobStore().iterator();
         this.areas.clear();
         while (iter.hasNext()) {
@@ -305,18 +337,68 @@ public class SearchPanel extends JPanel implements
             }
         }
 
-        this.areaSelect.removeAllItems();
-        this.areaSelect.addItem("");
-        Iterator<String> it = this.areas.iterator();
-        while (it.hasNext()) {
-            this.areaSelect.addItem(it.next());
+        String text = this.getAreaText();
+        this.setAreaItems(matchingAreas(this.areas, ""));
+        this.areaSelect.getEditor().setItem(text);
+    }
+
+    /**
+     * Narrow the area list to the areas containing the typed text.
+     */
+    void filterAreas() {
+        String text = this.getAreaText();
+        ArrayList<String> matching = matchingAreas(this.areas, text);
+
+        this.setAreaItems(matching);
+        // replacing the items resets the editor, put the typed text back
+        this.areaSelect.getEditor().setItem(text);
+
+        if (this.areaSelect.isShowing()) {
+            this.areaSelect.hidePopup();
+            if (!matching.isEmpty()) {
+                this.areaSelect.showPopup();
+            }
         }
+    }
+
+    static ArrayList<String> matchingAreas(Collection<String> areas, String text) {
+        String needle = text.trim().toLowerCase();
+        ArrayList<String> matching = new ArrayList<String>();
+        for (String area : areas) {
+            if (area.toLowerCase().contains(needle)) {
+                matching.add(area);
+            }
+        }
+        return matching;
+    }
+
+    private void setAreaItems(ArrayList<String> items) {
+        this.areaSelect.setModel(new DefaultComboBoxModel<String>(items.toArray(new String[0])));
+        this.areaSelect.setSelectedIndex(-1);
+    }
+
+    String getAreaText() {
+        Object item = this.areaSelect.getEditor().getItem();
+        return item == null ? "" : item.toString();
+    }
+
+    void setAreaText(String text) {
+        this.areaSelect.getEditor().setItem(text);
+    }
+
+    ArrayList<String> getAreaItems() {
+        ArrayList<String> items = new ArrayList<String>();
+        for (int i = 0; i < this.areaSelect.getItemCount(); i++) {
+            items.add(this.areaSelect.getItemAt(i));
+        }
+        return items;
     }
 
     protected void doSearch() {
         MobFilter f = new MobFilter();
         f.name = searchInput.getText();
-        f.area = (String) areaSelect.getSelectedItem();
+        // the typed text, the selected item isn't updated until the edit is committed
+        f.area = this.getAreaText().trim();
         try {
             f.minExp = Integer.parseInt(expInput.getText());
         } catch (Exception ex) {
@@ -341,19 +423,7 @@ public class SearchPanel extends JPanel implements
 
     @Override
     public void keyPressed(java.awt.event.KeyEvent e) {
-        if (e.getSource() == this.areaSelect) {
-            String area = (String) this.areaSelect.getEditor().getItem();            
-            if (area != null && !area.isEmpty()) {
-                Iterator<String> it = this.areas.iterator();
-                while (it.hasNext()) {
-                    String item = it.next();
-                    if (item.startsWith(area)) {
-                        this.areaSelect.getModel().setSelectedItem(item);
-                        break;
-                    }
-                }
-            }
-        } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+        if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
             this.doSearch();
         }
     }

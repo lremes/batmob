@@ -243,7 +243,7 @@ public class Mob implements Serializable, Cloneable {
         if (this.alignment == null || this.alignment.isEmpty()) {
             this.alignment = other.alignment;
         }
-        if (this.notes == null || this.gender.isEmpty()) {
+        if (this.notes == null || this.notes.isEmpty()) {
             this.notes = other.notes;
         }
         if (this.spells == null || this.spells.length == 0) {
@@ -273,6 +273,9 @@ public class Mob implements Serializable, Cloneable {
         if (this.folkloristRating == null || this.folkloristRating.isEmpty()) {
             this.folkloristRating = other.folkloristRating;
         }
+        if (this.damageType == null || this.damageType.isEmpty()) {
+            this.damageType = other.damageType;
+        }
     }
 
     public String dump() {
@@ -296,12 +299,12 @@ public class Mob implements Serializable, Cloneable {
         Matcher mtch = IGNORE_PARTS.matcher(name);
         name = mtch.replaceAll("");
 
-        if (name.charAt(0) == '(') {
+        if (!name.isEmpty() && name.charAt(0) == '(') {
             name = name.substring(1);
         }
 
         // remove trailing bracers
-        if (name.charAt(name.length() - 1) == ')') {
+        if (!name.isEmpty() && name.charAt(name.length() - 1) == ')') {
             name = name.substring(0, name.length() - 1);
         }
 

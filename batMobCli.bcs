@@ -30,7 +30,7 @@ void top() {
 void show(text) {
 	for(BatClientPlugin plugin : pluginManager.getPlugins()){
 		if(plugin.getName().equals("batMob")){
-			plugin.showMob(text);
+			plugin.showMobs(text);
 		}	
 	}
 }

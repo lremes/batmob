@@ -65,4 +65,30 @@ public class MobFinderTest {
         assertNotNull(found);
         assertEquals("Meno Mahtava", found.getName());
     }
+
+    @Test
+    void testNoShortNames() {
+        ArrayList<Mob> mobs = new ArrayList<Mob>();
+        mobs.add(new Mob(100, "test"));
+
+        assertNull(new MobFinder(mobs).findByShortName(new Mob(100, "test")));
+    }
+
+    @Test
+    void testExactShortNameBeforePartialName() {
+        ArrayList<Mob> mobs = new ArrayList<Mob>();
+
+        // name contains "elf" but short name doesn't match
+        mobs.add(new Mob(100, "Shelfmaker the carpenter"));
+
+        Mob elf = new Mob(100, "Llakrawour the tall");
+        elf.addShortName("elf");
+        mobs.add(elf);
+
+        Mob toFind = new Mob(0, "elf");
+        toFind.addShortName("Elf");
+
+        Mob found = new MobFinder(mobs).findByShortName(toFind);
+        assertEquals("Llakrawour the tall", found.getName());
+    }
 }

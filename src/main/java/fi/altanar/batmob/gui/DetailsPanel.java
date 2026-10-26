@@ -7,10 +7,10 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.ListIterator;
+import java.util.concurrent.ExecutionException;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.GridBagLayout;
@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingWorker;
 import javax.swing.BoxLayout;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -337,69 +338,25 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(saveButton)) {
-            this.mob.setNotes(this.notesArea.getText());
-
-            ArrayList<String> sNames = new ArrayList<String>(Arrays.asList(this.shortNameArea.getText().split("\\.")));
-            this.mob.setShortNames(sNames);
-            this.mob.setRace(this.raceArea.getText());
-            this.mob.setAlignment(this.alignmentArea.getText());
-            this.mob.setGender(this.genderArea.getText());
-            this.mob.setFolkloristRating(this.ratingArea.getText());
-            this.mob.setArea(this.areaNameArea.getText());
-            this.mob.setDamageType(this.damageTypeArea.getText());
-
-            String skillz = this.skillsArea.getText();
-            if (!skillz.isEmpty()) {
-                String[] sArray = skillz.split(",");
-                ArrayList<String> list = new ArrayList<String>();
-                for (String s : sArray) {
-                    String trimmed = s.trim();
-                    if (!trimmed.isEmpty()) {
-                        list.add(trimmed);
-                    }
-                }
-                this.mob.setSkills(list);
-            }
-
-            String spellz = this.spellsArea.getText();
-            if (!spellz.isEmpty()) {
-                String[] sArray = spellz.split(",");
-                ArrayList<String> list = new ArrayList<String>();
-                for (String s : sArray) {
-                    String trimmed = s.trim();
-                    if (!trimmed.isEmpty()) {
-                        list.add(trimmed);
-                    }
-                }
-                this.mob.setSpells(list);
-            }
-
-            this.mob.setUndead(this.isUndead.isSelected());
-            this.mob.setAggro(this.isAggro.isSelected());
-            this.mob.setZinium(this.isZinium.isSelected());
-
-            engine.getMobStore().updateEditableFields(this.mob);
+            this.saveMob();
+        } else if (this.mob == null) {
+            // nothing selected, the rest of the buttons work on the selected mob
+            return;
         } else if (e.getSource().equals(deleteButton)) {
             engine.getMobStore().remove(this.mob);
             this.mob = null;
             this.clearAll();
         } else if (e.getSource().equals(wikiButton)) {
             if (this.queryEngine != null) {
-                Mob m = this.queryEngine.fetchMobInfo(this.mob.getName());
-                if (m != null) {
-                    this.mob.updateFromWiki(m);
-                    showMob(this.mob);
-                } else {
-                    this.engine.notifyStatusListeners("Nothing found");
-                }
+                this.fetchFromWiki(this.mob);
             }
         } else if (e.getSource().equals(reportButton)) {
             this.engine.doCommand("party report " + this.mob.getName());
             this.engine.doCommand("party report " + this.mob.getAllExpAsString());
-            if (this.mob.getRace() != null && this.mob.getRace() != "") {
+            if (this.mob.getRace() != null && !this.mob.getRace().isEmpty()) {
                 this.engine.doCommand("party report Race: " + this.mob.getRace());
             }
-            if (this.mob.getAlignment() != null && this.mob.getAlignment() != "") {
+            if (this.mob.getAlignment() != null && !this.mob.getAlignment().isEmpty()) {
                 this.engine.doCommand("party report Align: " + this.mob.getAlignment());
             }
             ArrayList<String> spells = this.mob.getSpells();
@@ -435,7 +392,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
                     Mob m = iter.next();
                     this.engine.doCommand("party report " + Integer.toString(m.getMaxExp()) + " \t" + m.getName());
                     i++;
-                    if (i > 15) {
+                    if (i >= 15) {
                         break;
                     }
                 }
@@ -443,6 +400,71 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
                 this.engine.log(e1.getMessage());
             }
         }
+    }
+
+    void saveMob() {
+        if (this.mob == null) {
+            return;
+        }
+
+        this.mob.setNotes(this.notesArea.getText());
+        this.mob.setShortNames(parseList(this.shortNameArea.getText()));
+        this.mob.setRace(this.raceArea.getText());
+        this.mob.setAlignment(this.alignmentArea.getText());
+        this.mob.setGender(this.genderArea.getText());
+        this.mob.setFolkloristRating(this.ratingArea.getText());
+        this.mob.setArea(this.areaNameArea.getText());
+        this.mob.setDamageType(this.damageTypeArea.getText());
+        this.mob.setSkills(parseList(this.skillsArea.getText()));
+        this.mob.setSpells(parseList(this.spellsArea.getText()));
+        this.mob.setUndead(this.isUndead.isSelected());
+        this.mob.setAggro(this.isAggro.isSelected());
+        this.mob.setZinium(this.isZinium.isSelected());
+
+        engine.getMobStore().updateEditableFields(this.mob);
+    }
+
+    /**
+     * Split a comma separated field, the same separator showMob uses when joining.
+     */
+    static ArrayList<String> parseList(String text) {
+        ArrayList<String> list = new ArrayList<String>();
+        for (String s : text.split(",")) {
+            String trimmed = s.trim();
+            if (!trimmed.isEmpty()) {
+                list.add(trimmed);
+            }
+        }
+        return list;
+    }
+
+    // network call, keep it off the event dispatch thread so the client doesn't freeze
+    private void fetchFromWiki(final Mob target) {
+        this.wikiButton.setEnabled(false);
+        new SwingWorker<Mob, Void>() {
+            @Override
+            protected Mob doInBackground() {
+                return queryEngine.fetchMobInfo(target.getName());
+            }
+
+            @Override
+            protected void done() {
+                wikiButton.setEnabled(true);
+                try {
+                    Mob m = get();
+                    if (m != null) {
+                        target.updateFromWiki(m);
+                        if (mob == target) {
+                            showMob(target);
+                        }
+                    } else {
+                        engine.notifyStatusListeners("Nothing found");
+                    }
+                } catch (InterruptedException | ExecutionException ex) {
+                    engine.log(ex.toString());
+                }
+            }
+        }.execute();
     }
 
     @Override
@@ -453,6 +475,9 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     }
 
     private void showMob(Mob m) {
+        if (m == null) {
+            return;
+        }
         try {
             this.nameArea.setText(this.mob.getName());
             this.expArea.setText(String.valueOf(this.mob.getAllExpAsString()));
@@ -462,6 +487,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
 
             this.areaNameArea.setText(this.mob.getArea());
             this.alignmentArea.setText(this.mob.getAlignment());
+            this.genderArea.setText(this.mob.getGender());
 
             ArrayList<String> list = m.getSkills();
             if (list != null) {

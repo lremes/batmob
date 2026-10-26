@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,16 @@ public class SpellTriggerTest {
     void testSpells() {
         SpellTriggers tm = new SpellTriggers();
 
+        List<String> testStrings = Arrays.asList(
+                "Baroness",
+                "Snake",
+                "Oize tyl Hesp",
+                "Maltrak",
+                "Bobby",
+                "Trumpet archon",
+                "Mayor",
+                "Derfel");
+
         try {
             URL testFileURL = ClassLoader.getSystemResource("combatmessages.txt");
             File myFile = new File(testFileURL.toURI());
@@ -39,6 +51,9 @@ public class SpellTriggerTest {
                 String data = myReader.nextLine();
                 Spell spell = (Spell) tm.process(data);
                 assertNotNull(spell);
+
+                assertEquals(testStrings.get(i), spell.getCaster());
+                i++;
             }
             myReader.close();
         } catch (FileNotFoundException e) {

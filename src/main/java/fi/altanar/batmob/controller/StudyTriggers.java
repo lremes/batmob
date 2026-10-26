@@ -17,8 +17,8 @@ public class StudyTriggers {
 
     final Pattern STUDY_START = Pattern.compile("^You start studying ([\\w\\s',._-]+)...$");
     final Pattern STUDY_DONE = Pattern.compile("^... You are done studying!$");
-    final Pattern STUDY_RACE = Pattern.compile("^([a-zA-Z- ]+) is [a|an]+ ([a-zA-Z-]+).$");
-    final Pattern STUDY_TYPE = Pattern.compile("^(He|She|It) is [a|an]+ (mythical creature|animal).$");
+    final Pattern STUDY_RACE = Pattern.compile("^([a-zA-Z- ]+) is (?:a |an )?([a-zA-Z-]+).$");
+    final Pattern STUDY_TYPE = Pattern.compile("^(He|She|It) is (?:a |an )?(mythical creature|animal).$");
     final Pattern STUDY_RESISTS0 = Pattern.compile("^(He|She|It) is defenseless against ([A-Za-z]+) damage.$");
     final Pattern STUDY_RESISTS1 = Pattern
             .compile("^(He|She|It) seems to be almost defenseless against ([A-Za-z]+) damage.$");
@@ -29,7 +29,7 @@ public class StudyTriggers {
     final Pattern STUDY_RESISTS5 = Pattern.compile("^(He|She|It) seems almost immune against ([A-Za-z]+) damage.$");
 
     final Pattern STUDY_ALIGNMENT = Pattern
-            .compile("(He|She|It) is (neutral|good|evil|extremely good|extremely evil).$");
+            .compile("(He|She|It) is(a bit |extremely |very | )+(neutral|evil|good).$");
     final Pattern STUDY_RATING = Pattern
             .compile("^(He|She|It) appears to be [of]*\\s*([\\w\\s]+) on the official.*");
 
@@ -38,6 +38,7 @@ public class StudyTriggers {
     final Pattern STUDY_NEW = Pattern.compile("^You haven't studied this creature before, adding to your guide.$");
 
     final Pattern STUDY_DAMTYPE = Pattern.compile("^(He|She|It) inflicts ([A-Za-z]+) damage.$");
+    final Pattern STUDY_DAMTYPE2 = Pattern.compile("^(He|She|It) inflicts ([A-Za-z]+) and ([A-Za-z]+) damage.$");
 
     public StudyTriggers() {
     }
@@ -54,6 +55,11 @@ public class StudyTriggers {
             return null;
         }
 
+        // all other study lines only make sense while a study is in progress
+        if (this.mob == null) {
+            return null;
+        }
+
         Matcher d = STUDY_DONE.matcher(input);
         if (d.matches()) {
             this.lineCount = 0;
@@ -62,18 +68,7 @@ public class StudyTriggers {
 
         Matcher r = STUDY_TYPE.matcher(input);
         if (r.matches()) {
-            return null;
-        }
-
-        r = STUDY_RACE.matcher(input);
-        if (r.matches()) {
-            this.mob.setRace(r.group(2));
-            return null;
-        }
-
-        Matcher a = STUDY_ALIGNMENT.matcher(input);
-        if (a.matches()) {
-            String gender = a.group(1);
+            String gender = r.group(1);
             switch (gender) {
                 case "He":
                     this.mob.setGender("male");
@@ -81,11 +76,17 @@ public class StudyTriggers {
                 case "She":
                     this.mob.setGender("female");
                     break;
-                default:
+                case "It":
                     this.mob.setGender("neutral");
                     break;
             }
-            this.mob.setAlignment(a.group(2));
+            return null;
+        }
+
+        Matcher a = STUDY_ALIGNMENT.matcher(input);
+        if (a.matches()) {
+            String align = a.group(2) != null ? a.group(2) + a.group(3) : a.group(3);
+            this.mob.setAlignment(align.trim());
             return null;
         }
 
@@ -99,6 +100,12 @@ public class StudyTriggers {
             } catch (CloneNotSupportedException e) {
                 e.printStackTrace();
             }
+        }
+
+        r = STUDY_RACE.matcher(input);
+        if (r.matches()) {
+            this.mob.setRace(r.group(2));
+            return null;
         }
 
         Matcher s = STUDY_STUDIED.matcher(input);
@@ -144,6 +151,12 @@ public class StudyTriggers {
         Matcher dam = STUDY_DAMTYPE.matcher(input);
         if (dam.matches()) {
             this.mob.setDamageType(dam.group(2));
+            return null;
+        }
+
+        Matcher dam2 = STUDY_DAMTYPE2.matcher(input);
+        if (dam2.matches()) {
+            this.mob.setDamageType(dam2.group(2) + ", " + dam2.group(3));
             return null;
         }
 

@@ -202,8 +202,8 @@ public class MobDetailsPanel extends JPanel
                     }
 
                     String selectedWord = textToSearch.substring(wordStart, wordEnd).trim();
+                    selectedWord = selectedWord.replace(',', ' ').trim(); // Remove commas
                     this.statusLabel.setText("Study: " + selectedWord);
-                    System.out.println(selectedWord);
 
                     if (!selectedWord.isEmpty()) {
                         this.engine.doCommand("use 'study creature' " + selectedWord);
@@ -222,6 +222,10 @@ public class MobDetailsPanel extends JPanel
                 currentHighlight = roomArea.getHighlighter().addHighlight(start, end, highlightPainter);
 
                 Mob m = this.engine.getMobStore().get(text.trim());
+                if (m == null) {
+                    // e.g. "No mobs" or an empty line
+                    return;
+                }
                 this.selectedMob = m;
                 this.statusLabel.setText("Selected: " + this.selectedMob.getName());
                 this.mobSelected(m);
@@ -282,14 +286,16 @@ public class MobDetailsPanel extends JPanel
     @Override
     public void mobStudied(Mob mob) {
         this.engine.log(mob.getName() + " studied.");
-        this.statusLabel.setText("Studied: " + mob.getName());
 
-        if (this.selectedMob != null) {
-            this.selectedMob.updateFromStudy(mob);
+        // match by name, the selected mob is not necessarily the one that was studied
+        Mob target = this.engine.applyStudy(mob);
+        if (target == null) {
+            this.statusLabel.setText("Studied " + mob.getName() + ": no matching mob detected");
+            return;
         }
 
-        this.mobSelected(this.selectedMob);
-
-        this.engine.getMobStore().updateEditableFields(this.selectedMob);
+        this.statusLabel.setText("Studied: " + target.getName());
+        this.selectedMob = target;
+        this.mobSelected(target);
     }
 }

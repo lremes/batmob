@@ -270,4 +270,49 @@ public class MobTest {
     assertEquals(m.getName(), "invis mob");
 
   }
+
+  @Test
+  void testNormalizeToEmpty() {
+    assertEquals("", new Mob(0, "(undead)").getName());
+    assertEquals("", new Mob(0, "<encircled>").getName());
+    assertEquals("", Mob.normalizeName("()"));
+    assertNull(new MobStore().get("<encircled>"));
+  }
+
+  @Test
+  void testTriggerIgnoresNamesThatNormalizeToEmpty() {
+    MobStore store = new MobStore();
+    MobEngine engine = new MobEngine(mock(MobPlugin.class), store, null);
+
+    String line = "\u001b[1;32m(undead)\u001b[0m";
+    ParsedResult input = new ParsedResult(line);
+    input.setOriginalText(line);
+    input.setStrippedText("(undead)");
+
+    assertNull(engine.trigger(input));
+    assertEquals(0, store.getCount());
+    assertTrue(engine.getRoomMobs().isEmpty());
+  }
+
+  @Test
+  void testUpdateFromWiki() {
+    Mob wiki = new Mob(0, "orc");
+    wiki.setNotes("wiki notes");
+    wiki.setRace("orc");
+
+    // own notes are kept, missing gender doesn't break it
+    Mob m = new Mob(0, "orc");
+    m.setNotes("my notes");
+    m.updateFromWiki(wiki);
+    assertEquals("my notes", m.getNotes());
+    assertEquals("orc", m.getRace());
+
+    // empty notes are filled
+    m = new Mob(0, "orc");
+    m.setNotes("");
+    m.setGender("male");
+    m.updateFromWiki(wiki);
+    assertEquals("wiki notes", m.getNotes());
+    assertEquals("male", m.getGender());
+  }
 }

@@ -1,7 +1,6 @@
 package fi.altanar.batmob.vo;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import fi.altanar.batmob.vo.Mob;
 
 public class MobFinder {
@@ -14,25 +13,24 @@ public class MobFinder {
     }
 
     public Mob findByShortName(Mob mob) {
-        if (mob.getShortNames() != null && mob.getShortNames().isEmpty()) {
+        if (mob.getShortNames() == null || mob.getShortNames().isEmpty()) {
             return null; // No short names to match against
         }
 
-        Object[] names = mob.getShortNames().toArray();
-        Iterator<Mob> mi = this.mobs.iterator();
-        while (mi.hasNext()) {
-            Mob m = mi.next();
-            if (m.getShortNames() != null && !m.getShortNames().isEmpty()) {
-                Iterator<String> it = m.getShortNames().iterator();
-                while (it.hasNext()) {
-                    String shortName = it.next();
-                    if (shortName.equals((String) names[0])) {
+        String name = mob.getShortNames().get(0);
+        for (Mob m : this.mobs) {
+            if (m.getShortNames() != null) {
+                for (String shortName : m.getShortNames()) {
+                    if (shortName.equalsIgnoreCase(name)) {
                         return m;
                     }
                 }
             }
-            // try partial match with short name
-            if (m.getName().toLowerCase().contains(((String) names[0]).toLowerCase())) {
+        }
+
+        // try partial match with short name
+        for (Mob m : this.mobs) {
+            if (m.getName().toLowerCase().contains(name.toLowerCase())) {
                 return m;
             }
         }

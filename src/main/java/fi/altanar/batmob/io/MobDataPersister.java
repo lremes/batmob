@@ -6,6 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import fi.altanar.batmob.vo.MobSaveObject;
 
 public class MobDataPersister {
@@ -20,18 +23,28 @@ public class MobDataPersister {
             }
         }
 
-        FileOutputStream fileOutputStream = new FileOutputStream( getFile( baseDir ) );
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream( fileOutputStream );
-        objectOutputStream.writeObject( saveData );
-        fileOutputStream.close();
+        // write to a temp file first so a failed save never corrupts the existing data
+        File saveFile = getFile( baseDir );
+        File tmpFile = new File( dirFile, FILENAME + ".tmp" );
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream( new FileOutputStream( tmpFile ) )) {
+            objectOutputStream.writeObject( saveData );
+        } catch (IOException | RuntimeException e) {
+            tmpFile.delete();
+            throw e;
+        }
+
+        try {
+            Files.move( tmpFile.toPath(), saveFile.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE );
+        } catch (AtomicMoveNotSupportedException e) {
+            Files.move( tmpFile.toPath(), saveFile.toPath(), StandardCopyOption.REPLACE_EXISTING );
+        }
     }
 
     public static MobSaveObject load( String basedir ) throws IOException, ClassNotFoundException {
         if (getFile( basedir ).exists() == true) {
-            FileInputStream fileInputStream = new FileInputStream( getFile( basedir ) );
-            ObjectInputStream objectInputStream = new ObjectInputStream( fileInputStream );
-            MobSaveObject saveData = (MobSaveObject) objectInputStream.readObject();
-            return saveData;
+            try (ObjectInputStream objectInputStream = new ObjectInputStream( new FileInputStream( getFile( basedir ) ) )) {
+                return (MobSaveObject) objectInputStream.readObject();
+            }
         }
         return null;
     }
