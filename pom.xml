@@ -4,7 +4,7 @@
 
     <groupId>fi.altanar</groupId>
     <artifactId>batMob</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.7</version>
     <packaging>jar</packaging>
 
     <name>batUtils</name>
@@ -12,13 +12,16 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
+            <!-- junit 6.x requires java 17, stay on 5.x -->
             <artifactId>junit-jupiter</artifactId>
-            <version>5.8.2</version>
+            <version>5.14.4</version>
             <scope>test</scope>
         </dependency>
 
@@ -29,15 +32,10 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.7</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>3.2.4</version>
+            <!-- mockito 5.x requires java 11, 4.11.x is the last line supporting java 8 -->
+            <version>4.11.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -69,17 +67,17 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.16.0</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.6.2</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -106,7 +104,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>3.5.1</version>
 
                 <configuration>
                     <archive>
@@ -125,6 +123,7 @@
 
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.11.0</version>
                 <executions>
                     <execution>
                         <phase>install</phase>
@@ -144,10 +143,23 @@
               <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M7</version>
+                <version>3.6.1</version>
               </plugin>
             </plugins>
           </pluginManagement>
     </build>
+
+    <profiles>
+        <!-- when building with a newer jdk, use release so that java 9+ apis are rejected at compile time -->
+        <profile>
+            <id>java8-release</id>
+            <activation>
+                <jdk>[9,)</jdk>
+            </activation>
+            <properties>
+                <maven.compiler.release>8</maven.compiler.release>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>

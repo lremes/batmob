@@ -65,6 +65,8 @@ public class SpellsPanel extends JPanel implements
 
     private DefaultListModel<Spell> listModel = new DefaultListModel<Spell>();
 
+    
+
     public SpellsPanel(MobEngine engine) {
         super();
 
@@ -162,6 +164,11 @@ public class SpellsPanel extends JPanel implements
         if (e.trigger.startsWith("You ")) {
             return;
         }
+
         this.listModel.addElement(e);
+
+        while (this.listModel.size() > 30) {
+            this.listModel.remove(0); // remove oldest entry from view
+        }
     }
 }

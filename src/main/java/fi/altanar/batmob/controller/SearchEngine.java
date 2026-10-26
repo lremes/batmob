@@ -68,7 +68,6 @@ public class SearchEngine {
                         continue;
                     }
                 }
-                System.out.println(m.getName());
                 results.add(m);
             }
 
