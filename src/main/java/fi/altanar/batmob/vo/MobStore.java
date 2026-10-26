@@ -10,9 +10,10 @@ import fi.altanar.batmob.io.IMobStoreListener;
 
 public class MobStore {
 
-    private HashMap<String, Mob> mobs = new HashMap<String,Mob>();
+    private HashMap<String, Mob> mobs = new HashMap<String, Mob>();
 
     private ArrayList<IMobStoreListener> listeners = new ArrayList<IMobStoreListener>();
+
     public MobStore() {
         super();
     }
@@ -72,6 +73,8 @@ public class MobStore {
             m.setNotes(mob.getNotes());
             m.setRep(mob.getRep());
             m.setZinium(mob.isZinium());
+            m.setFolkloristRating(mob.getFolkloristRating());
+            m.setDamageType(mob.getDamageType());
             m.setAggro(mob.isAggro());
             m.setUndead(mob.isUndead());
             this.mobs.put(m.getName(), m);
@@ -97,23 +100,26 @@ public class MobStore {
     }
 
     public MobSaveObject getSaveObject() {
-        return new MobSaveObject(this.mobs);
+        // copy so the saved map isn't modified by new detections while it's being written
+        return new MobSaveObject(new HashMap<String, Mob>(this.mobs));
     }
 
     public void restoreFromSaveObject(MobSaveObject saved) {
         this.mobs = saved.getData();
 
-        HashMap<String,Mob> fixed = new HashMap<String,Mob>();
+        HashMap<String, Mob> fixed = new HashMap<String, Mob>();
         for (Map.Entry<String, Mob> entry : this.mobs.entrySet()) {
             String tName = entry.getKey();
             Mob e = entry.getValue();
 
             // normalize all mob names
             e.setName(Mob.normalizeName(e.getName()));
+            String name = e.getName();
 
-            // Remove names starting with |
-            if (!tName.startsWith("|")) {
-                fixed.put(tName, e);
+            // Remove names starting with |, key by the normalized name so lookups find it,
+            // keep the first entry if several old keys normalize to the same name
+            if (!tName.startsWith("|") && !name.isEmpty() && !fixed.containsKey(name)) {
+                fixed.put(name, e);
             }
         }
 
@@ -127,7 +133,7 @@ public class MobStore {
         }
     }
 
-    public Iterator<Entry<String,Mob>> iterator() {
+    public Iterator<Entry<String, Mob>> iterator() {
         return this.mobs.entrySet().iterator();
     }
 

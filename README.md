@@ -10,7 +10,7 @@ This repository contains code to build the BatMob plugin for batclient. ( http:/
 
 ## How it works
 The plugin detects mobs based on color codes. Thus, it may detect quite a few false positives and also will not detected any mods that have unusual color codes.
-To mitigate the issue of false positives the plugin has an exclusion list hat can be updated. 
+To mitigate the issue of false positives the plugin has an exclusion list that can be updated. 
 
 ## How to build & run it locally #
 ```

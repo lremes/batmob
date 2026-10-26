@@ -7,6 +7,7 @@ import fi.altanar.batmob.vo.Mob;
 import fi.altanar.batmob.vo.Spell;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -20,10 +21,14 @@ public class SpellTriggers {
 
     List<Pattern> patterns;
 
-    LinkedList spells = new LinkedList();
+    LinkedList<Spell> spells = new LinkedList<Spell>();
 
     Map<String, Object[]> colors = new HashMap<String, Object[]>();
     Map<String, Object[]> damageTypeColors = new HashMap<String, Object[]>();
+
+    final Pattern casterPattern = Pattern
+            .compile(
+                    "^([a-zA-Z- ]+?)(?:taps|fuming|traces|rapidly|plays|rolls|stands|claps|swings|gets|utters|waves|flaps|fills) .*$");
 
     public SpellTriggers() {
         // this.targetPattern = Pattern.compile(PATTERN_TARGET);
@@ -489,7 +494,7 @@ public class SpellTriggers {
 
     public Object process(String input) {
         Spell spell = null;
-        ListIterator iter = this.spells.listIterator();
+        ListIterator<Spell> iter = this.spells.listIterator();
         boolean found = false;
         while (iter.hasNext()) {
             spell = (Spell) iter.next();
@@ -505,6 +510,15 @@ public class SpellTriggers {
             try {
                 Spell copy = (Spell) spell.clone();
                 copy.setTrigger(input);
+
+                copy.setCaster(input);
+
+                Matcher m = casterPattern.matcher(input);
+
+                if (m.matches()) {
+                    copy.setCaster(m.group(1).trim());
+                }
+
                 return copy;
             } catch (CloneNotSupportedException ex) {
                 // noop

@@ -14,12 +14,16 @@ import fi.altanar.batmob.io.MobDataPersister;
 import fi.altanar.batmob.io.IMobListener;
 import fi.altanar.batmob.io.IMobStoreListener;
 import fi.altanar.batmob.io.IStatusListener;
+import fi.altanar.batmob.io.IStudyListener;
 import fi.altanar.batmob.io.ISpellListener;
 import fi.altanar.batmob.vo.Mob;
 import fi.altanar.batmob.vo.MobSaveObject;
 import fi.altanar.batmob.vo.MobStore;
 import fi.altanar.batmob.vo.Spell;
+import fi.altanar.batmob.vo.MobFinder;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
@@ -31,9 +35,12 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.regex.*;
+
+import javax.swing.Timer;
 
 public class MobEngine implements ItemListener, ComponentListener, ILogger, IMobStoreListener {
 
@@ -44,12 +51,15 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     private RegexTrigger triggers = new RegexTrigger();
     private String currentAreaName = "";
     private SpellTriggers spellTriggers = new SpellTriggers();
+    private StudyTriggers studyTriggers = new StudyTriggers();
+    private PartyTriggers partyTriggers = new PartyTriggers();
     private ClientGUI clientGui;
 
     private ArrayList<Mob> roomMobs = new ArrayList<Mob>();
 
     private ArrayList<IStatusListener> statusListeners = new ArrayList<IStatusListener>();
     private ArrayList<ISpellListener> spellListeners = new ArrayList<ISpellListener>();
+    private ArrayList<IStudyListener> studyListeners = new ArrayList<IStudyListener>();
 
     // [1;32mVlad the Inhaler, the slavic golem[0m
     private static final String GREEN_BOLD = "\u001b[1;32m";
@@ -75,6 +85,9 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     private ArrayList<IMobListener> listeners = new ArrayList<IMobListener>();
 
     private MediaWikiApi queryEngine;
+
+    private static final int GUI_SAVE_DELAY_MS = 500;
+    private Timer guiSaveTimer;
 
     public MobEngine(MobPlugin plugin, MobStore store, MediaWikiApi queryEngine) {
         this.plugin = plugin;
@@ -115,9 +128,20 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     public Mob trigger(ParsedResult input) {
         String stripped = input.getStrippedText().trim();
 
+        if (this.partyTriggers.process(stripped)) {
+            this.log("Party: " + this.partyTriggers.getMembers());
+            this.notifyStatusListeners("Party: " + String.join(", ", this.partyTriggers.getMembers()));
+        }
+
         Object spell = this.spellTriggers.process(stripped);
-        if (spell instanceof Spell) {
+        // spells cast by party members are not interesting in the spell list
+        if (spell instanceof Spell && !this.partyTriggers.isMember(((Spell) spell).getCaster())) {
             this.notifySpellListeners((Spell) spell);
+        }
+
+        Object studiedMob = this.studyTriggers.process(stripped);
+        if (studiedMob instanceof Mob) {
+            this.notifyStudyListeners((Mob) studiedMob);
         }
 
         Object obj = this.triggers.process(stripped);
@@ -160,6 +184,10 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
             return null;
         }
 
+        if (Mob.normalizeName(strippedName).isEmpty()) {
+            return null;
+        }
+
         Mob m = this.mobStore.get(strippedName);
         if (m == null) {
             m = new Mob(0, strippedName);
@@ -169,7 +197,7 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
             this.mobStore.store(m);
         } else {
             // update status of old mobs if some data is missing
-            if (m.getArea() == null || m.getArea() != this.currentAreaName) {
+            if (m.getArea() == null || !m.getArea().equals(this.currentAreaName)) {
                 m.setArea(this.currentAreaName);
             }
             m.setAggro(isAgro);
@@ -196,6 +224,28 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
         return m;
     }
 
+    /**
+     * Merge study results into the matching recently detected mob.
+     *
+     * @param studied mob parsed from study output, short name is the studied name
+     * @return the updated mob or null if no detected mob matches
+     */
+    public Mob applyStudy(Mob studied) {
+        // newest first, the studied mob is most likely the latest one seen
+        ArrayList<Mob> recent = new ArrayList<Mob>(this.roomMobs);
+        Collections.reverse(recent);
+
+        Mob target = new MobFinder(recent).findByShortName(studied);
+        if (target != null) {
+            target.updateFromStudy(studied);
+        }
+        return target;
+    }
+
+    public ArrayList<Mob> getRoomMobs() {
+        return this.roomMobs;
+    }
+
     public void setBatWindow(BatWindow clientWin) {
         this.batWindow = clientWin;
     }
@@ -217,18 +267,35 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
         this.spellListeners.add(l);
     }
 
+    public void addStudyListener(IStudyListener l) {
+        this.studyListeners.add(l);
+    }
+
     @Override
     public void componentMoved(ComponentEvent e) {
-        if (this.batWindow != null) {
-            GuiDataPersister.save(this.baseDir, this.batWindow.getLocation(), this.batWindow.getSize());
-        }
+        this.scheduleGuiDataSave();
     }
 
     @Override
     public void componentResized(ComponentEvent e) {
-        if (this.batWindow != null) {
-            GuiDataPersister.save(this.baseDir, this.batWindow.getLocation(), this.batWindow.getSize());
+        this.scheduleGuiDataSave();
+    }
+
+    // moving or resizing fires lots of events, save only once they stop
+    private void scheduleGuiDataSave() {
+        if (this.batWindow == null) {
+            return;
         }
+        if (this.guiSaveTimer == null) {
+            this.guiSaveTimer = new Timer(GUI_SAVE_DELAY_MS, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    GuiDataPersister.save(baseDir, batWindow.getLocation(), batWindow.getSize());
+                }
+            });
+            this.guiSaveTimer.setRepeats(false);
+        }
+        this.guiSaveTimer.restart();
     }
 
     @Override
@@ -277,8 +344,8 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
             try {
                 this.log("Saving " + this.mobStore.getCount() + " mobs.");
                 MobDataPersister.save(this.baseDir, this.mobStore.getSaveObject());
-            } catch (IOException e) {
-                this.log(e.getMessage());
+            } catch (IOException | RuntimeException e) {
+                this.log("Saving mobs failed: " + e);
             }
         }
     }
@@ -300,6 +367,12 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     public void notifySpellListeners(Spell spell) {
         for (ISpellListener s : this.spellListeners) {
             s.spellDetected(spell);
+        }
+    }
+
+    public void notifyStudyListeners(Mob mob) {
+        for (IStudyListener l : this.studyListeners) {
+            l.mobStudied(mob);
         }
     }
 

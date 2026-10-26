@@ -3,7 +3,10 @@ package fi.altanar.batmob.controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Collections;
 
+import javax.swing.Timer;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
@@ -22,6 +25,7 @@ import fi.altanar.batmob.vo.Mob;
 import fi.altanar.batmob.vo.MobStore;
 import fi.altanar.batmob.io.MediaWikiApi;
 import fi.altanar.batmob.io.IMobListener;
+import fi.altanar.batmob.vo.MobFilter;
 
 public class MobPlugin extends BatClientPlugin implements
         BatClientPluginTrigger,
@@ -34,6 +38,7 @@ public class MobPlugin extends BatClientPlugin implements
 
     private MobEngine engine;
     private SearchPanel searchPanel;
+    private SearchEngine searchEngine;
     private MobDetailsPanel mobDetailPanel;
     private SpellsPanel spellsPanel;
 
@@ -47,6 +52,10 @@ public class MobPlugin extends BatClientPlugin implements
     private final String EXIT_AREA_MESSAGE = "REALM_MAP";
 
     private BatWindow clientWin;
+
+    private static final int AUTOSAVE_INTERVAL_MS = 5 * 60 * 1000;
+    private static final int MAX_RESULTS = 15;
+    private Timer autoSaveTimer;
 
     public void loadPlugin() {
         BASEDIR = this.getBaseDirectory();
@@ -63,13 +72,14 @@ public class MobPlugin extends BatClientPlugin implements
         MediaWikiApi api = new MediaWikiApi("https://taikajuoma.ovh/");
 
         engine = new MobEngine(this, store, api);
+        store.addListener(engine);
         engine.setBatWindow(clientWin);
         engine.setBaseDir(BASEDIR);
         engine.setClientGui(this.getClientGUI());
 
         clientWin.addInternalFrameListener(this);
 
-        SearchEngine searchEngine = new SearchEngine(store, engine);
+        searchEngine = new SearchEngine(store, engine);
         searchPanel = new SearchPanel(searchEngine);
         searchPanel.addMobListener(this);
         clientWin.addComponentListener(searchPanel);
@@ -89,13 +99,120 @@ public class MobPlugin extends BatClientPlugin implements
 
         engine.addMobListener(this.mobDetailPanel);
         engine.addSpellListener(this.spellsPanel);
+        engine.addStudyListener(this.mobDetailPanel);
 
         engine.load();
+
+        // save periodically so a client crash doesn't lose the whole session,
+        // loadPlugin may be called again (bm reload) so replace any old timer
+        if (autoSaveTimer != null) {
+            autoSaveTimer.stop();
+        }
+        autoSaveTimer = new Timer(AUTOSAVE_INTERVAL_MS, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                engine.saveMobs();
+            }
+        });
+        autoSaveTimer.start();
     }
 
     @Override
     public String getName() {
         return "batMob";
+    }
+
+    public void search(String text) {
+        String query = searchText(text);
+
+        if (!query.isEmpty()) {
+            this.getClientGUI().printText("general", "Top " + MAX_RESULTS + " Search results\n", "6AFA63");
+            this.getClientGUI().printText("general", "------------------------------\n", "6AFA63");
+            MobFilter f = new MobFilter();
+            f.exact = false;
+            f.name = query;
+
+            ArrayList<Mob> results = this.searchEngine.search(f);
+            for (int i = 0; i < results.size() && i < MAX_RESULTS; i++) {
+                Mob m = results.get(i);
+                this.getClientGUI().printText("general", m.getName() + "\n", "6AFA63");
+            }
+        }
+    }
+
+    public void showMobs(String text) {
+        String query = searchText(text);
+
+        if (!query.isEmpty()) {
+            this.getClientGUI().printText("general", "Top " + MAX_RESULTS + " Search results\n", "6AFA63");
+            this.getClientGUI().printText("general", "------------------------------\n", "6AFA63");
+            MobFilter f = new MobFilter();
+            f.exact = false;
+            f.name = query;
+
+            ArrayList<Mob> results = this.searchEngine.search(f);
+            for (int i = 0; i < results.size() && i < MAX_RESULTS; i++) {
+                Mob m = results.get(i);
+                this.reportMod(m);
+                this.getClientGUI().printText("general", m.getName() + "\n", "6AFA63");
+            }
+        }
+    }
+
+    /**
+     * The text is the whole command, e.g. "search big dragon", return the part after the command.
+     */
+    static String searchText(String text) {
+        int idx = text.indexOf(' ');
+        return idx < 0 ? "" : text.substring(idx + 1).trim();
+    }
+
+    public void reportMod(Mob mob) {
+        this.engine.doCommand("party report " + mob.getName());
+        this.engine.doCommand("party report " + mob.getAllExpAsString());
+        if (mob.getRace() != null && !mob.getRace().isEmpty()) {
+            this.engine.doCommand("party report Race: " + mob.getRace());
+        }
+        if (mob.getAlignment() != null && !mob.getAlignment().isEmpty()) {
+            this.engine.doCommand("party report Align: " + mob.getAlignment());
+        }
+        ArrayList<String> spells = mob.getSpells();
+        if (spells.size() > 0) {
+            this.engine.doCommand("party report Spells: " + spells);
+        }
+        ArrayList<String> skills = mob.getSkills();
+        if (skills.size() > 0) {
+            this.engine.doCommand("party report Skills: " + skills);
+        }
+    }
+
+    public void top() {
+        this.engine.doCommand("party report Top exp mobs for " + this.engine.getCurrentAreaName());
+        this.engine.doCommand("party report -------------------------------------");
+
+        try {
+            MobFilter f = new MobFilter();
+            f.area = this.engine.getCurrentAreaName().toLowerCase();
+            f.exact = true;
+            this.engine.log("Searching " + f);
+
+            ArrayList<Mob> results = this.searchEngine.search(f);
+            this.engine.log("Found " + results.size() + " mobs");
+
+            Collections.sort(results, new Comparator<Mob>() {
+                @Override
+                public int compare(final Mob mob1, final Mob mob2) {
+                    return mob2.getMaxExp() - mob1.getMaxExp();
+                }
+            });
+
+            for (int i = 0; i < results.size() && i < MAX_RESULTS; i++) {
+                Mob m = results.get(i);
+                this.engine.doCommand("party report " + Integer.toString(m.getMaxExp()) + " \t" + m.getName());
+            }
+        } catch (Exception e1) {
+            this.engine.log(e1.getMessage());
+        }
     }
 
     // ArrayList<BatClientPlugin> plugins=this.getPluginManager().getPlugins();

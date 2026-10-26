@@ -7,6 +7,7 @@ public class Spell implements Cloneable {
     public Pattern pattern;
     public Object[] attributeValuePairs;
     public String trigger = "";
+    public String caster = "";
 
     public Spell(String name, Pattern pattern, Object[] attributeValuePairs) {
         this.name = name;
@@ -22,9 +23,17 @@ public class Spell implements Cloneable {
         return this.trigger;
     }
 
+    public void setCaster(String caster) {
+        this.caster = caster;
+    }
+
+    public String getCaster() {
+        return this.caster;
+    }
+
     public String toString() {
         return this.name +
-                "|" + this.trigger;
+                "|" + this.caster;
     }
 
     public Object clone() throws CloneNotSupportedException {
