@@ -26,6 +26,9 @@ public class SpellTriggers {
     Map<String, Object[]> colors = new HashMap<String, Object[]>();
     Map<String, Object[]> damageTypeColors = new HashMap<String, Object[]>();
 
+    // the known casting phrases tell exactly where the caster's name ends
+    final Pattern phraseCasterPattern = Pattern.compile("^(.+?) " + CombatTriggers.CASTING_PHRASES + "(?: .*)?$");
+
     final Pattern casterPattern = Pattern
             .compile(
                     "^([a-zA-Z- ]+?)(?:taps|fuming|traces|rapidly|plays|rolls|stands|claps|swings|gets|utters|waves|flaps|fills) .*$");
@@ -513,7 +516,10 @@ public class SpellTriggers {
 
                 copy.setCaster(input);
 
-                Matcher m = casterPattern.matcher(input);
+                Matcher m = phraseCasterPattern.matcher(input);
+                if (!m.matches()) {
+                    m = casterPattern.matcher(input);
+                }
 
                 if (m.matches()) {
                     copy.setCaster(m.group(1).trim());

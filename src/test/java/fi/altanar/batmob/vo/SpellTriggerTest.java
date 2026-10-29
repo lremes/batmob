@@ -63,4 +63,25 @@ public class SpellTriggerTest {
             e.printStackTrace();
         }
     }
+
+    @Test
+    void testCasterFromCastingPhrase() {
+        SpellTriggers tm = new SpellTriggers();
+
+        // the caster used to be the whole line for these
+        String[][] casts = {
+                { "Kjeldoran braces her body and yells 'hhhnnnnnrrrrraaahhh!!'", "Kjeldoran", "energy aura yellow" },
+                { "Kjeldoran braces her body and yells 'hnnn....Urrgggg.....RRAAHH!!!'", "Kjeldoran", "energy aura red" },
+                { "Kjeldoran braces her body and yells 'RRRRAAAAAHHRRRRGGGGGGHHH!!!!!'", "Kjeldoran", "energy aura blue" },
+                { "Elemental of fire booms in sinister voice 'zing yulygul bugh'", "Elemental of fire", "fireball" },
+                { "Harlon booms in sinister voice 'zing yulygul bugh'", "Harlon", "fireball" },
+                { "Shifter throws a pinch of magic dust in air and chants 'gtzt mar nak semen'", "Shifter", "summon greater spores" },
+        };
+        for (String[] c : casts) {
+            Spell spell = (Spell) tm.process(c[0]);
+            assertNotNull(spell, c[0]);
+            assertEquals(c[2], spell.name, c[0]);
+            assertEquals(c[1], spell.getCaster(), c[0]);
+        }
+    }
 }

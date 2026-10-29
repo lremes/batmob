@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import org.junit.jupiter.api.Test;
@@ -314,5 +315,73 @@ public class MobTest {
     m.updateFromWiki(wiki);
     assertEquals("wiki notes", m.getNotes());
     assertEquals("male", m.getGender());
+  }
+
+  @Test
+  void testNameTags() {
+    // real names from the session logs, kill list names are without the tags
+    assertEquals("a mean ghost of sabretooth tiger", new Mob(0, "a mean ghost of sabretooth tiger (undead)").getName());
+    assertEquals("a skinny ghost of norrfolk", new Mob(0, "a skinny ghost of norrfolk (undead) <-=wrapped=->").getName());
+    assertEquals("an adept cleric", new Mob(0, "an adept cleric (in excellent shape, 100%)").getName());
+    assertEquals("Yani, papa troll", new Mob(0, "Yani, papa troll (in excellent shape)").getName());
+    assertEquals("an HUGE black panther", new Mob(0, "an HUGE black panther (in very bad shape)").getName());
+    assertEquals("A priest in a white robe", new Mob(0, "A priest in a white robe [host]").getName());
+    assertEquals("Seceh, the General of the Legion", new Mob(0, "Seceh, the General of the Legion (cursed)").getName());
+    assertEquals("Dark Knight is grinning here", new Mob(0, "Dark Knight is grinning here <blue aura>").getName());
+
+    // unknown tags are part of the name
+    assertEquals("A fierce fire dragon <burning>", new Mob(0, "A fierce fire dragon <burning>").getName());
+
+    assertEquals(Arrays.asList("(undead)", "<-=wrapped=->"), Mob.nameTags("a ghost (undead) <-=wrapped=->"));
+    assertTrue(Mob.nameTags("a ghost").isEmpty());
+  }
+
+  @Test
+  void testTagsSetFlags() {
+    Mob m = new Mob(0, "The queen is pacing around, looking for something to do <cyan aura>");
+    assertEquals("cyan aura", m.getAura());
+    assertFalse(m.isUndead());
+
+    m = new Mob(0, "a mean ghost (undead) <blue aura>");
+    assertEquals("blue aura", m.getAura());
+    assertTrue(m.isUndead());
+
+    assertNull(new Mob(0, "a rat").getAura());
+  }
+
+  @Test
+  void testAuraOfKnownMobIsUpdated() {
+    MobStore store = new MobStore();
+    MobEngine engine = new MobEngine(mock(MobPlugin.class), store, null);
+
+    String[] seen = { "Dark Knight is grinning here", "Dark Knight is grinning here <blue aura>" };
+    for (String name : seen) {
+      String line = "\u001b[1;31m" + name + "\u001b[0m";
+      ParsedResult input = new ParsedResult(line);
+      input.setOriginalText(line);
+      input.setStrippedText(name);
+      engine.trigger(input);
+    }
+
+    assertEquals(1, store.getCount());
+    assertEquals("blue aura", store.get("Dark Knight is grinning here").getAura());
+  }
+
+  @Test
+  void testPkillsWithAnyCharacters() {
+    RegexTrigger tm = new RegexTrigger();
+
+    Mob m = (Mob) tm.process("| 23:43   41522: Apeth the sly Drow Mercenary, ready to kill you <Cohort of t |");
+    assertEquals(41522, m.getExp());
+    assertEquals("Apeth the sly Drow Mercenary, ready to kill you <Cohort", m.getName().substring(0, 55));
+
+    m = (Mob) tm.process("| 08:15    6174: A crazed chicken looks BERSERK!                              |");
+    assertEquals("A crazed chicken looks BERSERK!", m.getName());
+
+    m = (Mob) tm.process("| 08:15    6174: Therp's guard!                                               |");
+    assertEquals("Therp's guard!", m.getName());
+
+    // party status lines are not kills
+    assertNull(tm.process("| 1.1  Brurin         fol 1593(1593)  169( 169) 442(442) | 100 |        69933 |"));
   }
 }

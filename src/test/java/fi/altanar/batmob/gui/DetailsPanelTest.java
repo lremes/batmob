@@ -33,6 +33,7 @@ public class DetailsPanelTest {
 
         Mob mob = new Mob(100, "Kiec the bartender");
         mob.setGender("male");
+        mob.setAura("cyan aura");
         mob.setShortNames(new ArrayList<String>(Arrays.asList("kiec", "bartender")));
         mob.setSpells(new ArrayList<String>(Arrays.asList("magic missile", "shocking grasp")));
         store.store(mob);
@@ -42,6 +43,7 @@ public class DetailsPanelTest {
         panel.saveMob();
 
         assertEquals("male", mob.getGender());
+        assertEquals("cyan aura", mob.getAura());
         assertEquals(Arrays.asList("kiec", "bartender"), mob.getShortNames());
         assertEquals(Arrays.asList("magic missile", "shocking grasp"), mob.getSpells());
     }

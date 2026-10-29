@@ -32,13 +32,58 @@ public class Mob implements Serializable, Cloneable {
 
     private String folkloristRating;
 
-    public static final Pattern IGNORE_PARTS = Pattern
-            .compile("\\((undead|bleeding)\\)|<[-=]*wrapped[-=]*>|<encircled>");
+    // e.g. "cyan aura", warns about especially dangerous monsters
+    private String aura;
+
+    // Descriptors the game appends to monster names in rooms but not in the kill list.
+    // Health descriptors appear with or without a percentage, e.g. "(slightly hurt, 80%)".
+    public static final Pattern NAME_TAG = Pattern.compile("\\s*("
+            + "\\((?:undead|bleeding|cursed|insane|high as a badger"
+            + "|(?:in excellent shape|in a good shape|slightly hurt|noticeably hurt|not in a good shape"
+            + "|in bad shape|in very bad shape|near death)(?:, \\d+%)?)\\)"
+            + "|<[-=]*wrapped[-=]*>|<encircled>|<([a-z]+ aura)>"
+            + "|\\[(?:host|following)\\])\\s*$");
 
     public Mob(int exp, String name) {
-        this.undead = name.contains("(undead)");
         this.setName(name);
+        this.updateFromTags(name);
         this.updateExp(exp);
+    }
+
+    /**
+     * Set the flags the descriptors at the end of a name tell, e.g. "(undead)" or "<cyan aura>".
+     */
+    public void updateFromTags(String name) {
+        for (String tag : nameTags(name)) {
+            if (tag.equals("(undead)")) {
+                this.undead = true;
+            } else if (tag.endsWith(" aura>")) {
+                this.aura = tag.substring(1, tag.length() - 1);
+            }
+        }
+    }
+
+    /**
+     * @return the descriptors at the end of the name, in the order they appear
+     */
+    public static ArrayList<String> nameTags(String name) {
+        ArrayList<String> tags = new ArrayList<String>();
+        Matcher m = NAME_TAG.matcher(name);
+        while (m.find()) {
+            tags.add(0, m.group(1));
+            name = name.substring(0, m.start());
+            m = NAME_TAG.matcher(name);
+        }
+        return tags;
+    }
+
+    public static String stripNameTags(String name) {
+        Matcher m = NAME_TAG.matcher(name);
+        while (m.find()) {
+            name = name.substring(0, m.start());
+            m = NAME_TAG.matcher(name);
+        }
+        return name;
     }
 
     public int getExp() {
@@ -92,6 +137,14 @@ public class Mob implements Serializable, Cloneable {
         this.folkloristRating = folkloristRating;
     }
 
+    public String getAura() {
+        return aura;
+    }
+
+    public void setAura(String aura) {
+        this.aura = aura;
+    }
+
     public void setNotes(String notes) {
         this.notes = notes;
     }
@@ -128,6 +181,47 @@ public class Mob implements Serializable, Cloneable {
 
     public void setSpells(ArrayList<String> spells) {
         this.spells = spells.toArray(new String[0]);
+    }
+
+    /**
+     * @return true if the spell was not known yet
+     */
+    public boolean addSpell(String spell) {
+        ArrayList<String> list = this.getSpells();
+        for (String s : list) {
+            if (s.equalsIgnoreCase(spell)) {
+                return false;
+            }
+        }
+        list.add(spell);
+        this.setSpells(list);
+        return true;
+    }
+
+    /**
+     * @return true if the skill was not known yet
+     */
+    public boolean addSkill(String skill) {
+        ArrayList<String> list = this.getSkills();
+        for (String s : list) {
+            if (s.equalsIgnoreCase(skill)) {
+                return false;
+            }
+        }
+        list.add(skill);
+        this.setSkills(list);
+        return true;
+    }
+
+    public boolean hasShortName(String shortName) {
+        if (this.shortNames != null) {
+            for (String s : this.shortNames) {
+                if (s.equalsIgnoreCase(shortName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public ArrayList<String> getSkills() {
@@ -295,9 +389,8 @@ public class Mob implements Serializable, Cloneable {
     }
 
     public static String normalizeName(String name) {
-        // pkill removes (undead)
-        Matcher mtch = IGNORE_PARTS.matcher(name);
-        name = mtch.replaceAll("");
+        // pkill drops descriptors like (undead) or <cyan aura>
+        name = stripNameTags(name);
 
         if (!name.isEmpty() && name.charAt(0) == '(') {
             name = name.substring(1);

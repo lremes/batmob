@@ -53,6 +53,8 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     private SpellTriggers spellTriggers = new SpellTriggers();
     private StudyTriggers studyTriggers = new StudyTriggers();
     private PartyTriggers partyTriggers = new PartyTriggers();
+    private CombatTriggers combatTriggers = new CombatTriggers();
+    private SkillTriggers skillTriggers = new SkillTriggers();
     private ClientGUI clientGui;
 
     private ArrayList<Mob> roomMobs = new ArrayList<Mob>();
@@ -87,6 +89,11 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     private MediaWikiApi queryEngine;
 
     private static final int GUI_SAVE_DELAY_MS = 500;
+
+    // collect raw lines with batmud control codes (ESC<nn) to logs/<date>-batmob-controlcodes.txt,
+    // used to find out which codes reach plugins, off by default
+    private boolean logControlCodes = false;
+    private static final String CONTROL_CODE_START = "\u001b<";
     private Timer guiSaveTimer;
 
     public MobEngine(MobPlugin plugin, MobStore store, MediaWikiApi queryEngine) {
@@ -126,6 +133,11 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     }
 
     public Mob trigger(ParsedResult input) {
+        String original = input.getOriginalText();
+        if (this.logControlCodes && original != null && original.contains(CONTROL_CODE_START)) {
+            this.logControlCode("line " + original);
+        }
+
         String stripped = input.getStrippedText().trim();
 
         if (this.partyTriggers.process(stripped)) {
@@ -136,7 +148,23 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
         Object spell = this.spellTriggers.process(stripped);
         // spells cast by party members are not interesting in the spell list
         if (spell instanceof Spell && !this.partyTriggers.isMember(((Spell) spell).getCaster())) {
+            this.recordMonsterSpell((Spell) spell);
             this.notifySpellListeners((Spell) spell);
+        }
+
+        String[] cast = this.combatTriggers.spellCast(stripped);
+        if (cast != null && !this.partyTriggers.isMember(cast[0])) {
+            this.recordMonsterSpell(cast[0], cast[1]);
+        }
+
+        String[] skill = this.skillTriggers.process(stripped);
+        if (skill != null && !this.partyTriggers.isMember(skill[0])) {
+            this.recordMonsterSkill(skill[0], skill[1]);
+        }
+
+        String fighting = this.combatTriggers.process(stripped);
+        if (fighting != null && !this.partyTriggers.isMember(fighting)) {
+            this.linkShortName(fighting);
         }
 
         Object studiedMob = this.studyTriggers.process(stripped);
@@ -201,6 +229,7 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
                 m.setArea(this.currentAreaName);
             }
             m.setAggro(isAgro);
+            m.updateFromTags(strippedName);
             m = this.mobStore.updateAutofilledFields(m);
         }
 
@@ -240,6 +269,63 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
             target.updateFromStudy(studied);
         }
         return target;
+    }
+
+    /**
+     * Find the detected mob a short name (as used in combat and spell messages) refers to.
+     *
+     * @return the only matching mob, or null if none or several match
+     */
+    public Mob findRoomMob(String shortName) {
+        if (shortName == null || shortName.trim().isEmpty()) {
+            return null;
+        }
+        String name = shortName.trim();
+
+        for (Mob m : this.roomMobs) {
+            if (m.hasShortName(name)) {
+                return m;
+            }
+        }
+
+        // the short name is normally part of the long name: "Skinned fox" -> "a skinned fox limps here"
+        Pattern words = Pattern.compile("\\b" + Pattern.quote(name.toLowerCase()) + "\\b");
+        Mob found = null;
+        for (Mob m : this.roomMobs) {
+            if (words.matcher(m.getName().toLowerCase()).find()) {
+                if (found != null) {
+                    return null; // ambiguous
+                }
+                found = m;
+            }
+        }
+        return found;
+    }
+
+    private void linkShortName(String shortName) {
+        Mob m = this.findRoomMob(shortName);
+        if (m != null && !m.hasShortName(shortName)) {
+            m.addShortName(shortName);
+            this.log("Short name " + shortName + ": " + m.getName());
+        }
+    }
+
+    private void recordMonsterSpell(Spell spell) {
+        this.recordMonsterSpell(spell.getCaster(), spell.name);
+    }
+
+    private void recordMonsterSpell(String caster, String spellName) {
+        Mob m = this.findRoomMob(caster);
+        if (m != null && m.addSpell(spellName)) {
+            this.log("Spell " + spellName + ": " + m.getName());
+        }
+    }
+
+    private void recordMonsterSkill(String user, String skillName) {
+        Mob m = this.findRoomMob(user);
+        if (m != null && m.addSkill(skillName)) {
+            this.log("Skill " + skillName + ": " + m.getName());
+        }
     }
 
     public ArrayList<Mob> getRoomMobs() {
@@ -377,12 +463,31 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
     }
 
     public void log(String msg) {
+        this.appendToLog("-batmob.txt", msg);
+    }
+
+    /**
+     * Raw text with batmud control codes, kept in its own file for analysis.
+     */
+    public void setLogControlCodes(boolean enabled) {
+        this.logControlCodes = enabled;
+    }
+
+    public void logControlCode(String msg) {
+        if (this.logControlCodes) {
+            DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
+            this.appendToLog("-batmob-controlcodes.txt", timeFormat.format(new Date()) + " " + msg);
+        }
+    }
+
+    private void appendToLog(String suffix, String msg) {
         if (this.baseDir != null) {
             try {
                 Date date = Calendar.getInstance().getTime();
                 DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 
-                File logFile = getFile("logs", dateFormat.format(date) + "-batmob.txt");
+                File logFile = getFile("logs", dateFormat.format(date) + suffix);
+                logFile.getParentFile().mkdirs();
                 FileWriter myWriter = new FileWriter(logFile, true);
                 myWriter.write(msg + '\n');
                 myWriter.close();

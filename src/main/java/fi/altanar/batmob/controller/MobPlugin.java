@@ -122,6 +122,15 @@ public class MobPlugin extends BatClientPlugin implements
         return "batMob";
     }
 
+    /**
+     * Hide or show the window, the client creates plugin windows that can't be minimized.
+     */
+    public void toggle() {
+        if (this.clientWin != null) {
+            this.clientWin.setVisible(!this.clientWin.isVisible());
+        }
+    }
+
     public void search(String text) {
         String query = searchText(text);
 
@@ -227,6 +236,7 @@ public class MobPlugin extends BatClientPlugin implements
         // cMapper;areaname;roomUID;exitUsed;indoor boolean;shortDesc;longDesc;exits
 
         String input = event.getActionCommand();
+        this.engine.logControlCode("proto99 " + input);
         String[] values = input.split(";;", -1);
 
         if (values[PREFIX].equals(CHANNEL_PREFIX) && values.length == MESSAGE_LENGTH) {
@@ -301,18 +311,12 @@ public class MobPlugin extends BatClientPlugin implements
 
     @Override
     public void internalFrameDeiconified(InternalFrameEvent arg0) {
-        // TODO Auto-generated method stub
-        if (arg0.getSource().equals(clientWin)) {
-            this.clientWin.setVisible(true);
-        }
+        // minimizing and restoring is left to the client
     }
 
     @Override
     public void internalFrameIconified(InternalFrameEvent arg0) {
-        // TODO Auto-generated method stub
-        if (arg0.getSource().equals(clientWin)) {
-            this.clientWin.setVisible(false);
-        }
+        // hiding the window here left no icon to restore it from
     }
 
     @Override
