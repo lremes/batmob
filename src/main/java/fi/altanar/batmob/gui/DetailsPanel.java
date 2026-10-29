@@ -76,6 +76,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
     private JTextField skillsArea = new JTextField();
     private JTextField spellsArea = new JTextField();
     private JTextField damageTypeArea = new JTextField();
+    private JTextField auraArea = new JTextField();
 
     private JCheckBox isUndead = new JCheckBox("Undead");
     private JCheckBox isAggro = new JCheckBox("Aggro");
@@ -132,6 +133,8 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         alignmentArea = createPanel(this, 7, 0, 1, 1, "Alignment", BORDER_COLOR, "Alignment of the mob", true);
 
         ratingArea = createPanel(this, 7, 1, 1, 1, "Rating", BORDER_COLOR, "Folklorist rating", true);
+
+        auraArea = createPanel(this, 8, 0, 1, 1, "Aura", BORDER_COLOR, "Warning aura, e.g. cyan aura", true);
 
         damageTypeArea = createPanel(this, 8, 1, 1, 1, "Damagetype", BORDER_COLOR, "Inflicts", true);
 
@@ -415,6 +418,8 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         this.mob.setFolkloristRating(this.ratingArea.getText());
         this.mob.setArea(this.areaNameArea.getText());
         this.mob.setDamageType(this.damageTypeArea.getText());
+        String aura = this.auraArea.getText().trim();
+        this.mob.setAura(aura.isEmpty() ? null : aura);
         this.mob.setSkills(parseList(this.skillsArea.getText()));
         this.mob.setSpells(parseList(this.spellsArea.getText()));
         this.mob.setUndead(this.isUndead.isSelected());
@@ -504,6 +509,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
             this.raceArea.setText(this.mob.getRace());
             this.ratingArea.setText(this.mob.getFolkloristRating());
             this.damageTypeArea.setText(this.mob.getDamageType());
+            this.auraArea.setText(this.mob.getAura());
             this.notesArea.setText(this.mob.getNotes());
             this.isUndead.setSelected(this.mob.isUndead());
             this.isAggro.setSelected(this.mob.isAggro());
@@ -527,6 +533,7 @@ public class DetailsPanel extends JPanel implements ActionListener, ComponentLis
         this.genderArea.setText("");
         this.ratingArea.setText("");
         this.damageTypeArea.setText("");
+        this.auraArea.setText("");
         this.notesArea.setText("");
         this.isUndead.setSelected(false);
         this.isAggro.setSelected(false);

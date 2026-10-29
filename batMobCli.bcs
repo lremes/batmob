@@ -34,3 +34,11 @@ void show(text) {
 		}	
 	}
 }
+
+void toggle() {
+	for(BatClientPlugin plugin : pluginManager.getPlugins()){
+		if(plugin.getName().equals("batMob")){
+			plugin.toggle();
+		}	
+	}
+}

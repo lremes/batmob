@@ -168,7 +168,9 @@ public class MobDetailsPanel extends JPanel
         if (roomMobs.size() > 0) {
             StringBuilder names = new StringBuilder();
             for (Iterator<Mob> iter = roomMobs.iterator(); iter.hasNext();) {
-                names.append(iter.next().getName() + "\n");
+                Mob m = iter.next();
+                // the aura is a name tag, so the clicked line still finds the mob
+                names.append(m.getName() + (m.getAura() != null ? " <" + m.getAura() + ">" : "") + "\n");
             }
             this.roomArea.setText(names.toString());
             this.mobSelected(roomMobs.get(roomMobs.size() - 1));
