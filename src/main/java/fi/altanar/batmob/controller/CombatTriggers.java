@@ -52,6 +52,9 @@ public class CombatTriggers {
             + "|screams in rage and yells"
             + "|raises a clenched fist and yells"
             + "|braces (?:his|her|its) body and yells"
+            + "|hops on (?:one leg|both legs), flaps (?:his|her|its) arms and chants"
+            + "|holds .+? tightly and exclaims"
+            + "|sings"
             + ")";
 
     final Pattern CAST = Pattern.compile("^(.+?) " + CASTING_PHRASES + " \\(([a-z][a-z' -]*)\\)$");

@@ -27,7 +27,7 @@ public class SpellTriggers {
     Map<String, Object[]> damageTypeColors = new HashMap<String, Object[]>();
 
     // the known casting phrases tell exactly where the caster's name ends
-    final Pattern phraseCasterPattern = Pattern.compile("^(.+?) " + CombatTriggers.CASTING_PHRASES + "(?: .*)?$");
+    final Pattern phraseCasterPattern = Pattern.compile("^(.+?) " + CombatTriggers.CASTING_PHRASES + "(?: .*)?$", Pattern.DOTALL);
 
     final Pattern casterPattern = Pattern
             .compile(
@@ -379,7 +379,8 @@ public class SpellTriggers {
         this.define("energy aura red", "boost", "none", "'hnnn\\.\\.\\.\\.Urrgggg\\.\\.\\.\\.\\.RRAAHH!!!'");
         this.define("energy aura blue", "boost", "none", "'RRRRAAAAAHHRRRRGGGGGGHHH!!!!!'");
         this.define("earth blood", "boost", "none", "'!\\( \\*\\)");
-        this.define("earth power", "boost", "none", "'% !\\^'");
+        // "The runic sigla '% !^' fade away.." is the spell wearing off, not a cast
+        this.define("earth power", "boost", "none", "(?<!sigla )'% !\\^'");
         this.define("regeneration", "boost", "none", "'nilaehz temnahecne'");
         this.define("haste", "boost", "none", "'sakenoivasta voimasta'");
         this.define("aura of hate", "boost", "none", "'Feel your anger and strike with.*");

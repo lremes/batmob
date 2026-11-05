@@ -143,6 +143,9 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
         if (this.partyTriggers.process(stripped)) {
             this.log("Party: " + this.partyTriggers.getMembers());
             this.notifyStatusListeners("Party: " + String.join(", ", this.partyTriggers.getMembers()));
+            for (ISpellListener s : this.spellListeners) {
+                s.partyCastersFound(this.partyTriggers::isMember);
+            }
         }
 
         Object spell = this.spellTriggers.process(stripped);
