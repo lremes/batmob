@@ -43,9 +43,11 @@ public class PartyTriggersTest {
         PartyTriggers pt = new PartyTriggers();
         feed(pt, START, "| 1.1   Baroness    ldr   812( 812) |", "| 1.2   Bobby       fol   500( 640) |", END);
 
-        // Bobby left
+        // Bobby left, but is still a player
         assertTrue(feed(pt, START, "| 1.1   Baroness    ldr   812( 812) |", END));
-        assertFalse(pt.isMember("Bobby"));
+        assertFalse(pt.getMembers().contains("Bobby"));
+        assertTrue(pt.isMember("Bobby"));
+        assertTrue(pt.isMember("Bobby's soul"));
         assertTrue(pt.isMember("Baroness"));
 
         // same listing again, no change
@@ -107,5 +109,54 @@ public class PartyTriggersTest {
         // not members even if the name starts the same
         assertFalse(pt.isMember("Brurinson"));
         assertFalse(pt.isMember("Baroness gets an evil gleam in her eyes"));
+    }
+
+    @Test
+    void testLeavingTheParty() {
+        PartyTriggers pt = new PartyTriggers();
+        feed(pt, START, "| 1.1   Lysander    ldr   812( 812) |", "| 1.2   Brog        fol   500( 640) |",
+                "| 1.3   Armin       fol   500( 640) |", END);
+
+        assertTrue(feed(pt, "Brog left the party."));
+        assertEquals(2, pt.getMembers().size());
+        assertTrue(pt.isMember("Brog"));
+
+        // minions leaving aren't members
+        assertFalse(feed(pt, "Air the christmas shadow left the party."));
+
+        assertTrue(feed(pt, "Lysander kicks Armin out of party."));
+        assertEquals(1, pt.getMembers().size());
+
+        assertTrue(feed(pt, "Lysander disbands the party."));
+        assertTrue(pt.getMembers().isEmpty());
+        assertTrue(pt.isMember("Lysander"));
+
+        assertFalse(feed(pt, "You left the party."));
+
+        feed(pt, START, "| 1.1   Armin       ldr   812( 812) |", "| 1.2   Derfel      fol   500( 640) |", END);
+        assertTrue(feed(pt, "You left the party."));
+        assertTrue(pt.getMembers().isEmpty());
+    }
+
+    @Test
+    void testJoiningTheParty() {
+        PartyTriggers pt = new PartyTriggers();
+
+        // the party isn't listed yet, members are learned as they join
+        assertTrue(feed(pt, "Tails is now acting member of the party."));
+        assertTrue(feed(pt, "Mesardus is now acting member of the party."));
+        assertFalse(feed(pt, "Tails is now acting member of the party."));
+        assertTrue(pt.isMember("Tails"));
+        assertTrue(pt.isMember("Mesardus"));
+        assertEquals(2, pt.getMembers().size());
+
+        // joining another party drops the old members until the next listing
+        assertTrue(feed(pt, "You are a member of the party now."));
+        assertTrue(pt.getMembers().isEmpty());
+        assertTrue(pt.isMember("Tails"));
+
+        feed(pt, "Brog is now acting member of the party.");
+        assertTrue(feed(pt, "You are kicked out of party."));
+        assertTrue(pt.getMembers().isEmpty());
     }
 }

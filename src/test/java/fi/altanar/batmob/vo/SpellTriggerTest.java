@@ -76,6 +76,11 @@ public class SpellTriggerTest {
                 { "Elemental of fire booms in sinister voice 'zing yulygul bugh'", "Elemental of fire", "fireball" },
                 { "Harlon booms in sinister voice 'zing yulygul bugh'", "Harlon", "fireball" },
                 { "Shifter throws a pinch of magic dust in air and chants 'gtzt mar nak semen'", "Shifter", "summon greater spores" },
+                { "Aenarion hops on both legs, flaps his arms and chants 'flzeeeziiiiying nyyyaaa'", "Aenarion", "go" },
+                { "Aenarion hops on one leg, flaps his arms and chants 'xafe ayz xckgandhuzqarr'", "Aenarion", "teleport without error" },
+                { "Aenarion sings 'War is TOTAL massacre, sport the war, war SUPPOORT!!!'", "Aenarion", "war ensemble" },
+                { "Aenarion sings 'Once there were two knights and maidens They'd walk together Out\nin the gardens'", "Aenarion", "melodical embracement" },
+                { "Brog holds Crosier of Angel tightly and exclaims 'sanctus Exzordus'", "Brog", "protection from evil" },
         };
         for (String[] c : casts) {
             Spell spell = (Spell) tm.process(c[0]);
@@ -83,5 +88,11 @@ public class SpellTriggerTest {
             assertEquals(c[2], spell.name, c[0]);
             assertEquals(c[1], spell.getCaster(), c[0]);
         }
+    }
+
+    @Test
+    void testSpellWearingOffIsNotACast() {
+        SpellTriggers tm = new SpellTriggers();
+        assertNull(tm.process("The runic sigla '% !^' fade away.. leaving you feeling strange."));
     }
 }

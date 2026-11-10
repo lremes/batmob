@@ -37,6 +37,8 @@ import java.awt.Font;
 import java.awt.event.ComponentListener;
 import java.awt.event.ActionListener;
 
+import java.util.function.Predicate;
+
 import fi.altanar.batmob.controller.MobEngine;
 import fi.altanar.batmob.io.ISpellListener;
 import fi.altanar.batmob.vo.Mob;
@@ -169,6 +171,15 @@ public class SpellsPanel extends JPanel implements
 
         while (this.listModel.size() > 30) {
             this.listModel.remove(0); // remove oldest entry from view
+        }
+    }
+
+    @Override
+    public void partyCastersFound(Predicate<String> isMember) {
+        for (int i = this.listModel.size() - 1; i >= 0; i--) {
+            if (isMember.test(this.listModel.get(i).getCaster())) {
+                this.listModel.remove(i);
+            }
         }
     }
 }

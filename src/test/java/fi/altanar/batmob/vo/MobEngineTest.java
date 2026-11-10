@@ -37,6 +37,34 @@ public class MobEngineTest {
         return engine.trigger(input);
     }
 
+    @Test
+    void testMapRowsAreNotMobs() {
+        MobEngine engine = new MobEngine(mock(MobPlugin.class), new MobStore(), null);
+        String[] rows = {
+                "vvhhvvvvCff   air. The ground is covered in soft brown h",
+                "vvvvv*ffFFF   some cut branches, like someone regularly",
+                "vvhhvvvvCff  You are walking in an ancient forest enjoyi",
+                "vfffFFFjjjj  is covered with a thick layer of humus. All",
+                "ffffFjjjjjj",
+                "fFFFjjjjjjj",
+                "^vvvf*fFFFF   some cut branches",
+                "#######  An old 9 wide row",
+                "?^*fvyrbh old map",
+                "~~~SSiiiii  A frozen shore",
+                "RRlr~~sx@V  A river delta",
+                "dddbby,,zz",
+                "tttttLLLcc  A cooling lava field" };
+        for (String row : rows) {
+            assertNull(detect(engine, row), row);
+        }
+        assertTrue(engine.getRoomMobs().isEmpty());
+
+        assertEquals("A silver butterfly", detect(engine, "A silver butterfly").getName());
+        assertEquals("tiger leech", detect(engine, "tiger leech").getName());
+        assertEquals("Corneliu the dwarven smith", detect(engine, "Corneliu the dwarven smith").getName());
+        assertEquals(3, engine.getRoomMobs().size());
+    }
+
     private static Mob studied(String shortName, String race) {
         Mob m = new Mob(0, shortName);
         ArrayList<String> names = new ArrayList<String>();
@@ -119,6 +147,69 @@ public class MobEngineTest {
         ArgumentCaptor<Spell> captor = ArgumentCaptor.forClass(Spell.class);
         verify(l, times(1)).spellDetected(captor.capture());
         assertEquals("Baroness", captor.getValue().getCaster());
+    }
+
+    private static final String[] PARTY_LISTING = {
+            ",-----------------------------------------------------------------------------.",
+            "| 1.1  Aenarion       fol 1096(1111)  486( 486) 285(596) |  98 |        13679 |",
+            "| 1.2  Lysander       ldr 1501(1505)  560( 650) 270(415) |  IV |        20465 |",
+            "| 1.3  Night          fol 1307(1320)  688( 727) 408(417) |  IV |        13819 |",
+            "| 2.1  Brog           fol  956( 956) 1287(1573) 305(305) |   V |        13765 |",
+            "| 2.2  Armin          fol  854( 854)  929(1274) 306(306) |  93 |        13411 |",
+            "| 2.3  Suzuki         fol  953( 953) 1155(1300) 274(275) |  91 |        15072 |",
+            "| 3.1  Astrax         fol  874( 890) 1480(1874) 255(255) |   I |        13826 |",
+            "`-----------------------------------------------------------------------------'",
+            "| Night's soul        fol VERY high     full      full   | ??? |              |",
+            "| Lysander's soul    form    full       full      full   | ??? |              |",
+            "`-----------------------------------------------------------------------------'" };
+
+    private static final String[] PARTY_SPELLS = {
+            "Aenarion hops on one leg, flaps his arms and chants 'xafe ayz xckgandhuzqarr'",
+            "Aenarion sings 'War is TOTAL massacre, sport the war, war SUPPOORT!!!'",
+            "Brog holds Crosier of Angel tightly and exclaims 'sanctus Exzordus'" };
+
+    @Test
+    void testRealPartySpellsAreIgnored() {
+        MobEngine engine = new MobEngine(mock(MobPlugin.class), new MobStore(), null);
+        ISpellListener l = mock(ISpellListener.class);
+        engine.addSpellListener(l);
+
+        for (String s : PARTY_LISTING) {
+            line(engine, s);
+        }
+        for (String s : PARTY_SPELLS) {
+            line(engine, s);
+        }
+        verify(l, never()).spellDetected(any(Spell.class));
+    }
+
+    @Test
+    void testListedSpellsOfPartyMembersAreRemoved() {
+        MobEngine engine = new MobEngine(mock(MobPlugin.class), new MobStore(), null);
+        ISpellListener l = mock(ISpellListener.class);
+        engine.addSpellListener(l);
+
+        for (String s : PARTY_LISTING) {
+            line(engine, s);
+        }
+        ArgumentCaptor<java.util.function.Predicate<String>> captor = ArgumentCaptor.forClass(java.util.function.Predicate.class);
+        verify(l).partyCastersFound(captor.capture());
+        assertTrue(captor.getValue().test("Aenarion"));
+        assertTrue(captor.getValue().test("Night's soul"));
+        assertFalse(captor.getValue().test("Hell hound"));
+    }
+
+    @Test
+    void testPartyListingInOneChunk() {
+        MobEngine engine = new MobEngine(mock(MobPlugin.class), new MobStore(), null);
+        ISpellListener l = mock(ISpellListener.class);
+        engine.addSpellListener(l);
+
+        line(engine, String.join("\n", PARTY_LISTING) + "\n");
+        for (String s : PARTY_SPELLS) {
+            line(engine, s);
+        }
+        verify(l, never()).spellDetected(any(Spell.class));
     }
 
     @Test
