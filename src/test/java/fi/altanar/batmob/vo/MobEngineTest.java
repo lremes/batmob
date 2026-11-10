@@ -37,6 +37,34 @@ public class MobEngineTest {
         return engine.trigger(input);
     }
 
+    @Test
+    void testMapRowsAreNotMobs() {
+        MobEngine engine = new MobEngine(mock(MobPlugin.class), new MobStore(), null);
+        String[] rows = {
+                "vvhhvvvvCff   air. The ground is covered in soft brown h",
+                "vvvvv*ffFFF   some cut branches, like someone regularly",
+                "vvhhvvvvCff  You are walking in an ancient forest enjoyi",
+                "vfffFFFjjjj  is covered with a thick layer of humus. All",
+                "ffffFjjjjjj",
+                "fFFFjjjjjjj",
+                "^vvvf*fFFFF   some cut branches",
+                "#######  An old 9 wide row",
+                "?^*fvyrbh old map",
+                "~~~SSiiiii  A frozen shore",
+                "RRlr~~sx@V  A river delta",
+                "dddbby,,zz",
+                "tttttLLLcc  A cooling lava field" };
+        for (String row : rows) {
+            assertNull(detect(engine, row), row);
+        }
+        assertTrue(engine.getRoomMobs().isEmpty());
+
+        assertEquals("A silver butterfly", detect(engine, "A silver butterfly").getName());
+        assertEquals("tiger leech", detect(engine, "tiger leech").getName());
+        assertEquals("Corneliu the dwarven smith", detect(engine, "Corneliu the dwarven smith").getName());
+        assertEquals(3, engine.getRoomMobs().size());
+    }
+
     private static Mob studied(String shortName, String race) {
         Mob m = new Mob(0, shortName);
         ArrayList<String> names = new ArrayList<String>();

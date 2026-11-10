@@ -77,10 +77,16 @@ public class MobEngine implements ItemListener, ComponentListener, ILogger, IMob
             "A virulent"
     };
 
+    // a row of the ascii map shown left of room descriptions: at least 7 map symbols at the line start,
+    // followed by the description or nothing. Map widths vary (9, 11, ...). Terrain symbols as in the
+    // continent .ansi maps, plus white i, * for the player and $ / p / & from older maps. Ordinary words
+    // are rarely made of these letters only.
+    private static final String MAP_ROW = "^[\\Q?^*+$~|\\/.,-=%@&!#\\EbcdfhijlprstvwxyzCFHLRSV]{7,}(\\s|$)";
+
     // public static final Pattern IGNORE_MAPS = Pattern.compile("");
     // public static final Pattern IGNORE_MAPS = Pattern.compile("^\\w{9}\\s");
     public static final Pattern IGNORED_PATTERNS = Pattern.compile(
-            "^[\\Q{<([\\E]+[\\w\\s-]{10}[\\Q>])}\\E]+|^[\\Q<([{\\E]+[\\d\\s]{3}[\\Q>]})\\E]+|^[(\\[][\\d\\s]{3}[])]|^\\[\\d\\d:\\d\\d\\]|^[\\Q?^*+$~|\\/\\Ef#vyrbhHxfzFpd]{9}\\s+");
+            "^[\\Q{<([\\E]+[\\w\\s-]{10}[\\Q>])}\\E]+|^[\\Q<([{\\E]+[\\d\\s]{3}[\\Q>]})\\E]+|^[(\\[][\\d\\s]{3}[])]|^\\[\\d\\d:\\d\\d\\]|" + MAP_ROW);
     // public static final Pattern IGNORE_TITLES =
     // Pattern.compile("^[\\(\\[][\\d\\s]{3}[\\]\\)]");
 
